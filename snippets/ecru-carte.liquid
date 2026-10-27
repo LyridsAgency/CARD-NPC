@@ -3,24 +3,25 @@
 
   Paramètres :
   - id (obligatoire) : identifiant unique
-  - text : marque gravée en haut à gauche (vide : aucune)
-  - holder : nom du titulaire, en bas à gauche
-  - tier : niveau, en bas à droite
-  - color, ink : couleur de la carte et du relief
+  - elements : éléments du recto en JSON (textes, logos, positions de 0 à 1), vide = carte vierge
+  - inlay : 'aucune' pour retirer la fenêtre NFC (présente par défaut)
+  - color, ink : couleur de la carte et du marquage
   - finish : 'metal' ou 'mat'
   - poster : image de secours (image Shopify), sinon rendu par défaut
   - alt : description de la carte
   - avantages : liste séparée par « | » (5 max), affichée avec des flèches au survol
   - toggle_label : libellé du bouton des avantages
   - compact : true pour une scène moins haute (pages produit)
+  - pose : « angle,inclinaison,zoom » pour une vue fixe
+  - auto_open : true pour afficher les avantages dès l'arrivée (ordinateur)
 
   La scène three.js (assets/ecru-carte-3d.js) n'est chargée qu'à l'approche de la carte.
-  Pour mettre à jour la carte en direct : el.dispatchEvent(new CustomEvent('ecru:card-update', { detail: { text, holder, tier, color, ink, finish } }))
+  Mise à jour en direct : el.dispatchEvent(new CustomEvent('ecru:card-update', { detail: { color, ink, finish, elements } }))
+  Point de vue : el.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: 'recto' | 'verso' | 'profil' | 'auto' } }))
 {%- endcomment -%}
 {%- liquid
-  assign text = text | strip | upcase
   assign finish = finish | default: 'metal'
-  assign alt = alt | default: 'Carte ECRU en métal noir.'
+  assign alt = alt | default: 'Carte NFC ECRU en métal noir.'
   assign toggle_label = toggle_label | default: 'Les avantages'
   assign items = avantages | split: '|'
 -%}
@@ -30,16 +31,17 @@
 <div
   id="{{ id }}"
   class="ecru-carte{% if compact %} ecru-carte--compact{% endif %}"
+  {% if auto_open %}data-auto-open{% endif %}
   data-ecru-carte
   data-module="{{ 'ecru-carte-3d.js' | asset_url }}"
   data-font="{{ 'archivo-black.woff2' | asset_url }}"
   data-font-body="{{ 'inter-500.woff2' | asset_url }}"
-  data-text="{{ text | escape }}"
-  data-holder="{{ holder | escape }}"
-  data-tier="{{ tier | escape }}"
+  data-elements="{{ elements | default: '[]' | escape }}"
+  data-inlay="{{ inlay | default: 'carre' }}"
   data-color="{{ color | default: '#0d0d0c' }}"
   data-ink="{{ ink | default: '#e9e4d8' }}"
   data-finish="{{ finish }}"
+  {% if pose %}data-pose="{{ pose }}"{% endif %}
 >
   <div class="ecru-carte__scene">
     <div class="ecru-carte__vue" data-ecru-stage>

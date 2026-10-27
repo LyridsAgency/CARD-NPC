@@ -1,7 +1,8 @@
 {%- comment -%}
   ECRU — Page produit en configurateur : la carte 3D à la place de la photo.
-  - Matière : PVC → rendu mat, Métal → métal lisse et gravé.
-  - Modèle : Noir, Blanc, Couleur sur mesure (palette), Design sur mesure (créateur sur le site).
+  - Matière : PVC (mat) ou Métal (satiné).
+  - Modèle : Noir et Blanc (cartes vierges), Couleur sur mesure (teinte seule),
+    Design sur mesure (éditeur : textes et logo placés librement, couleurs).
   - MOQ par option (Paramètres du thème → ECRU). Le plus grand minimum des options choisies s'applique.
   - Tous les choix partent avec la commande (propriétés de ligne).
 {%- endcomment -%}
@@ -12,13 +13,6 @@
   assign moq_texte = settings.ecru_moq_texte | default: '[À définir]'
   assign lignes_moq = settings.ecru_moq | newline_to_br | split: '<br />'
   assign lignes_couleurs = settings.ecru_couleurs | newline_to_br | split: '<br />'
-
-  assign holder = section.settings.card_holder
-  assign tier = section.settings.card_tier
-  if product.tags contains 'simple'
-    assign holder = ''
-    assign tier = ''
-  endif
 
   assign finish = 'metal'
   assign color = '#0d0d0c'
@@ -35,23 +29,6 @@
       endif
     endfor
   endfor
-  comment
-    Noir et Blanc : cartes vierges, sans écriture. Tout texte ou logo relève du sur-mesure.
-  endcomment
-  assign sur_mesure = false
-  for value in current.options
-    assign v = value | downcase
-    if v contains 'mesure' or v contains 'design' or v contains 'custom'
-      assign sur_mesure = true
-    endif
-  endfor
-  assign texte_depart = ''
-  assign holder_depart = ''
-  assign tier_depart = ''
-  if sur_mesure
-    assign holder_depart = holder
-  endif
-
   assign ink = '#e9e4d8'
   assign c = color | color_brightness
   if c > 150
@@ -59,7 +36,7 @@
   endif
 
   assign palette = 'Noir profond:#0d0d0c|Anthracite:#2b2b2a|Graphite:#4a4a48|Crème:#e9e4d8|Ivoire:#f3efe6|Sable:#cdbb9a|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440|Or:#b8975a|Argent:#c9c8c4|Rose poudré:#d8b4ac' | split: '|'
-  assign palette_relief = 'Crème:#e9e4d8|Noir:#121211|Or:#c2a165|Argent:#c9c8c4' | split: '|'
+  assign palette_marquage = 'Crème:#e9e4d8|Blanc:#f7f5f0|Noir:#121211|Or:#c2a165|Argent:#c9c8c4' | split: '|'
 -%}
 
 <section
@@ -69,17 +46,13 @@
 >
   <div class="ecru-conteneur ecru-produit__grille">
     <div class="ecru-produit__visuel">
-      {%- render 'ecru-carte',
-        id: uid,
-        text: texte_depart,
-        holder: holder_depart,
-        tier: tier_depart,
-        color: color,
-        ink: ink,
-        finish: finish,
-        alt: product.title,
-        compact: true
-      -%}
+      {%- render 'ecru-carte', id: uid, color: color, ink: ink, finish: finish, alt: product.title, compact: true -%}
+      <div class="ecru-vues" role="group" aria-label="Point de vue">
+        <button type="button" class="ecru-vues__btn" data-ecru-vue="recto">Recto</button>
+        <button type="button" class="ecru-vues__btn" data-ecru-vue="verso">Verso</button>
+        <button type="button" class="ecru-vues__btn" data-ecru-vue="profil">Profil</button>
+        <button type="button" class="ecru-vues__btn" data-ecru-vue="auto" aria-pressed="true">Rotation</button>
+      </div>
       <p class="ecru-produit__mention">
         <span data-ecru-legende>{{ current.options | join: ' · ' }}</span>
         · 85,6 × 54 mm · Rendu indicatif
@@ -167,13 +140,6 @@
                   {%- elsif est_matiere -%}
                     <label for="{{ oid }}" class="ecru-matiere-choix">
                       <span class="ecru-matiere-choix__nom">{{ value | escape }}</span>
-                      <span class="ecru-matiere-choix__desc">
-                        {%- if vb contains 'pvc' -%}
-                          Mat, léger
-                        {%- elsif vb contains 'métal' or vb contains 'metal' -%}
-                          Lisse, brillant, gravé
-                        {%- endif -%}
-                      </span>
                     </label>
                   {%- else -%}
                     <label for="{{ oid }}">{{ value | escape }}</label>
@@ -182,91 +148,85 @@
               </div>
 
               {%- if est_couleur -%}
+                <p class="ecru-perso__note" data-ecru-note="standard">Cartes vierges, sans écriture. Pour un texte ou un logo, choisissez Design sur mesure.</p>
+                <p class="ecru-perso__note" data-ecru-note="palette" hidden>La teinte de votre choix, sans écriture. Pour un texte ou un logo, choisissez Design sur mesure.</p>
+
                 {%- comment -%} Couleur sur mesure : palette {%- endcomment -%}
                 <div class="ecru-panneau" data-ecru-panneau="palette" hidden>
                   <p class="ecru-panneau__titre">Teinte de la carte</p>
-                  <div class="ecru-palette" role="radiogroup" aria-label="Teinte de la carte">
-                    {%- for p in palette -%}
-                      {%- assign pp = p | split: ':' -%}
-                      <button type="button" class="ecru-palette__teinte" role="radio" aria-checked="false" style="--teinte: {{ pp[1] }}" data-teinte="{{ pp[1] }}" data-cible="fond-palette" title="{{ pp[0] }}">
-                        <span class="visually-hidden">{{ pp[0] }}</span>
-                      </button>
-                    {%- endfor -%}
-                    <label class="ecru-palette__libre" title="Autre teinte">
-                      <input type="color" value="#5a1a22" data-ecru-libre="fond-palette" aria-label="Autre teinte">
-                      <span aria-hidden="true">+</span>
-                    </label>
-                  </div>
+                  {%- render 'ecru-palette', cible: 'fond-palette', teintes: palette, libre: '#5a1a22', label: 'Teinte de la carte' -%}
                   <input type="hidden" name="properties[Couleur sur mesure]" value="" data-ecru-champ="fond-palette" disabled>
                   <p class="ecru-champ__aide">Teinte choisie : <strong data-ecru-affiche="fond-palette">—</strong>. Nous ajustons la teinte exacte avec vous.</p>
                 </div>
 
-                {%- comment -%} Design sur mesure : le client crée sa carte {%- endcomment -%}
+                {%- comment -%} Design sur mesure : éditeur intégré {%- endcomment -%}
                 <div class="ecru-panneau ecru-createur" data-ecru-panneau="design" hidden>
-                  <p class="ecru-panneau__titre">Créez votre carte</p>
+                  <p class="ecru-panneau__titre">Composez votre carte</p>
+
+                  <div class="ecru-editeur" data-ecru-editeur aria-label="Recto de la carte, à composer" role="group">
+                    <div class="ecru-editeur__nfc" aria-hidden="true"><span>NFC</span></div>
+                    <div class="ecru-editeur__guide ecru-editeur__guide--v" aria-hidden="true"></div>
+                    <div class="ecru-editeur__guide ecru-editeur__guide--h" aria-hidden="true"></div>
+                  </div>
+                  <p class="ecru-champ__aide">Faites glisser les éléments. Au clavier : flèches pour déplacer, Suppr pour retirer.</p>
+
+                  <div class="ecru-editeur__outils">
+                    <button type="button" class="ecru-outil" data-ecru-ajout-texte>+ Texte</button>
+                    <input
+                      id="{{ uid }}-logo"
+                      class="ecru-outil__fichier"
+                      type="file"
+                      name="properties[Logo]"
+                      accept="image/png,image/jpeg,image/svg+xml"
+                      data-ecru-fichier
+                      disabled
+                    >
+                    <label for="{{ uid }}-logo" class="ecru-outil">+ Logo</label>
+                    <span class="ecru-fichier__nom" data-ecru-fichier-nom></span>
+                  </div>
+
+                  <div class="ecru-editeur__reglages" data-ecru-reglages hidden>
+                    <div class="ecru-champ" data-ecru-reglage-texte>
+                      <label for="{{ uid }}-texte">Texte</label>
+                      <input id="{{ uid }}-texte" type="text" maxlength="40" data-ecru-el-texte disabled>
+                    </div>
+                    <div class="ecru-demande__ligne">
+                      <div class="ecru-champ">
+                        <label for="{{ uid }}-taille">Taille</label>
+                        <input id="{{ uid }}-taille" type="range" min="3" max="60" step="1" value="12" data-ecru-el-taille disabled>
+                      </div>
+                      <div class="ecru-champ" data-ecru-reglage-style>
+                        <label for="{{ uid }}-style">Style</label>
+                        <select id="{{ uid }}-style" data-ecru-el-style disabled>
+                          <option value="display">Titre</option>
+                          <option value="body">Texte</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="ecru-editeur__actions">
+                      <button type="button" class="ecru-outil" data-ecru-el-centrer>Centrer</button>
+                      <button type="button" class="ecru-outil" data-ecru-el-supprimer>Retirer</button>
+                    </div>
+                  </div>
 
                   <p class="ecru-champ__titre">Fond</p>
-                  <div class="ecru-palette" role="radiogroup" aria-label="Couleur du fond">
-                    {%- for p in palette -%}
-                      {%- assign pp = p | split: ':' -%}
-                      <button type="button" class="ecru-palette__teinte" role="radio" aria-checked="false" style="--teinte: {{ pp[1] }}" data-teinte="{{ pp[1] }}" data-cible="fond" title="{{ pp[0] }}">
-                        <span class="visually-hidden">{{ pp[0] }}</span>
-                      </button>
-                    {%- endfor -%}
-                    <label class="ecru-palette__libre" title="Autre teinte">
-                      <input type="color" value="#1b2440" data-ecru-libre="fond" aria-label="Autre couleur de fond">
-                      <span aria-hidden="true">+</span>
-                    </label>
-                  </div>
+                  {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur du fond' -%}
                   <input type="hidden" name="properties[Fond]" value="#0d0d0c" data-ecru-champ="fond" disabled>
 
-                  <p class="ecru-champ__titre">Texte et logo</p>
-                  <div class="ecru-palette" role="radiogroup" aria-label="Couleur du texte et du logo">
-                    {%- for p in palette_relief -%}
-                      {%- assign pp = p | split: ':' -%}
-                      <button type="button" class="ecru-palette__teinte" role="radio" aria-checked="false" style="--teinte: {{ pp[1] }}" data-teinte="{{ pp[1] }}" data-cible="relief" title="{{ pp[0] }}">
-                        <span class="visually-hidden">{{ pp[0] }}</span>
-                      </button>
-                    {%- endfor -%}
-                    <label class="ecru-palette__libre" title="Autre teinte">
-                      <input type="color" value="#c2a165" data-ecru-libre="relief" aria-label="Autre couleur de texte">
-                      <span aria-hidden="true">+</span>
-                    </label>
-                  </div>
-                  <input type="hidden" name="properties[Texte et logo]" value="#e9e4d8" data-ecru-champ="relief" disabled>
+                  <p class="ecru-champ__titre">Marquage</p>
+                  {%- render 'ecru-palette', cible: 'relief', teintes: palette_marquage, libre: '#c2a165', label: 'Couleur du texte et du logo' -%}
+                  <input type="hidden" name="properties[Marquage]" value="#e9e4d8" data-ecru-champ="relief" disabled>
 
-                  <div class="ecru-champ">
-                    <label for="{{ uid }}-marque">Votre marque</label>
-                    <input id="{{ uid }}-marque" type="text" name="properties[Marque]" maxlength="18" placeholder="Votre marque" data-ecru-texte="text" disabled>
-                  </div>
-                  <div class="ecru-demande__ligne">
-                    <div class="ecru-champ">
-                      <label for="{{ uid }}-ligne2">Ligne du bas</label>
-                      <input id="{{ uid }}-ligne2" type="text" name="properties[Ligne du bas]" maxlength="26" placeholder="Prénom Nom" data-ecru-texte="holder" disabled>
-                    </div>
-                    <div class="ecru-champ">
-                      <label for="{{ uid }}-ligne3">Mention</label>
-                      <input id="{{ uid }}-ligne3" type="text" name="properties[Mention]" maxlength="18" placeholder="Privilège" data-ecru-texte="tier" disabled>
-                    </div>
-                  </div>
-                  <fieldset class="ecru-champ ecru-position">
-                    <legend class="ecru-champ__titre">Position du logo</legend>
-                    <input type="radio" id="{{ uid }}-pos-haut" name="properties[Position du logo]" value="En haut à gauche" data-pos="haut" checked disabled>
-                    <label for="{{ uid }}-pos-haut">En haut à gauche</label>
-                    <input type="radio" id="{{ uid }}-pos-centre" name="properties[Position du logo]" value="Au centre" data-pos="centre" disabled>
-                    <label for="{{ uid }}-pos-centre">Au centre</label>
-                  </fieldset>
-                  <p class="ecru-champ__aide">Ajoutez votre logo plus bas : il s'affiche sur la carte.</p>
+                  <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette disabled>
+                  <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json disabled>
                 </div>
               {%- endif -%}
 
-              {%- if est_couleur or est_matiere -%}
-                {%- if forloop.last -%}
-                  <p class="ecru-option__aide">
-                    Minimum de commande :
-                    <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
-                  </p>
-                {%- endif -%}
+              {%- if forloop.last -%}
+                <p class="ecru-option__aide">
+                  Minimum de commande :
+                  <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
+                </p>
               {%- endif -%}
             </fieldset>
           {%- endfor -%}
@@ -277,51 +237,18 @@
           <fieldset class="ecru-option ecru-perso">
             <legend>
               <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
-              Personnalisation
+              Précisions
             </legend>
-            <p class="ecru-perso__note" data-ecru-note-standard>
-              Noir et blanc : cartes vierges, sans écriture.
-              Pour un nom, un texte ou un logo, choisissez Couleur ou Design sur mesure (minimum 100 cartes).
-            </p>
             {%- if product.tags contains 'simple' -%}
               <div class="ecru-champ">
                 <label for="{{ uid }}-lien">Lien à ouvrir</label>
                 <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
-                <p class="ecru-champ__aide">La page qui s'ouvre quand on approche la carte du téléphone. Modifiable ensuite.</p>
+                <p class="ecru-champ__aide">La page qui s'ouvre quand on approche la carte du téléphone.</p>
               </div>
             {%- endif -%}
-            <div class="ecru-champ" data-ecru-nom-bloc>
-              <label for="{{ uid }}-nom">Nom gravé sur la carte</label>
-              <input
-                id="{{ uid }}-nom"
-                type="text"
-                name="properties[Nom gravé]"
-                maxlength="26"
-                placeholder="Prénom Nom"
-                autocomplete="off"
-                data-ecru-nom
-              >
-              <p class="ecru-champ__aide">Facultatif. S'affiche sur la carte.</p>
-            </div>
-            <div class="ecru-champ" data-ecru-logo-bloc>
-              <span class="ecru-champ__titre" id="{{ uid }}-logo-titre">Votre logo</span>
-              <div class="ecru-fichier">
-                <input
-                  id="{{ uid }}-logo"
-                  type="file"
-                  name="properties[Logo]"
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  aria-labelledby="{{ uid }}-logo-titre"
-                  data-ecru-fichier
-                >
-                <label for="{{ uid }}-logo" class="ecru-fichier__bouton">Choisir un fichier</label>
-                <span class="ecru-fichier__nom" data-ecru-fichier-nom>Aucun fichier</span>
-              </div>
-              <p class="ecru-champ__aide">Facultatif. PNG, JPG ou SVG. Un logo sur fond transparent donne le meilleur rendu.</p>
-            </div>
             <div class="ecru-champ">
               <label for="{{ uid }}-demande">Votre demande</label>
-              <textarea id="{{ uid }}-demande" name="properties[Demande]" rows="3" placeholder="Précisions, quantité par nom…"></textarea>
+              <textarea id="{{ uid }}-demande" name="properties[Demande]" rows="3" placeholder="Une précision sur votre commande…"></textarea>
             </div>
           </fieldset>
         {%- endif -%}
@@ -399,273 +326,13 @@
           {%- endif -%}
         {%- endfor -%}
       },
-      "carte": { "text": {{ section.settings.card_text | json }}, "holder": {{ holder | json }}, "tier": {{ tier | json }} },
       "moqTexte": {{ moq_texte | json }},
       "ajout": {{ section.settings.add_label | json }}
     }
   </script>
 </section>
 
-<script>
-  (function () {
-    var root = document.currentScript.previousElementSibling;
-    var form = root.querySelector('[data-ecru-form]');
-    if (!form) return;
-    var data = JSON.parse(root.querySelector('[data-ecru-donnees]').textContent);
-    var variants = data.variants;
-    var input = form.querySelector('[data-ecru-variant]');
-    var bouton = form.querySelector('[data-ecru-ajout]');
-    var statut = form.querySelector('[data-ecru-statut]');
-    var quantite = form.querySelector('[data-ecru-quantite]');
-    var moqEl = form.querySelector('[data-ecru-moq]');
-    var nom = form.querySelector('[data-ecru-nom]');
-    var legende = root.querySelector('[data-ecru-legende]');
-    var carte = root.querySelector('[data-ecru-carte]');
-    var minimum = 1;
-    var logoUrl = '';
-    // Choix du créateur (fond, relief, palette)
-    var choixCouleur = { 'fond-palette': '', fond: '#0d0d0c', relief: '#e9e4d8' };
-
-    function bas(v) {
-      return String(v || '').trim().toLowerCase();
-    }
-    function choix() {
-      var sel = [];
-      form.querySelectorAll('input[type=radio][data-position]:checked').forEach(function (r) {
-        sel[r.dataset.position - 1] = r.value;
-      });
-      return sel;
-    }
-    function clarte(hex) {
-      var h = String(hex || '#000').replace('#', '');
-      if (h.length === 3) h = h.replace(/(.)/g, '$1$1');
-      var n = parseInt(h, 16) || 0;
-      return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
-    }
-    function inkPour(color) {
-      return clarte(color) > 150 ? '#121211' : '#e9e4d8';
-    }
-    function mode(options) {
-      var m = 'standard';
-      options.forEach(function (o) {
-        var v = bas(o);
-        if (v.indexOf('design') !== -1) m = 'design';
-        else if (v.indexOf('mesure') !== -1 || v.indexOf('custom') !== -1 || v.indexOf('personnal') !== -1) m = 'palette';
-      });
-      return m;
-    }
-
-    // Apparence complète de la carte d'après les choix
-    function apparence(options) {
-      var finish = 'metal';
-      var color = '#0d0d0c';
-      options.forEach(function (o) {
-        var v = bas(o);
-        if (v.indexOf('pvc') !== -1) finish = 'mat';
-        if (data.couleurs[v]) color = data.couleurs[v];
-      });
-      var m = mode(options);
-      var look = { finish: finish, logo: logoUrl, logoPos: 'haut', label: 'Membre', text: data.carte.text, holder: data.carte.holder, tier: data.carte.tier };
-      if (m === 'standard') {
-        // Carte vierge : aucune écriture
-        look.text = '';
-        look.holder = '';
-        look.tier = '';
-        look.logo = '';
-      }
-      if (m === 'palette') {
-        color = choixCouleur['fond-palette'] || '#5a1a22';
-        look.text = '';
-        look.tier = '';
-        look.label = '';
-        look.holder = nom ? nom.value.trim() : '';
-      }
-      if (m === 'design') {
-        color = choixCouleur.fond;
-        look.ink = choixCouleur.relief;
-        look.label = '';
-        form.querySelectorAll('[data-ecru-texte]').forEach(function (f) {
-          var val = f.value.trim();
-          if (f.dataset.ecruTexte === 'text' && !val) val = logoUrl ? '' : 'VOTRE MARQUE';
-          look[f.dataset.ecruTexte] = val;
-        });
-        var pos = form.querySelector('[data-pos]:checked');
-        look.logoPos = pos ? pos.dataset.pos : 'haut';
-      } else {
-        look.ink = inkPour(color);
-      }
-      look.color = color;
-      return look;
-    }
-
-    // Panneaux sur mesure : affichés et envoyés seulement si le modèle correspondant est choisi
-    function panneaux(m) {
-      form.querySelectorAll('[data-ecru-panneau]').forEach(function (p) {
-        var actif = p.dataset.ecruPanneau === m;
-        p.hidden = !actif;
-        p.querySelectorAll('input').forEach(function (f) {
-          if (f.type !== 'color') f.disabled = !actif;
-        });
-      });
-      // Nom : couleur sur mesure seulement (le créateur a ses propres lignes). Logo : tout le sur-mesure.
-      var montrer = { '[data-ecru-nom-bloc]': m === 'palette', '[data-ecru-logo-bloc]': m !== 'standard', '[data-ecru-note-standard]': m === 'standard' };
-      Object.keys(montrer).forEach(function (sel) {
-        var bloc = form.querySelector(sel);
-        if (!bloc) return;
-        bloc.hidden = !montrer[sel];
-        bloc.querySelectorAll('input').forEach(function (f) {
-          f.disabled = !montrer[sel];
-        });
-      });
-    }
-
-    function majMoq(options) {
-      minimum = 1;
-      var defini = false;
-      options.forEach(function (o) {
-        var q = data.moq[bas(o)];
-        if (q > 0) {
-          minimum = Math.max(minimum, q);
-          defini = true;
-        }
-      });
-      if (moqEl) moqEl.textContent = defini ? minimum + ' cartes' : data.moqTexte;
-      quantite.min = minimum;
-      if ((parseInt(quantite.value, 10) || 0) < minimum) quantite.value = minimum;
-    }
-
-    function rendre(present) {
-      if (!carte) return;
-      var look = apparence(choix());
-      look.present = !!present;
-      carte.dispatchEvent(new CustomEvent('ecru:card-update', { detail: look }));
-    }
-
-    function maj() {
-      var sel = choix();
-      var v = variants.find(function (x) {
-        return x.options.every(function (o, i) {
-          return sel[i] === undefined || sel[i] === o;
-        });
-      });
-      form.querySelectorAll('input[type=radio][data-position]').forEach(function (r) {
-        var pos = r.dataset.position - 1;
-        var possible = variants.some(function (x) {
-          return (
-            x.available &&
-            x.options[pos] === r.value &&
-            x.options.every(function (o, i) {
-              return i === pos || sel[i] === undefined || sel[i] === o;
-            })
-          );
-        });
-        r.disabled = !possible && !r.checked;
-      });
-      form.querySelectorAll('[data-ecru-valeur]').forEach(function (el) {
-        el.textContent = sel[el.dataset.ecruValeur - 1] || '';
-      });
-      if (legende) legende.textContent = sel.filter(Boolean).join(' · ');
-
-      panneaux(mode(sel));
-      majMoq(sel);
-
-      if (!v) {
-        bouton.disabled = true;
-        bouton.textContent = 'Indisponible';
-        statut.textContent = 'Cette combinaison n’existe pas.';
-        return;
-      }
-      input.value = v.id;
-      bouton.disabled = !v.available;
-      bouton.textContent = v.available ? data.ajout : 'Indisponible';
-      statut.textContent = '';
-      var url = new URL(window.location.href);
-      url.searchParams.set('variant', v.id);
-      window.history.replaceState({}, '', url.toString());
-    }
-
-    // Palette : choix d'une teinte (bouton) ou d'une teinte libre (sélecteur)
-    function choisirTeinte(cible, teinte) {
-      choixCouleur[cible] = teinte;
-      var champ = form.querySelector('[data-ecru-champ="' + cible + '"]');
-      if (champ) champ.value = teinte;
-      var affiche = form.querySelector('[data-ecru-affiche="' + cible + '"]');
-      if (affiche) {
-        var b = form.querySelector('[data-cible="' + cible + '"][data-teinte="' + teinte + '"]');
-        affiche.textContent = (b ? b.title + ' ' : '') + teinte.toUpperCase();
-      }
-      form.querySelectorAll('[data-cible="' + cible + '"]').forEach(function (b) {
-        b.setAttribute('aria-checked', b.dataset.teinte === teinte ? 'true' : 'false');
-      });
-      rendre(true);
-    }
-    form.querySelectorAll('[data-cible]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        choisirTeinte(b.dataset.cible, b.dataset.teinte);
-      });
-    });
-    form.querySelectorAll('[data-ecru-libre]').forEach(function (c) {
-      c.addEventListener('input', function () {
-        choisirTeinte(c.dataset.ecruLibre, c.value);
-      });
-    });
-    form.querySelectorAll('[data-ecru-texte]').forEach(function (f) {
-      f.addEventListener('input', function () {
-        rendre(false);
-      });
-    });
-
-    form.addEventListener('change', function (e) {
-      if (e.target.dataset.position) {
-        maj();
-        rendre(true);
-      }
-      if (e.target.dataset.pos) rendre(true);
-      if (e.target === quantite && (parseInt(quantite.value, 10) || 0) < minimum) {
-        quantite.value = minimum;
-        statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
-      }
-    });
-    form.querySelectorAll('[data-ecru-qte]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        quantite.value = Math.max(minimum, (parseInt(quantite.value, 10) || minimum) + parseInt(b.dataset.ecruQte, 10));
-      });
-    });
-    var fichier = form.querySelector('[data-ecru-fichier]');
-    if (fichier) {
-      fichier.addEventListener('change', function () {
-        var f = fichier.files && fichier.files[0];
-        form.querySelector('[data-ecru-fichier-nom]').textContent = f ? f.name : 'Aucun fichier';
-        if (logoUrl) URL.revokeObjectURL(logoUrl);
-        logoUrl = f && /^image\//.test(f.type) ? URL.createObjectURL(f) : '';
-        rendre(true);
-      });
-    }
-    if (nom) {
-      nom.addEventListener('input', function () {
-        rendre(false);
-      });
-    }
-    form.addEventListener('submit', function (e) {
-      if ((parseInt(quantite.value, 10) || 0) < minimum) {
-        e.preventDefault();
-        quantite.value = minimum;
-        statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
-        return;
-      }
-      if (mode(choix()) === 'palette' && !choixCouleur['fond-palette']) {
-        e.preventDefault();
-        statut.textContent = 'Choisissez une teinte dans la palette.';
-      }
-    });
-
-    form.querySelectorAll('[data-cible="fond"][data-teinte="#0d0d0c"], [data-cible="relief"][data-teinte="#e9e4d8"]').forEach(function (b) {
-      b.setAttribute('aria-checked', 'true');
-    });
-    maj();
-    if (mode(choix()) !== 'standard') rendre(false);
-  })();
-</script>
+<script src="{{ 'ecru-configurateur.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
@@ -673,12 +340,8 @@
   "tag": "div",
   "class": "section-ecru-produit",
   "settings": [
-    { "type": "header", "content": "Carte" },
-    { "type": "text", "id": "card_text", "label": "Marque gravée", "default": "ECRU" },
-    { "type": "text", "id": "card_holder", "label": "Nom du titulaire (exemple)", "default": "Prénom Nom", "info": "Masqué automatiquement pour les produits marqués « simple »." },
-    { "type": "text", "id": "card_tier", "label": "Niveau", "default": "Privilège" },
     { "type": "header", "content": "Commande" },
-    { "type": "checkbox", "id": "show_perso", "label": "Afficher la personnalisation (nom, logo, demande)", "default": true },
+    { "type": "checkbox", "id": "show_perso", "label": "Afficher les précisions (lien, demande)", "default": true },
     { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
     { "type": "text", "id": "contact_label", "label": "Demande particulière", "default": "Demande particulière" },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 48 },

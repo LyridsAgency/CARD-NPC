@@ -1,0 +1,26 @@
+{%- comment -%} ECRU — Bandeau qui défile lentement (s'arrête si « réduire les animations »). {%- endcomment -%}
+{%- assign mots = section.settings.mots | split: ',' -%}
+<section class="ecru-defilement" aria-label="{{ section.settings.label | escape }}">
+  <div class="ecru-defilement__piste" style="--duree: {{ section.settings.duree }}s;">
+    {%- for tour in (1..2) -%}
+      <ul class="ecru-defilement__liste" role="list" {% if forloop.index == 2 %}aria-hidden="true"{% endif %}>
+        {%- for m in mots -%}
+          <li>{{ m | strip | escape }}</li>
+        {%- endfor -%}
+      </ul>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Bandeau défilant ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "mots", "label": "Mots (séparés par des virgules)", "default": "Restaurants, Salons, Boutiques, Clubs, Festivals, Hôtels, Cafés, Événements, Instituts" },
+    { "type": "text", "id": "label", "label": "Description (accessibilité)", "default": "Pour qui" },
+    { "type": "range", "id": "duree", "label": "Durée d'un tour", "min": 20, "max": 90, "step": 5, "unit": "s", "default": 45 }
+  ],
+  "presets": [{ "name": "Bandeau défilant ECRU" }]
+}
+{% endschema %}

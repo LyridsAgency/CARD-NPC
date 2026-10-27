@@ -11,38 +11,38 @@
         "button_link": "shopify://collections/cartes",
         "padding_top": 56,
         "padding_bottom": 56,
-        "card_holder": "Prénom Nom",
-        "card_tier": "Privilège"
+        "card_text": "ECRU",
+        "auto_open": true
       },
       "blocks": {
         "avantage_1": {
           "type": "avantage",
           "settings": {
-            "text": "Ils reviennent d'eux-mêmes"
+            "text": "Un geste, sans application"
           }
         },
         "avantage_2": {
           "type": "avantage",
           "settings": {
-            "text": "Gravée à leur nom"
+            "text": "À vos couleurs"
           }
         },
         "avantage_3": {
           "type": "avantage",
           "settings": {
-            "text": "Un geste, sans application"
+            "text": "Votre logo, où vous voulez"
           }
         },
         "avantage_4": {
           "type": "avantage",
           "settings": {
-            "text": "Récompenses à la carte"
+            "text": "PVC ou métal"
           }
         },
         "avantage_5": {
           "type": "avantage",
           "settings": {
-            "text": "Vos chiffres chaque mois"
+            "text": "Format carte bancaire"
           }
         }
       },
@@ -144,7 +144,7 @@
             "title": "Cartes simples",
             "text": "Une carte noire ou blanche. Un geste, un lien : votre site, votre menu, vos avis, vos réseaux.",
             "price_note": "Paiement unique",
-            "features": "Noir ou blanc\nUn lien au choix, modifiable\nPVC ou métal\nSans application",
+            "features": "Noir, blanc ou sur mesure\nUn lien au choix\nPVC ou métal\nSans application",
             "button_label": "Choisir Cartes simples",
             "product": "cartes-simples"
           }
@@ -165,8 +165,8 @@
           "type": "matiere",
           "settings": {
             "title": "PVC",
-            "text": "Léger, mat, net. L'essentiel, bien fait.",
-            "details": "Format carte bancaire, 85,6 × 54 mm\nToucher doux et mat\nNoir ou blanc\nIdéal pour la fidélité au quotidien",
+            "text": "Léger et résistant. L'essentiel, bien fait.",
+            "details": "Format carte bancaire, 85,6 × 54 mm\nNoir, blanc ou sur mesure",
             "visual": "pvc"
           }
         },
@@ -174,8 +174,8 @@
           "type": "matiere",
           "settings": {
             "title": "Métal",
-            "text": "Lourd en main, lisse, brillant. Celle qu'on ne range jamais.",
-            "details": "Format carte bancaire, 85,6 × 54 mm\nReflets profonds\nNoir ou blanc\nIdéal pour marquer les esprits",
+            "text": "Plus de poids, plus de présence.",
+            "details": "Format carte bancaire, 85,6 × 54 mm\nNoir, blanc ou sur mesure",
             "visual": "metal"
           }
         }
@@ -187,66 +187,130 @@
     },
     "faq": {
       "type": "ecru-faq",
-      "settings": {},
+      "settings": {
+        "heading": "Simple, vraiment.",
+        "contact_label": "Une autre question"
+      },
       "blocks": {
-        "question_1": {
+        "b1": {
+          "type": "groupe",
+          "settings": {
+            "title": "La carte"
+          }
+        },
+        "b2": {
           "type": "question",
           "settings": {
             "question": "Mes clients doivent-ils installer une application ?",
             "answer": "<p>Non. Ils approchent la carte de leur téléphone et la page s'ouvre. C'est tout.</p>"
           }
         },
-        "question_2": {
+        "b3": {
           "type": "question",
           "settings": {
-            "question": "Quelle différence entre Fidélité et Cartes simples ?",
-            "answer": "<p>Fidélité, c'est le programme complet : cartes, récompenses, suivi et rapport mensuel, avec un abonnement. Cartes simples, c'est une carte noire ou blanche qui ouvre le lien de votre choix.</p>"
+            "question": "Quels téléphones peuvent la lire ?",
+            "answer": "<p>La plupart des smartphones récents lisent le NFC. Sur certains modèles Android, il faut que le NFC soit activé dans les réglages.</p>"
           }
         },
-        "question_3": {
+        "b4": {
           "type": "question",
           "settings": {
-            "question": "Puis-je changer les récompenses ?",
-            "answer": "<p>Oui, quand vous voulez. Vos cartes restent les mêmes.</p>"
+            "question": "La carte a-t-elle une batterie ?",
+            "answer": "<p>Non. La puce NFC est passive : elle fonctionne sans batterie ni recharge.</p>"
           }
         },
-        "question_4": {
-          "type": "question",
-          "settings": {
-            "question": "La carte peut-elle porter mon logo ?",
-            "answer": "<p>Oui. Choisissez « Design sur mesure » : couleurs, textes et logo, vous créez votre carte directement sur le site.</p>"
-          }
-        },
-        "question_5": {
-          "type": "question",
-          "settings": {
-            "question": "Quelle matière choisir ?",
-            "answer": "<p>Le PVC pour l'essentiel, le métal pour marquer les esprits. Les deux fonctionnent de la même façon.</p>"
-          }
-        },
-        "question_6": {
-          "type": "question",
-          "settings": {
-            "question": "J'ai une demande particulière.",
-            "answer": "<p>Événement, grande quantité, design complet : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>, nous étudions chaque demande.</p>"
-          }
-        },
-        "question_taille": {
+        "b5": {
           "type": "question",
           "settings": {
             "question": "Quelle taille font les cartes ?",
             "answer": "<p>Le format carte bancaire : 85,6 × 54 mm. Elle se glisse dans tous les portefeuilles.</p>"
           }
+        },
+        "b6": {
+          "type": "question",
+          "settings": {
+            "question": "Quelle matière choisir ?",
+            "answer": "<p>Le PVC pour l'essentiel, le métal pour plus de présence. Les deux fonctionnent de la même façon.</p>"
+          }
+        },
+        "b7": {
+          "type": "groupe",
+          "settings": {
+            "title": "Personnalisation"
+          }
+        },
+        "b8": {
+          "type": "question",
+          "settings": {
+            "question": "Puis-je avoir ma couleur, mon logo, mon nom ?",
+            "answer": "<p>Oui. Choisissez « Couleur sur mesure » pour la teinte seule, ou « Design sur mesure » pour composer votre carte sur le site : couleurs, textes et logo, placés où vous voulez.</p>"
+          }
+        },
+        "b9": {
+          "type": "question",
+          "settings": {
+            "question": "Les cartes noires et blanches portent-elles une inscription ?",
+            "answer": "<p>Non, elles sont vierges. Toute inscription (nom, texte, logo) relève du sur-mesure.</p>"
+          }
+        },
+        "b10": {
+          "type": "question",
+          "settings": {
+            "question": "Que peut ouvrir la carte ?",
+            "answer": "<p>Le lien de votre choix : votre site, votre menu, vos avis, vos réseaux, une billetterie, ou votre programme de fidélité avec l'offre Fidélité.</p>"
+          }
+        },
+        "b11": {
+          "type": "groupe",
+          "settings": {
+            "title": "Commande"
+          }
+        },
+        "b12": {
+          "type": "question",
+          "settings": {
+            "question": "Y a-t-il un minimum de commande ?",
+            "answer": "<p>Oui : 10 cartes pour le noir et le blanc sans écriture, 100 cartes pour la couleur et le design sur mesure.</p>"
+          }
+        },
+        "b13": {
+          "type": "question",
+          "settings": {
+            "question": "Quelle différence entre Fidélité et Cartes simples ?",
+            "answer": "<p>Fidélité, c'est le programme complet : cartes, récompenses, suivi et rapport mensuel, avec un abonnement. Cartes simples, c'est une carte qui ouvre le lien de votre choix.</p>"
+          }
+        },
+        "b14": {
+          "type": "question",
+          "settings": {
+            "question": "Puis-je changer les récompenses ?",
+            "answer": "<p>Oui, avec l'offre Fidélité, quand vous voulez.</p>"
+          }
+        },
+        "b15": {
+          "type": "question",
+          "settings": {
+            "question": "J'ai une demande particulière.",
+            "answer": "<p>Événement, grande quantité, finition à part : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>, nous étudions chaque demande.</p>"
+          }
         }
       },
       "block_order": [
-        "question_1",
-        "question_2",
-        "question_3",
-        "question_4",
-        "question_5",
-        "question_taille",
-        "question_6"
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "b7",
+        "b8",
+        "b9",
+        "b10",
+        "b11",
+        "b12",
+        "b13",
+        "b14",
+        "b15"
       ]
     },
     "appel": {
@@ -254,11 +318,154 @@
       "settings": {
         "button_link": "shopify://collections/cartes"
       }
+    },
+    "defilement": {
+      "type": "ecru-defilement",
+      "settings": {}
+    },
+    "usages": {
+      "type": "ecru-usages",
+      "settings": {},
+      "blocks": {
+        "usage_1": {
+          "type": "usage",
+          "settings": {
+            "icone": "menu",
+            "title": "Le menu",
+            "text": "Toujours à jour, sans papier.",
+            "pour": "Restaurants, cafés, bars"
+          }
+        },
+        "usage_2": {
+          "type": "usage",
+          "settings": {
+            "icone": "avis",
+            "title": "Vos avis",
+            "text": "Un geste, et le client laisse son avis.",
+            "pour": "Commerces, salons"
+          }
+        },
+        "usage_3": {
+          "type": "usage",
+          "settings": {
+            "icone": "reseaux",
+            "title": "Vos réseaux",
+            "text": "On vous suit en une seconde.",
+            "pour": "Boutiques, créateurs"
+          }
+        },
+        "usage_4": {
+          "type": "usage",
+          "settings": {
+            "icone": "fidelite",
+            "title": "La fidélité",
+            "text": "Ils cumulent, vous récompensez.",
+            "pour": "Avec l'offre Fidélité"
+          }
+        },
+        "usage_5": {
+          "type": "usage",
+          "settings": {
+            "icone": "billet",
+            "title": "Billetterie et accès",
+            "text": "Entrées, programme, infos pratiques.",
+            "pour": "Festivals, soirées"
+          }
+        },
+        "usage_6": {
+          "type": "usage",
+          "settings": {
+            "icone": "contact",
+            "title": "Carte de visite",
+            "text": "Vos coordonnées, enregistrées d'un geste.",
+            "pour": "Indépendants, équipes"
+          }
+        },
+        "usage_7": {
+          "type": "usage",
+          "settings": {
+            "icone": "wifi",
+            "title": "Accueil et infos",
+            "text": "Votre page d'accueil, vos infos pratiques.",
+            "pour": "Hôtels, lieux, événements"
+          }
+        },
+        "usage_8": {
+          "type": "usage",
+          "settings": {
+            "icone": "lien",
+            "title": "Votre site",
+            "text": "N'importe quel lien, tout simplement.",
+            "pour": "Tout le monde"
+          }
+        }
+      },
+      "block_order": [
+        "usage_1",
+        "usage_2",
+        "usage_3",
+        "usage_4",
+        "usage_5",
+        "usage_6",
+        "usage_7",
+        "usage_8"
+      ]
+    },
+    "vues": {
+      "type": "ecru-vues",
+      "settings": {},
+      "blocks": {
+        "vue_1": {
+          "type": "vue",
+          "settings": {
+            "rendu": "recto",
+            "title": "Recto",
+            "text": "La fenêtre NFC, par où passe le signal.",
+            "alt": "Recto de la carte ECRU en métal noir, avec sa fenêtre NFC"
+          }
+        },
+        "vue_2": {
+          "type": "vue",
+          "settings": {
+            "rendu": "verso",
+            "title": "Verso",
+            "text": "Le symbole sans contact, discret.",
+            "alt": "Verso de la carte ECRU avec le symbole sans contact"
+          }
+        },
+        "vue_3": {
+          "type": "vue",
+          "settings": {
+            "rendu": "profil",
+            "title": "Profil",
+            "text": "Format carte bancaire, 85,6 × 54 mm.",
+            "alt": "Carte ECRU vue de profil"
+          }
+        },
+        "vue_4": {
+          "type": "vue",
+          "settings": {
+            "rendu": "sur-mesure",
+            "title": "Sur mesure",
+            "text": "Votre couleur, votre nom, votre logo.",
+            "alt": "Exemple de carte ECRU sur mesure, bordeaux avec un nom en doré"
+          }
+        }
+      },
+      "block_order": [
+        "vue_1",
+        "vue_2",
+        "vue_3",
+        "vue_4"
+      ]
     }
   },
   "order": [
     "hero",
+    "defilement",
     "avantages",
+    "usages",
+    "vues",
     "etapes",
     "offres",
     "matieres",

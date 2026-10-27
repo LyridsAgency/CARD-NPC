@@ -87,7 +87,59 @@ export async function serve(name, overrides) {
 const [, , mode = 'shots', name = 'ecru-carte-3d'] = process.argv;
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 
-if (mode === 'rendus') {
+if (mode === 'vues') {
+  // Points de vue de l'accueil : poses fixes, enregistrées dans assets/ (webp)
+  const vues = [
+    { nom: 'recto', pose: '-0.42,0.04,1.05', color: '#0d0d0c', finish: 'metal', elements: [] },
+    { nom: 'verso', pose: '3.55,0.02,1.05', color: '#0d0d0c', finish: 'metal', elements: [] },
+    { nom: 'profil', pose: '1.2,0.1,1.0', color: '#0d0d0c', finish: 'metal', elements: [] },
+    {
+      nom: 'sur-mesure',
+      pose: '-0.3,0.03,1.05',
+      color: '#5a1a22',
+      ink: '#c2a165',
+      finish: 'metal',
+      elements: [
+        { t: 'text', v: 'Maison Lune', x: 0.5, y: 0.5, s: 0.11, f: 'display', a: 'center' },
+        { t: 'text', v: 'Restaurant · Paris', x: 0.5, y: 0.66, s: 0.045, f: 'body', a: 'center' },
+      ],
+    },
+  ];
+  const { server, url } = await serve(name);
+  for (const v of vues) {
+    const p = await browser.newPage({ viewport: { width: 1600, height: 1200 }, deviceScaleFactor: 1 });
+    await p.addInitScript((v) => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const el = document.querySelector('[data-ecru-carte]');
+        el.dataset.pose = v.pose;
+        el.dataset.color = v.color;
+        el.dataset.ink = v.ink || '#e9e4d8';
+        el.dataset.finish = v.finish;
+        el.dataset.elements = JSON.stringify(v.elements);
+        el.removeAttribute('data-auto-open');
+      });
+    }, v);
+    await p.goto(url);
+    await p.addStyleTag({ content: '.ecru-section{padding:0!important}.ecru-carte__vue{height:1200px!important}.ecru-carte__bascule,.ecru-carte__avantages,.ecru-carte__fleches,.ecru-hero__texte,.ecru-hero__actions{display:none!important}' });
+    await p.waitForSelector('.ecru-carte.is-ready', { timeout: 90000 });
+    await p.waitForTimeout(1200);
+    const png = await p.locator('.ecru-carte__vue').screenshot();
+    const webp = await p.evaluate(async (b64) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${b64}`;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0);
+      return c.toDataURL('image/webp', 0.84).split(',')[1];
+    }, png.toString('base64'));
+    await writeFile(join(ROOT, 'assets', `ecru-vue-${v.nom}.webp`), Buffer.from(webp, 'base64'));
+    console.log(`assets/ecru-vue-${v.nom}.webp`);
+    await p.close();
+  }
+  server.close();
+} else if (mode === 'rendus') {
   // Images produits : une par matière × couleur, fond noir, carré 1600 px
   const out = process.env.OUT || ROOT;
   const finishes = { pvc: 'mat', metal: 'metal' };
@@ -96,7 +148,7 @@ if (mode === 'rendus') {
   for (const [prod, extra] of Object.entries(produits)) {
     for (const [mat, finish] of Object.entries(finishes)) {
       for (const [coul, [color, ink]] of Object.entries(couleurs)) {
-        const { server, url } = await serve(name, { ...extra, card_color: color, ink_color: ink, finish });
+        const { server, url } = await serve(name, { ...extra, card_color: color, ink_color: ink, finish, auto_open: false });
         const p = await browser.newPage({ viewport: { width: 1600, height: 1600 }, deviceScaleFactor: 1 });
         await p.emulateMedia({ reducedMotion: 'reduce' });
         await p.goto(url);

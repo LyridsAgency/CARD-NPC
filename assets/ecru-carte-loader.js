@@ -4,11 +4,12 @@
   window.__ecruCarteLoader = true;
   var loaded = {};
 
-  function setOpen(el, open) {
+  // tenir : la carte se pose de face (survol, bouton) ; sinon elle continue de tourner
+  function setOpen(el, open, tenir) {
     el.classList.toggle('is-open', open);
     var btn = el.querySelector('.ecru-carte__bascule');
     if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: open }));
+    if (tenir !== false) el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: open }));
   }
 
   // Emplacements : côté, hauteur du libellé (fraction de la scène), point visé sur la carte (-1 à 1)
@@ -72,21 +73,19 @@
       svg.appendChild(path);
       path.style.setProperty('--len', Math.ceil(path.getTotalLength()) + 1);
 
-      var a = dx > 0 ? 0 : Math.PI; // la courbe arrive à l'horizontale
-      var L = 8;
-      var p1 = [tx - L * Math.cos(a - 0.5), ty - L * Math.sin(a - 0.5)];
-      var p2 = [tx - L * Math.cos(a + 0.5), ty - L * Math.sin(a + 0.5)];
-      var head = document.createElementNS(ns, 'path');
-      head.setAttribute('class', 'ecru-carte__pointe');
-      head.setAttribute('d', 'M' + p1[0] + ',' + p1[1] + ' L' + tx + ',' + ty + ' L' + p2[0] + ',' + p2[1]);
-      head.style.setProperty('--i', i);
-      svg.appendChild(head);
-
+      // Au bout du trait, sur la carte : un point et un anneau qui respire
+      var ring = document.createElementNS(ns, 'circle');
+      ring.setAttribute('class', 'ecru-carte__anneau');
+      ring.setAttribute('cx', tx);
+      ring.setAttribute('cy', ty);
+      ring.setAttribute('r', 7);
+      ring.style.setProperty('--i', i);
+      svg.appendChild(ring);
       var dot = document.createElementNS(ns, 'circle');
-      dot.setAttribute('class', 'ecru-carte__origine');
-      dot.setAttribute('cx', lx);
-      dot.setAttribute('cy', ly);
-      dot.setAttribute('r', 1.75);
+      dot.setAttribute('class', 'ecru-carte__point');
+      dot.setAttribute('cx', tx);
+      dot.setAttribute('cy', ty);
+      dot.setAttribute('r', 3);
       dot.style.setProperty('--i', i);
       svg.appendChild(dot);
     });
@@ -117,7 +116,10 @@
         if (e.pointerType === 'mouse' && window.innerWidth >= 900) setOpen(el, true);
       });
       stage.addEventListener('pointerleave', function (e) {
-        if (e.pointerType === 'mouse' && !pinned) setOpen(el, false);
+        if (e.pointerType !== 'mouse' || pinned) return;
+        // Avantages affichés d'emblée : ils restent, la carte reprend sa rotation
+        if (el.hasAttribute('data-auto-open')) el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: false }));
+        else setOpen(el, false);
       });
     }
 
@@ -134,6 +136,13 @@
           var p = loaded[url] || (loaded[url] = import(url));
           p.then(function (m) {
             return m.mount(el);
+          }).then(function () {
+            // Avantages affichés d'emblée sur ordinateur, la carte continue de tourner
+            if (el.hasAttribute('data-auto-open') && window.innerWidth >= 900) {
+              setTimeout(function () {
+                if (!el.classList.contains('is-open')) setOpen(el, true, false);
+              }, 900);
+            }
           }).catch(function () {
             el.classList.add('is-fallback');
           });

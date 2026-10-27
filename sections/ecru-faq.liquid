@@ -21,10 +21,14 @@
 
     <div class="ecru-faq__liste">
       {%- for block in section.blocks -%}
-        <details class="ecru-reveal" style="--d: {{ forloop.index0 | at_most: 4 }}" {{ block.shopify_attributes }}>
-          <summary>{{ block.settings.question | escape }}</summary>
-          <div class="ecru-faq__reponse">{{ block.settings.answer }}</div>
-        </details>
+        {%- if block.type == 'groupe' -%}
+          <h3 class="ecru-faq__groupe" {{ block.shopify_attributes }}>{{ block.settings.title | escape }}</h3>
+        {%- else -%}
+          <details class="ecru-reveal" {{ block.shopify_attributes }}>
+            <summary>{{ block.settings.question | escape }}</summary>
+            <div class="ecru-faq__reponse">{{ block.settings.answer }}</div>
+          </details>
+        {%- endif -%}
       {%- endfor -%}
     </div>
   </div>
@@ -34,7 +38,7 @@
 {
   "name": "FAQ ECRU",
   "tag": "div",
-  "max_blocks": 10,
+  "max_blocks": 24,
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Questions" },
     { "type": "text", "id": "heading", "label": "Titre", "default": "Simple, vraiment." },
@@ -44,6 +48,11 @@
     { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
   ],
   "blocks": [
+    {
+      "type": "groupe",
+      "name": "Intertitre",
+      "settings": [{ "type": "text", "id": "title", "label": "Intertitre", "default": "La carte" }]
+    },
     {
       "type": "question",
       "name": "Question",

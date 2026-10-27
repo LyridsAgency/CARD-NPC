@@ -9,6 +9,14 @@
       assign avantages = avantages | append: block.settings.text | append: '|'
     endif
   endfor
+  comment
+    Carte vierge, comme le produit réel ; un marquage discret en bas à droite si renseigné
+  endcomment
+  assign elements = '[]'
+  if section.settings.card_text != blank
+    assign marque = section.settings.card_text | strip | json
+    assign elements = '[{"t":"text","v":' | append: marque | append: ',"x":0.9,"y":0.84,"s":0.06,"f":"display","a":"right"}]'
+  endif
   assign heading_tag = 'h2'
   if section.settings.heading_h1
     assign heading_tag = 'h1'
@@ -39,9 +47,8 @@
 
     {%- render 'ecru-carte',
       id: uid,
-      text: section.settings.card_text,
-      holder: section.settings.card_holder,
-      tier: section.settings.card_tier,
+      elements: elements,
+      auto_open: section.settings.auto_open,
       color: section.settings.card_color,
       ink: section.settings.ink_color,
       finish: section.settings.finish,
@@ -78,22 +85,15 @@
     {
       "type": "text",
       "id": "card_text",
-      "label": "Marque gravée",
+      "label": "Marquage discret",
       "default": "ECRU",
-      "info": "En haut à gauche de la carte. 18 caractères max."
+      "info": "En bas à droite de la carte. Laisser vide pour une carte vierge."
     },
     {
-      "type": "text",
-      "id": "card_holder",
-      "label": "Nom du titulaire",
-      "default": "Prénom Nom",
-      "info": "Laisser vide pour ne pas l'afficher."
-    },
-    {
-      "type": "text",
-      "id": "card_tier",
-      "label": "Niveau",
-      "default": "Privilège"
+      "type": "checkbox",
+      "id": "auto_open",
+      "label": "Afficher les avantages dès l'arrivée",
+      "default": true
     },
     {
       "type": "color",
@@ -127,7 +127,7 @@
       "type": "text",
       "id": "a11y_label",
       "label": "Description de la carte (accessibilité)",
-      "default": "Carte ECRU en métal noir, au nom du client, avec le symbole sans contact."
+      "default": "Carte NFC ECRU en métal noir mat, avec sa fenêtre NFC."
     },
     {
       "type": "text",
@@ -213,7 +213,7 @@
           "type": "text",
           "id": "text",
           "label": "Texte",
-          "default": "Ils reviennent d'eux-mêmes"
+          "default": "Un geste, sans application"
         }
       ]
     }
@@ -222,11 +222,11 @@
     {
       "name": "Carte 3D ECRU",
       "blocks": [
-        { "type": "avantage", "settings": { "text": "Ils reviennent d'eux-mêmes" } },
-        { "type": "avantage", "settings": { "text": "Gravée à leur nom" } },
         { "type": "avantage", "settings": { "text": "Un geste, sans application" } },
-        { "type": "avantage", "settings": { "text": "Récompenses à la carte" } },
-        { "type": "avantage", "settings": { "text": "Vos chiffres chaque mois" } }
+        { "type": "avantage", "settings": { "text": "À vos couleurs" } },
+        { "type": "avantage", "settings": { "text": "Votre logo, où vous voulez" } },
+        { "type": "avantage", "settings": { "text": "PVC ou métal" } },
+        { "type": "avantage", "settings": { "text": "Format carte bancaire" } }
       ]
     }
   ]

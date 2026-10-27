@@ -1,0 +1,25 @@
+{%- comment -%}
+  ECRU — Palette de teintes (boutons ronds + teinte libre).
+  Paramètres : cible (identifiant), teintes (liste « Nom:#code »), libre (teinte de départ du sélecteur), label.
+{%- endcomment -%}
+<div class="ecru-palette" role="radiogroup" aria-label="{{ label | escape }}">
+  {%- for p in teintes -%}
+    {%- assign pp = p | split: ':' -%}
+    <button
+      type="button"
+      class="ecru-palette__teinte"
+      role="radio"
+      aria-checked="false"
+      style="--teinte: {{ pp[1] }}"
+      data-teinte="{{ pp[1] }}"
+      data-cible="{{ cible }}"
+      title="{{ pp[0] }}"
+    >
+      <span class="visually-hidden">{{ pp[0] }}</span>
+    </button>
+  {%- endfor -%}
+  <label class="ecru-palette__libre" title="Autre teinte">
+    <input type="color" value="{{ libre }}" data-ecru-libre="{{ cible }}" aria-label="Autre teinte : {{ label | escape }}">
+    <span aria-hidden="true">+</span>
+  </label>
+</div>

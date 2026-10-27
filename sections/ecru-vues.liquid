@@ -1,0 +1,97 @@
+{%- comment -%} ECRU — La carte sous plusieurs angles. Images : rendus de la carte (assets) ou photos choisies dans l'éditeur. {%- endcomment -%}
+<section
+  class="ecru-section ecru-vues-galerie{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+    </header>
+
+    <div class="ecru-vues-galerie__grille">
+      {%- for block in section.blocks -%}
+        <figure class="ecru-vue ecru-reveal" style="--d: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <div class="ecru-vue__image">
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 1600
+                | image_tag: widths: '600, 900, 1200, 1600', sizes: '(min-width: 990px) 50vw, 100vw', loading: 'lazy', alt: block.settings.alt
+              }}
+            {%- else -%}
+              <img
+                src="{{ block.settings.rendu | append: '.webp' | prepend: 'ecru-vue-' | asset_url }}"
+                alt="{{ block.settings.alt | escape }}"
+                width="1600"
+                height="1200"
+                loading="lazy"
+                decoding="async"
+              >
+            {%- endif -%}
+          </div>
+          <figcaption>
+            <span class="ecru-vue__num" aria-hidden="true">0{{ forloop.index }}</span>
+            <span class="ecru-vue__titre">{{ block.settings.title | escape }}</span>
+            {%- if block.settings.text != blank -%}
+              <span class="ecru-vue__texte">{{ block.settings.text | escape }}</span>
+            {%- endif -%}
+          </figcaption>
+        </figure>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Points de vue ECRU",
+  "tag": "div",
+  "max_blocks": 6,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Sous tous les angles" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Regardez-la de près." },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": false },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "vue",
+      "name": "Vue",
+      "settings": [
+        {
+          "type": "select",
+          "id": "rendu",
+          "label": "Rendu",
+          "options": [
+            { "value": "recto", "label": "Recto" },
+            { "value": "verso", "label": "Verso" },
+            { "value": "profil", "label": "Profil" },
+            { "value": "sur-mesure", "label": "Exemple sur mesure" }
+          ],
+          "default": "recto"
+        },
+        { "type": "image_picker", "id": "image", "label": "Photo (remplace le rendu)" },
+        { "type": "text", "id": "title", "label": "Titre", "default": "Recto" },
+        { "type": "text", "id": "text", "label": "Texte" },
+        { "type": "text", "id": "alt", "label": "Description de l'image", "default": "Carte NFC ECRU" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Points de vue ECRU",
+      "blocks": [
+        { "type": "vue", "settings": { "rendu": "recto", "title": "Recto", "text": "La fenêtre NFC, par où passe le signal.", "alt": "Recto de la carte ECRU en métal noir, avec sa fenêtre NFC" } },
+        { "type": "vue", "settings": { "rendu": "verso", "title": "Verso", "text": "Le symbole sans contact, discret.", "alt": "Verso de la carte ECRU avec le symbole sans contact" } },
+        { "type": "vue", "settings": { "rendu": "profil", "title": "Profil", "text": "Format carte bancaire, 85,6 × 54 mm.", "alt": "Carte ECRU vue de profil" } },
+        { "type": "vue", "settings": { "rendu": "sur-mesure", "title": "Sur mesure", "text": "Votre couleur, votre nom, votre logo.", "alt": "Exemple de carte ECRU sur mesure, bordeaux avec un nom en doré" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
