@@ -1,0 +1,246 @@
+{%- comment -%}
+  ECRU — Page produit : la carte 3D à la place de la photo.
+  La carte suit les options choisies (matière → finition, couleur → teinte de la carte).
+{%- endcomment -%}
+{%- liquid
+  assign current = product.selected_or_first_available_variant
+  assign uid = 'ecru-produit-' | append: section.id
+  assign contact = settings.ecru_contact_link | default: '/pages/contact'
+
+  assign finish = 'metal'
+  assign color = '#0d0d0c'
+  assign ink = '#e9e4d8'
+  for value in current.options
+    assign v = value | downcase
+    if v contains 'pvc'
+      assign finish = 'mat'
+    endif
+    if v contains 'blanc' or v contains 'white'
+      assign color = '#e9e4d8'
+      assign ink = '#121211'
+    endif
+  endfor
+-%}
+
+<section
+  class="ecru-section ecru-produit"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="ecru-conteneur ecru-produit__grille">
+    <div class="ecru-produit__visuel">
+      {%- render 'ecru-carte',
+        id: uid,
+        text: section.settings.card_text,
+        holder: section.settings.card_holder,
+        tier: section.settings.card_tier,
+        color: color,
+        ink: ink,
+        finish: finish,
+        alt: product.title,
+        avantages: section.settings.avantages,
+        compact: true
+      -%}
+    </div>
+
+    <div class="ecru-produit__infos">
+      {%- if product.type != blank -%}
+        <p class="ecru-surtitre">{{ product.type | escape }}</p>
+      {%- endif -%}
+      <h1 class="ecru-titre">{{ product.title | escape }}</h1>
+
+      <div class="ecru-produit__prix" data-ecru-prix>
+        {%- render 'price', product: product, use_variant: true -%}
+      </div>
+
+      {%- form 'product', product, id: 'form-produit', class: 'ecru-produit__form', novalidate: 'novalidate', data-ecru-form: '' -%}
+        <input type="hidden" name="id" value="{{ current.id }}" data-ecru-variant>
+
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            <fieldset class="ecru-option">
+              <legend>{{ option.name | escape }}</legend>
+              <div class="ecru-option__choix">
+                {%- for value in option.values -%}
+                  {%- assign oid = uid | append: '-' | append: option.position | append: '-' | append: forloop.index -%}
+                  <input
+                    type="radio"
+                    id="{{ oid }}"
+                    name="option{{ option.position }}"
+                    value="{{ value | escape }}"
+                    data-position="{{ option.position }}"
+                    {% if option.selected_value == value %}
+                      checked
+                    {% endif %}
+                  >
+                  <label for="{{ oid }}">{{ value | escape }}</label>
+                {%- endfor -%}
+              </div>
+            </fieldset>
+          {%- endfor -%}
+        {%- endunless -%}
+
+        <div class="ecru-produit__quantite">
+          <button type="button" data-ecru-qte="-1" aria-label="Retirer une carte">−</button>
+          <label class="visually-hidden" for="{{ uid }}-qte">Quantité</label>
+          <input id="{{ uid }}-qte" type="number" name="quantity" value="1" min="1" inputmode="numeric">
+          <button type="button" data-ecru-qte="1" aria-label="Ajouter une carte">+</button>
+        </div>
+
+        <div class="ecru-produit__boutons">
+          <button
+            type="submit"
+            class="ecru-bouton"
+            data-ecru-ajout
+            {% unless current.available %}
+              disabled
+            {% endunless %}
+          >
+            {%- if current.available -%}
+              {{ section.settings.add_label | escape }}
+            {%- else -%}
+              Indisponible
+            {%- endif -%}
+          </button>
+          <a class="ecru-bouton ecru-bouton--ligne" href="{{ contact }}?produit={{ product.title | url_encode }}">
+            {{- section.settings.contact_label | escape -}}
+          </a>
+        </div>
+        <p class="ecru-produit__erreur" role="status" aria-live="polite" data-ecru-statut></p>
+      {%- endform -%}
+
+      {%- if product.description != blank -%}
+        <div class="ecru-produit__description rte">{{ product.description }}</div>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="ecru-produit__details ecru-faq">
+          {%- for block in section.blocks -%}
+            <details {{ block.shopify_attributes }}>
+              <summary>{{ block.settings.title | escape }}</summary>
+              <div class="ecru-faq__reponse">{{ block.settings.content }}</div>
+            </details>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <script type="application/json" data-ecru-variants>
+    {{ product.variants | json }}
+  </script>
+</section>
+
+<script>
+  (function () {
+    var root = document.currentScript.previousElementSibling;
+    var form = root.querySelector('[data-ecru-form]');
+    if (!form) return;
+    var variants = JSON.parse(root.querySelector('[data-ecru-variants]').textContent);
+    var input = form.querySelector('[data-ecru-variant]');
+    var bouton = form.querySelector('[data-ecru-ajout]');
+    var statut = form.querySelector('[data-ecru-statut]');
+    var carte = root.querySelector('[data-ecru-carte]');
+    var libelle = {{ section.settings.add_label | json }};
+
+    function choix() {
+      var sel = [];
+      form.querySelectorAll('input[type=radio]:checked').forEach(function (r) {
+        sel[r.dataset.position - 1] = r.value;
+      });
+      return sel;
+    }
+
+    // Apparence de la carte d'après les options : PVC → mat, sinon métal ; Blanc → carte claire
+    function apparence(options) {
+      var txt = options.join(' ').toLowerCase();
+      var blanc = /blanc|white/.test(txt);
+      return {
+        finish: /pvc/.test(txt) ? 'mat' : 'metal',
+        color: blanc ? '#e9e4d8' : '#0d0d0c',
+        ink: blanc ? '#121211' : '#e9e4d8',
+      };
+    }
+
+    function maj() {
+      var sel = choix();
+      var v = variants.find(function (x) {
+        return x.options.every(function (o, i) {
+          return sel[i] === undefined || sel[i] === o;
+        });
+      });
+
+      // Griser les valeurs sans variante disponible avec les autres choix
+      form.querySelectorAll('input[type=radio]').forEach(function (r) {
+        var pos = r.dataset.position - 1;
+        var possible = variants.some(function (x) {
+          return x.available && x.options[pos] === r.value && x.options.every(function (o, i) {
+            return i === pos || sel[i] === undefined || sel[i] === o;
+          });
+        });
+        r.disabled = !possible && !r.checked;
+      });
+
+      if (!v) {
+        bouton.disabled = true;
+        bouton.textContent = 'Indisponible';
+        statut.textContent = 'Cette combinaison n’existe pas.';
+        return;
+      }
+      input.value = v.id;
+      bouton.disabled = !v.available;
+      bouton.textContent = v.available ? libelle : 'Indisponible';
+      statut.textContent = '';
+      var url = new URL(window.location.href);
+      url.searchParams.set('variant', v.id);
+      window.history.replaceState({}, '', url.toString());
+      if (carte) carte.dispatchEvent(new CustomEvent('ecru:card-update', { detail: apparence(v.options) }));
+    }
+
+    form.addEventListener('change', function (e) {
+      if (e.target.type === 'radio') maj();
+    });
+    form.querySelectorAll('[data-ecru-qte]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var q = form.querySelector('input[name=quantity]');
+        q.value = Math.max(1, (parseInt(q.value, 10) || 1) + parseInt(b.dataset.ecruQte, 10));
+      });
+    });
+    maj();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Produit ECRU",
+  "tag": "div",
+  "class": "section-ecru-produit",
+  "settings": [
+    { "type": "header", "content": "Carte" },
+    { "type": "text", "id": "card_text", "label": "Marque gravée", "default": "ECRU" },
+    { "type": "text", "id": "card_holder", "label": "Nom du titulaire", "default": "Prénom Nom" },
+    { "type": "text", "id": "card_tier", "label": "Niveau", "default": "Privilège" },
+    {
+      "type": "text",
+      "id": "avantages",
+      "label": "Avantages autour de la carte",
+      "info": "Séparés par « | ». 5 maximum.",
+      "default": "Ils reviennent d'eux-mêmes|Gravée à leur nom|Un geste, sans application|Récompenses à la carte|Vos chiffres chaque mois"
+    },
+    { "type": "header", "content": "Boutons" },
+    { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
+    { "type": "text", "id": "contact_label", "label": "Demande spécifique", "default": "Demande spécifique" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "details",
+      "name": "Détail repliable",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "Comment ça marche" },
+        { "type": "richtext", "id": "content", "label": "Contenu", "default": "<p>Vos clients approchent la carte de leur téléphone. La page s'ouvre. Sans application.</p>" }
+      ]
+    }
+  ]
+}
+{% endschema %}

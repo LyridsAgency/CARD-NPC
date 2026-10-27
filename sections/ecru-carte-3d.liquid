@@ -1,115 +1,58 @@
 {%- comment -%}
-  ECRU — Carte 3D. Section réutilisable (héro, pages produit, configurateur).
-  La scène three.js (assets/ecru-carte-3d.js) n'est chargée qu'à l'approche de la section.
-  Sans WebGL, l'image fixe reste affichée.
+  ECRU — Héro avec la carte 3D (snippets/ecru-carte.liquid).
 {%- endcomment -%}
 {%- liquid
-  assign card_text = section.settings.card_text | default: 'ECRU' | strip | upcase
   assign uid = 'ecru-carte-' | append: section.id
+  assign avantages = ''
+  for block in section.blocks
+    if block.settings.text != blank
+      assign avantages = avantages | append: block.settings.text | append: '|'
+    endif
+  endfor
   assign heading_tag = 'h2'
   if section.settings.heading_h1
     assign heading_tag = 'h1'
   endif
 -%}
 
-{%- style -%}
-  @font-face {
-    font-family: 'Archivo Black';
-    src: url('{{ 'archivo-black.woff2' | asset_url }}') format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
-  #{{ uid }} {
-    --ecru-pad-top: {{ section.settings.padding_top }}px;
-    --ecru-pad-bottom: {{ section.settings.padding_bottom }}px;
-  }
-{%- endstyle -%}
-
 <section
-  id="{{ uid }}"
-  class="ecru-carte{% if section.settings.show_text %} ecru-carte--texte{% endif %}"
-  data-ecru-carte
-  data-module="{{ 'ecru-carte-3d.js' | asset_url }}"
-  data-font="{{ 'archivo-black.woff2' | asset_url }}"
-  data-text="{{ card_text | escape }}"
-  data-color="{{ section.settings.card_color }}"
-  data-ink="{{ section.settings.ink_color }}"
-  data-finish="{{ section.settings.finish }}"
+  class="ecru-section ecru-hero{% if section.settings.show_text %} ecru-hero--texte{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
   aria-labelledby="{{ uid }}-titre"
 >
-  <div class="ecru-carte__inner">
+  <div class="ecru-hero__inner">
     {%- if section.settings.show_text -%}
-      <div class="ecru-carte__texte">
+      <div class="ecru-hero__texte">
         {%- if section.settings.eyebrow != blank -%}
-          <p class="ecru-carte__surtitre">{{ section.settings.eyebrow | escape }}</p>
+          <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
         {%- endif -%}
-        <{{ heading_tag }} id="{{ uid }}-titre" class="ecru-carte__titre">{{ section.settings.heading | escape }}</{{ heading_tag }}>
+        <{{ heading_tag }} id="{{ uid }}-titre" class="ecru-titre ecru-hero__titre ecru-reveal">
+          {{- section.settings.heading | escape -}}
+        </{{ heading_tag }}>
         {%- if section.settings.subheading != blank -%}
-          <p class="ecru-carte__sous-titre">{{ section.settings.subheading | escape }}</p>
+          <p class="ecru-texte ecru-hero__sous-titre ecru-reveal">{{ section.settings.subheading | escape }}</p>
         {%- endif -%}
       </div>
     {%- else -%}
       <h2 id="{{ uid }}-titre" class="visually-hidden">{{ section.settings.a11y_label | escape }}</h2>
     {%- endif -%}
 
-    <div class="ecru-carte__scene">
-      <div class="ecru-carte__vue" data-ecru-stage>
-      <div class="ecru-carte__affiche">
-        {%- if section.settings.poster != blank -%}
-          {{
-            section.settings.poster
-            | image_url: width: 1800
-            | image_tag:
-              widths: '600, 900, 1200, 1800',
-              sizes: '(min-width: 990px) 70vw, 100vw',
-              alt: section.settings.a11y_label,
-              fetchpriority: 'high',
-              class: 'ecru-carte__affiche-img'
-          }}
-        {%- else -%}
-          <img
-            class="ecru-carte__affiche-img"
-            src="{{ 'ecru-carte-secours.webp' | asset_url }}"
-            alt="{{ section.settings.a11y_label | escape }}"
-            width="1600"
-            height="1052"
-            fetchpriority="high"
-            decoding="async"
-          >
-        {%- endif -%}
-      </div>
-      {%- if section.blocks.size > 0 -%}
-        <svg class="ecru-carte__fleches" aria-hidden="true" focusable="false"></svg>
-      {%- endif -%}
-      </div>
-
-      {%- if section.blocks.size > 0 -%}
-        <ul class="ecru-carte__avantages" id="{{ uid }}-avantages" role="list">
-          {%- for block in section.blocks -%}
-            <li class="ecru-carte__avantage" style="--i: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
-              <span class="ecru-carte__num" aria-hidden="true">0{{ forloop.index }}</span>
-              <span class="ecru-carte__libelle">{{ block.settings.text | escape }}</span>
-            </li>
-          {%- endfor -%}
-        </ul>
-      {%- endif -%}
-    </div>
-
-    {%- if section.blocks.size > 0 -%}
-      <button
-        type="button"
-        class="ecru-carte__bascule"
-        aria-expanded="false"
-        aria-controls="{{ uid }}-avantages"
-      >
-        <span class="ecru-carte__bascule-ouvrir">{{ section.settings.toggle_label | escape }}</span>
-        <span class="ecru-carte__bascule-fermer">Masquer</span>
-      </button>
-    {%- endif -%}
+    {%- render 'ecru-carte',
+      id: uid,
+      text: section.settings.card_text,
+      holder: section.settings.card_holder,
+      tier: section.settings.card_tier,
+      color: section.settings.card_color,
+      ink: section.settings.ink_color,
+      finish: section.settings.finish,
+      poster: section.settings.poster,
+      alt: section.settings.a11y_label,
+      avantages: avantages,
+      toggle_label: section.settings.toggle_label
+    -%}
 
     {%- if section.settings.show_text and section.settings.button_label != blank -%}
-      <div class="ecru-carte__actions">
+      <div class="ecru-hero__actions ecru-reveal">
         <a
           class="ecru-bouton"
           href="{{ section.settings.button_link | default: routes.all_products_collection_url }}"
@@ -120,468 +63,6 @@
     {%- endif -%}
   </div>
 </section>
-
-{% stylesheet %}
-  .ecru-carte {
-    --ecru-bg: #070707;
-    --ecru-surface: #121211;
-    --ecru-border: #2a2926;
-    --ecru-text: #e9e4d8;
-    --ecru-muted: #a29d92;
-    --ecru-ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --ecru-card-w: min(74%, 82.4cqh);
-    position: relative;
-    background: var(--ecru-bg);
-    color: var(--ecru-text);
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-    padding: var(--ecru-pad-top) 0 var(--ecru-pad-bottom);
-    overflow: hidden;
-  }
-  .ecru-carte__inner {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .ecru-carte__texte {
-    text-align: center;
-    max-width: 52rem;
-  }
-  .ecru-carte__surtitre {
-    margin: 0 0 1.6rem;
-    font-size: 1.1rem;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--ecru-muted);
-  }
-  .ecru-carte__titre {
-    margin: 0;
-    font-family: 'Archivo Black', 'Arial Black', sans-serif;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.92;
-    font-size: clamp(3.4rem, 7.4vw, 8.8rem);
-    color: var(--ecru-text);
-  }
-  .ecru-carte__sous-titre {
-    margin: 2rem auto 0;
-    max-width: 34rem;
-    color: var(--ecru-muted);
-    font-size: 1.6rem;
-    line-height: 1.6;
-  }
-
-  /* Scène : la hauteur fixe le cadrage, identique pour la 3D et l'image fixe */
-  .ecru-carte__scene {
-    position: relative;
-    width: 100%;
-    container-type: inline-size;
-  }
-  .ecru-carte__vue {
-    position: relative;
-    width: 100%;
-    height: clamp(420px, 52vw, 720px);
-    container-type: size;
-    touch-action: pan-y;
-  }
-  .ecru-carte--texte .ecru-carte__vue {
-    height: clamp(380px, 46vw, 640px);
-  }
-  .ecru-carte__canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    opacity: 0;
-    transition: opacity 1.4s var(--ecru-ease);
-  }
-  .ecru-carte.is-ready .ecru-carte__canvas {
-    opacity: 1;
-  }
-  .ecru-carte__affiche {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    transition: opacity 1.4s var(--ecru-ease);
-  }
-  .ecru-carte.is-ready .ecru-carte__affiche {
-    opacity: 0;
-  }
-  /* L'image de secours est cadrée carte = 62,5 % de sa largeur */
-  .ecru-carte__affiche-img {
-    width: calc(var(--ecru-card-w) / 0.625);
-    max-width: none;
-    height: auto;
-  }
-
-  /* Avantages : flèches courbes dessinées en SVG (positions calculées en JS, ≥ 900 px) */
-  .ecru-carte__avantages {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .ecru-carte__fleches {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-  }
-  .ecru-carte__trait,
-  .ecru-carte__pointe {
-    fill: none;
-    stroke: var(--ecru-text);
-    stroke-width: 1;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .ecru-carte__trait {
-    stroke-dasharray: var(--len, 400);
-    stroke-dashoffset: var(--len, 400);
-    opacity: 0.85;
-    transition: stroke-dashoffset 1.6s var(--ecru-ease) calc(var(--i) * 0.12s);
-  }
-  .ecru-carte__pointe,
-  .ecru-carte__origine {
-    opacity: 0;
-    transition: opacity 0.7s var(--ecru-ease) calc(var(--i) * 0.12s);
-  }
-  .ecru-carte__origine {
-    fill: var(--ecru-text);
-  }
-  .ecru-carte.is-open .ecru-carte__trait {
-    stroke-dashoffset: 0;
-  }
-  .ecru-carte.is-open .ecru-carte__origine {
-    opacity: 1;
-  }
-  .ecru-carte.is-open .ecru-carte__pointe {
-    opacity: 1;
-    transition-delay: calc(var(--i) * 0.12s + 1.1s);
-  }
-  .ecru-carte__avantage {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    transform: translate(0, -50%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 1s var(--ecru-ease) calc(var(--i) * 0.12s + 0.5s);
-  }
-  .ecru-carte__avantage.is-gauche {
-    transform: translate(-100%, -50%);
-    text-align: right;
-    align-items: flex-end;
-  }
-  .ecru-carte.is-open .ecru-carte__avantage {
-    opacity: 1;
-  }
-  .ecru-carte__num {
-    font-size: 1.1rem;
-    letter-spacing: 0.24em;
-    color: var(--ecru-muted);
-    font-variant-numeric: tabular-nums;
-  }
-  .ecru-carte__libelle {
-    font-size: clamp(1.25rem, 1.05vw, 1.5rem);
-    line-height: 1.35;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ecru-text);
-  }
-
-  .ecru-carte__bascule {
-    margin-top: 1.2rem;
-    padding: 1.2rem 2.2rem;
-    min-height: 44px;
-    background: transparent;
-    border: 1px solid var(--ecru-border);
-    border-radius: 999px;
-    color: var(--ecru-muted);
-    font: inherit;
-    font-size: 1.2rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: color 0.6s var(--ecru-ease), border-color 0.6s var(--ecru-ease);
-  }
-  .ecru-carte__bascule:hover,
-  .ecru-carte__bascule:focus-visible {
-    color: var(--ecru-text);
-    border-color: var(--ecru-muted);
-  }
-  .ecru-carte__bascule:focus-visible,
-  .ecru-bouton:focus-visible {
-    outline: 1px solid var(--ecru-text);
-    outline-offset: 4px;
-  }
-  .ecru-carte__bascule-fermer,
-  .ecru-carte.is-open .ecru-carte__bascule-ouvrir { display: none; }
-  .ecru-carte.is-open .ecru-carte__bascule-fermer { display: inline; }
-
-  .ecru-carte__actions {
-    margin-top: 2.4rem;
-  }
-  .ecru-bouton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 52px;
-    padding: 0 3.2rem;
-    background: var(--ecru-text);
-    color: var(--ecru-bg);
-    border: 1px solid var(--ecru-text);
-    border-radius: 999px;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-    font-size: 1.3rem;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: background-color 0.7s var(--ecru-ease), color 0.7s var(--ecru-ease);
-  }
-  .ecru-bouton:hover {
-    background: transparent;
-    color: var(--ecru-text);
-  }
-
-  /* Mobile et tablette : les avantages passent sous la carte, en liste */
-  @media (max-width: 899px) {
-    .ecru-carte__inner {
-      padding: 0;
-    }
-    .ecru-carte__texte {
-      padding: 0 16px;
-    }
-    .ecru-carte__vue,
-    .ecru-carte--texte .ecru-carte__vue {
-      height: clamp(340px, 92vw, 560px);
-    }
-    .ecru-carte__fleches {
-      display: none;
-    }
-    .ecru-carte__avantages {
-      display: grid;
-      gap: 2rem;
-      justify-items: center;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 1.2s var(--ecru-ease), padding 1.2s var(--ecru-ease);
-    }
-    .ecru-carte__avantage,
-    .ecru-carte__avantage.is-gauche {
-      position: static;
-      transform: translateY(8px);
-      align-items: center;
-      text-align: center;
-      gap: 0.4rem;
-      transition: opacity 0.9s var(--ecru-ease) calc(var(--i) * 0.1s + 0.2s),
-        transform 0.9s var(--ecru-ease) calc(var(--i) * 0.1s + 0.2s);
-    }
-    /* Petite flèche verticale vers la carte : trait fin + pointe */
-    .ecru-carte__avantage::before {
-      content: '';
-      width: 9px;
-      height: 22px;
-      margin-bottom: 0.4rem;
-      background:
-        linear-gradient(var(--ecru-text), var(--ecru-text)) center 1px / 1px 100% no-repeat,
-        linear-gradient(45deg, transparent 47%, var(--ecru-text) 47%, var(--ecru-text) 53%, transparent 53%) 0 0 / 5px 5px no-repeat,
-        linear-gradient(-45deg, transparent 47%, var(--ecru-text) 47%, var(--ecru-text) 53%, transparent 53%) 4px 0 / 5px 5px no-repeat;
-      opacity: 0.7;
-    }
-    .ecru-carte__libelle {
-      font-size: 1.25rem;
-    }
-    .ecru-carte.is-open .ecru-carte__avantages {
-      max-height: 60rem;
-      padding: 0.4rem 0 1.6rem;
-    }
-    .ecru-carte.is-open .ecru-carte__avantage {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ecru-carte *,
-    .ecru-carte *::before {
-      transition-duration: 0.01ms !important;
-      transition-delay: 0s !important;
-    }
-  }
-{% endstylesheet %}
-
-{% javascript %}
-  (function () {
-    var loaded = {};
-
-    function setOpen(el, open) {
-      el.classList.toggle('is-open', open);
-      var btn = el.querySelector('.ecru-carte__bascule');
-      if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: open }));
-    }
-
-    // Emplacements : côté, hauteur du libellé (fraction de la scène), point visé sur la carte (-1 à 1)
-    var SLOTS = [
-      [-1, 0.26, -0.55],
-      [-1, 0.5, 0],
-      [-1, 0.74, 0.55],
-      [1, 0.35, -0.4],
-      [1, 0.65, 0.4],
-    ];
-
-    function layout(el) {
-      var vue = el.querySelector('.ecru-carte__vue');
-      var svg = el.querySelector('.ecru-carte__fleches');
-      var items = el.querySelectorAll('.ecru-carte__avantage');
-      if (!vue || !svg || !items.length) return;
-      if (window.innerWidth < 900) {
-        svg.innerHTML = '';
-        items.forEach(function (li) {
-          li.style.left = li.style.top = li.style.maxWidth = '';
-        });
-        return;
-      }
-      var w = vue.clientWidth;
-      var h = vue.clientHeight;
-      // Même cadrage que la scène 3D (ecru-carte-3d.js)
-      var frac = Math.min(0.74, ((0.52 * h) / w) * (85.6 / 54));
-      var cw = frac * w;
-      var ch = (cw * 54) / 85.6;
-      var cx = w / 2;
-      var cy = h / 2;
-      var side = cx - cw / 2;
-      var gap = Math.max(56, Math.min(150, side * 0.32));
-      var maxLabel = Math.max(120, side - gap - 40);
-      var ns = 'http://www.w3.org/2000/svg';
-      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-      svg.innerHTML = '';
-
-      items.forEach(function (li, i) {
-        var s = SLOTS[i];
-        if (!s) return;
-        var dir = s[0];
-        var edge = cx + (dir * cw) / 2;
-        // Pointe posée sur la carte, légèrement à l'intérieur du bord
-        var tx = edge - dir * cw * 0.07;
-        var ty = cy + (s[2] * ch) / 2;
-        var lx = edge + dir * gap;
-        var ly = s[1] * h;
-        li.style.left = lx + dir * 16 + 'px';
-        li.style.top = ly + 'px';
-        li.style.maxWidth = maxLabel + 'px';
-        li.classList.toggle('is-gauche', dir < 0);
-
-        var dx = tx - lx;
-        var c1x = lx + dx * 0.55;
-        var c2x = tx - dx * 0.3;
-        var path = document.createElementNS(ns, 'path');
-        path.setAttribute('class', 'ecru-carte__trait');
-        path.setAttribute('d', 'M' + lx + ',' + ly + ' C' + c1x + ',' + ly + ' ' + c2x + ',' + ty + ' ' + tx + ',' + ty);
-        path.style.setProperty('--i', i);
-        svg.appendChild(path);
-        path.style.setProperty('--len', Math.ceil(path.getTotalLength()) + 1);
-
-        var a = dx > 0 ? 0 : Math.PI; // la courbe arrive à l'horizontale
-        var L = 8;
-        var p1 = [tx - L * Math.cos(a - 0.5), ty - L * Math.sin(a - 0.5)];
-        var p2 = [tx - L * Math.cos(a + 0.5), ty - L * Math.sin(a + 0.5)];
-        var head = document.createElementNS(ns, 'path');
-        head.setAttribute('class', 'ecru-carte__pointe');
-        head.setAttribute('d', 'M' + p1[0] + ',' + p1[1] + ' L' + tx + ',' + ty + ' L' + p2[0] + ',' + p2[1]);
-        head.style.setProperty('--i', i);
-        svg.appendChild(head);
-
-        var dot = document.createElementNS(ns, 'circle');
-        dot.setAttribute('class', 'ecru-carte__origine');
-        dot.setAttribute('cx', lx);
-        dot.setAttribute('cy', ly);
-        dot.setAttribute('r', 1.75);
-        dot.style.setProperty('--i', i);
-        svg.appendChild(dot);
-      });
-    }
-
-    function init(el) {
-      if (!el || el.dataset.ecruInit) return;
-      el.dataset.ecruInit = '1';
-      var stage = el.querySelector('[data-ecru-stage]');
-      var btn = el.querySelector('.ecru-carte__bascule');
-      var pinned = false;
-
-      layout(el);
-      if ('ResizeObserver' in window) {
-        new ResizeObserver(function () {
-          layout(el);
-        }).observe(el.querySelector('.ecru-carte__vue') || el);
-      }
-
-      if (btn) {
-        btn.addEventListener('click', function () {
-          pinned = !el.classList.contains('is-open');
-          setOpen(el, pinned);
-        });
-      }
-      if (stage) {
-        stage.addEventListener('pointerenter', function (e) {
-          if (e.pointerType === 'mouse' && window.innerWidth >= 900) setOpen(el, true);
-        });
-        stage.addEventListener('pointerleave', function (e) {
-          if (e.pointerType === 'mouse' && !pinned) setOpen(el, false);
-        });
-      }
-
-      var saveData = navigator.connection && navigator.connection.saveData;
-      if (saveData || !('IntersectionObserver' in window)) return;
-
-      var io = new IntersectionObserver(
-        function (entries) {
-          if (!entries[0].isIntersecting) return;
-          io.disconnect();
-          var url = el.dataset.module;
-          var p = loaded[url] || (loaded[url] = import(url));
-          p.then(function (m) {
-            return m.mount(el);
-          }).catch(function () {
-            el.classList.add('is-fallback');
-          });
-        },
-        { rootMargin: '300px 0px' }
-      );
-      io.observe(el);
-    }
-
-    function initAll(root) {
-      (root || document).querySelectorAll('[data-ecru-carte]').forEach(init);
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () {
-        initAll();
-      });
-    } else {
-      initAll();
-    }
-    document.addEventListener('shopify:section:load', function (e) {
-      initAll(e.target);
-    });
-    document.addEventListener('shopify:section:unload', function (e) {
-      var el = e.target.querySelector('[data-ecru-carte]');
-      if (el && el.__ecru) el.__ecru.destroy();
-    });
-  })();
-{% endjavascript %}
 
 {% schema %}
 {
@@ -597,9 +78,22 @@
     {
       "type": "text",
       "id": "card_text",
-      "label": "Texte en relief",
+      "label": "Marque gravée",
       "default": "ECRU",
-      "info": "18 caractères max. Affiché en majuscules."
+      "info": "En haut à gauche de la carte. 18 caractères max."
+    },
+    {
+      "type": "text",
+      "id": "card_holder",
+      "label": "Nom du titulaire",
+      "default": "Prénom Nom",
+      "info": "Laisser vide pour ne pas l'afficher."
+    },
+    {
+      "type": "text",
+      "id": "card_tier",
+      "label": "Niveau",
+      "default": "Privilège"
     },
     {
       "type": "color",
@@ -627,13 +121,13 @@
       "type": "image_picker",
       "id": "poster",
       "label": "Image fixe de secours",
-      "info": "Affichée pendant le chargement et si la 3D n'est pas disponible. Par défaut : rendu de la carte noire."
+      "info": "Affichée pendant le chargement et si la 3D n'est pas disponible."
     },
     {
       "type": "text",
       "id": "a11y_label",
       "label": "Description de la carte (accessibilité)",
-      "default": "Carte ECRU en métal noir brossé, ECRU en relief au recto, symbole sans contact au verso."
+      "default": "Carte ECRU en métal noir brossé, au nom du client, avec le symbole sans contact."
     },
     {
       "type": "text",
@@ -661,7 +155,7 @@
       "type": "text",
       "id": "eyebrow",
       "label": "Surtitre",
-      "default": "ECRU"
+      "default": "Cartes NFC pour commerçants"
     },
     {
       "type": "text",
@@ -719,7 +213,7 @@
           "type": "text",
           "id": "text",
           "label": "Texte",
-          "default": "Ils reviennent"
+          "default": "Ils reviennent d'eux-mêmes"
         }
       ]
     }
@@ -728,11 +222,11 @@
     {
       "name": "Carte 3D ECRU",
       "blocks": [
-        { "type": "avantage", "settings": { "text": "Ils reviennent" } },
-        { "type": "avantage", "settings": { "text": "Une carte à leur nom" } },
-        { "type": "avantage", "settings": { "text": "Sans application" } },
-        { "type": "avantage", "settings": { "text": "Récompenses modifiables" } },
-        { "type": "avantage", "settings": { "text": "Rapport chaque mois" } }
+        { "type": "avantage", "settings": { "text": "Ils reviennent d'eux-mêmes" } },
+        { "type": "avantage", "settings": { "text": "Gravée à leur nom" } },
+        { "type": "avantage", "settings": { "text": "Un geste, sans application" } },
+        { "type": "avantage", "settings": { "text": "Récompenses à la carte" } },
+        { "type": "avantage", "settings": { "text": "Vos chiffres chaque mois" } }
       ]
     }
   ]

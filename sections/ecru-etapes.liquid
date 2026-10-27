@@ -1,0 +1,60 @@
+{%- comment -%} ECRU — Comment ça marche, en étapes. {%- endcomment -%}
+<section
+  class="ecru-section ecru-etapes{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+    </header>
+
+    <ol class="ecru-etapes__liste" role="list">
+      {%- for block in section.blocks -%}
+        <li class="ecru-etape ecru-reveal" style="--d: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <span class="ecru-etape__num" aria-hidden="true">0{{ forloop.index }}</span>
+          <h3 class="ecru-titre ecru-titre--s">{{ block.settings.title | escape }}</h3>
+          <p class="ecru-texte">{{ block.settings.text | escape }}</p>
+        </li>
+      {%- endfor -%}
+    </ol>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Étapes ECRU",
+  "tag": "div",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Comment ça marche" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Trois temps. Rien à installer." },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": true },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "etape",
+      "name": "Étape",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "On crée votre carte" },
+        { "type": "textarea", "id": "text", "label": "Texte" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Étapes ECRU",
+      "blocks": [
+        { "type": "etape", "settings": { "title": "On crée votre carte", "text": "Votre nom, votre logo, votre matière. Nous la dessinons et la programmons pour vous." } },
+        { "type": "etape", "settings": { "title": "Ils la scannent", "text": "Un geste contre le téléphone. Pas d'application, pas de compte à créer." } },
+        { "type": "etape", "settings": { "title": "Ils reviennent", "text": "Ils cumulent, vous récompensez. Et chaque mois, vous voyez ce qui marche." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

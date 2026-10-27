@@ -1,0 +1,88 @@
+{%- comment -%} ECRU — Les matières. {%- endcomment -%}
+<section
+  class="ecru-section ecru-matieres{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+    </header>
+
+    <div class="ecru-matieres__grille">
+      {%- for block in section.blocks -%}
+        <article class="ecru-matiere ecru-reveal" style="--d: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            <div class="ecru-matiere__visuel">
+              {{
+                block.settings.image
+                | image_url: width: 900
+                | image_tag: widths: '450, 900', sizes: '(min-width: 750px) 33vw, 100vw', loading: 'lazy', alt: block.settings.title
+              }}
+            </div>
+          {%- else -%}
+            <div
+              class="ecru-matiere__visuel ecru-matiere__visuel--{{ block.settings.visual }}"
+              role="img"
+              aria-label="Carte en {{ block.settings.title | escape }}"
+            >
+              <span class="ecru-matiere__marque" aria-hidden="true">ECRU</span>
+            </div>
+          {%- endif -%}
+          <h3 class="ecru-titre ecru-titre--s">{{ block.settings.title | escape }}</h3>
+          <p class="ecru-texte">{{ block.settings.text | escape }}</p>
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Matières ECRU",
+  "tag": "div",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Matières" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Le poids des choses." },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": true },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "matiere",
+      "name": "Matière",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Nom", "default": "PVC" },
+        { "type": "textarea", "id": "text", "label": "Texte" },
+        {
+          "type": "select",
+          "id": "visual",
+          "label": "Rendu",
+          "options": [
+            { "value": "pvc", "label": "Mat" },
+            { "value": "aluminium", "label": "Brossé" },
+            { "value": "acier", "label": "Poli" }
+          ],
+          "default": "pvc"
+        },
+        { "type": "image_picker", "id": "image", "label": "Photo (remplace le rendu)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Matières ECRU",
+      "blocks": [
+        { "type": "matiere", "settings": { "title": "PVC", "text": "Léger, mat, net. L'essentiel, bien fait.", "visual": "pvc" } },
+        { "type": "matiere", "settings": { "title": "Aluminium", "text": "Brossé, plus présent. On sent la différence en la prenant.", "visual": "aluminium" } },
+        { "type": "matiere", "settings": { "title": "Acier inoxydable", "text": "Lourd en main, poli. Celle qu'on ne range jamais.", "visual": "acier" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

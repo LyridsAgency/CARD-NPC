@@ -1,0 +1,70 @@
+{%- comment -%} ECRU — Questions fréquentes. {%- endcomment -%}
+<section
+  class="ecru-section ecru-faq{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur ecru-faq__grille">
+    <header class="ecru-entete">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-titre--m ecru-reveal">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.contact_label != blank -%}
+        <div class="ecru-actions ecru-reveal">
+          <a class="ecru-bouton ecru-bouton--ligne" href="{{ settings.ecru_contact_link | default: '/pages/contact' }}">
+            {{- section.settings.contact_label | escape -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </header>
+
+    <div class="ecru-faq__liste">
+      {%- for block in section.blocks -%}
+        <details class="ecru-reveal" style="--d: {{ forloop.index0 | at_most: 4 }}" {{ block.shopify_attributes }}>
+          <summary>{{ block.settings.question | escape }}</summary>
+          <div class="ecru-faq__reponse">{{ block.settings.answer }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FAQ ECRU",
+  "tag": "div",
+  "max_blocks": 10,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Questions" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Simple, vraiment." },
+    { "type": "text", "id": "contact_label", "label": "Bouton contact", "default": "Une autre question" },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": false },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Question" },
+        { "type": "richtext", "id": "answer", "label": "Réponse", "default": "<p>Réponse</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ ECRU",
+      "blocks": [
+        { "type": "question", "settings": { "question": "Mes clients doivent-ils installer une application ?", "answer": "<p>Non. Ils approchent la carte de leur téléphone et la page s'ouvre. C'est tout.</p>" } },
+        { "type": "question", "settings": { "question": "Quelle différence entre Fidélité et Cartes simples ?", "answer": "<p>Fidélité, c'est le programme complet : cartes, récompenses, suivi et rapport mensuel, avec un abonnement. Cartes simples, c'est une carte noire ou blanche qui ouvre le lien de votre choix.</p>" } },
+        { "type": "question", "settings": { "question": "Puis-je changer les récompenses ?", "answer": "<p>Oui, quand vous voulez. Vos cartes restent les mêmes.</p>" } },
+        { "type": "question", "settings": { "question": "La carte peut-elle porter mon logo ?", "answer": "<p>Oui. Chaque carte est créée pour vous : votre nom, votre logo, et le nom de vos clients si vous le souhaitez.</p>" } },
+        { "type": "question", "settings": { "question": "Quelle matière choisir ?", "answer": "<p>Le PVC pour l'essentiel, l'aluminium pour plus de présence, l'acier pour marquer les esprits. Toutes fonctionnent de la même façon.</p>" } },
+        { "type": "question", "settings": { "question": "J'ai un besoin particulier.", "answer": "<p>Événement, quantité, finition : écrivez-nous, nous étudions chaque demande.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

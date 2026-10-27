@@ -1466,5 +1466,36 @@
         "label": "t:settings_schema.customer_accounts.settings.customer_account_menu.label"
       }
     ]
+  },
+  {
+    "name": "ECRU",
+    "settings": [
+      {
+        "type": "text",
+        "id": "ecru_nom_marque",
+        "label": "Nom affiché (en-tête, pied de page)",
+        "default": "ECRU",
+        "info": "Utilisé tant qu'aucun logo n'est choisi."
+      },
+      {
+        "type": "checkbox",
+        "id": "ecru_prix_a_definir",
+        "label": "Afficher « [Prix à définir] » à la place des prix",
+        "default": true,
+        "info": "À décocher une fois les vrais prix saisis dans les produits."
+      },
+      {
+        "type": "text",
+        "id": "ecru_prix_texte",
+        "label": "Texte affiché",
+        "default": "[Prix à définir]"
+      },
+      {
+        "type": "url",
+        "id": "ecru_contact_link",
+        "label": "Lien « Demande spécifique »",
+        "info": "Par défaut : la page /pages/contact."
+      }
+    ]
   }
 ]

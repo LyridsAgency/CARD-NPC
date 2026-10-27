@@ -4,16 +4,34 @@
   "sections": {
     "footer": {
       "type": "footer",
-      "blocks": {},
-      "block_order": [],
+      "blocks": {
+        "texte": {
+          "type": "text",
+          "settings": {
+            "heading": "ECRU",
+            "subtext": "<p>Cartes NFC de fidélité pour les commerces, restaurants, salons, clubs et festivals.</p>"
+          }
+        },
+        "liens": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Navigation",
+            "menu": "footer"
+          }
+        }
+      },
+      "block_order": [
+        "texte",
+        "liens"
+      ],
       "settings": {
         "color_scheme": "scheme-1",
         "newsletter_enable": true,
-        "newsletter_heading": "Subscribe to our emails",
-        "enable_follow_on_shop": true,
+        "newsletter_heading": "Restez dans le cercle.",
+        "enable_follow_on_shop": false,
         "show_social": true,
-        "enable_country_selector": true,
-        "enable_language_selector": true,
+        "enable_country_selector": false,
+        "enable_language_selector": false,
         "payment_enable": true,
         "show_policy": true,
         "margin_top": 0,

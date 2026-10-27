@@ -126,18 +126,18 @@
                             {{ 'products.product.price.regular_price' | t }}
                           </span>
                           <s class="cart-item__old-price product-option">
-                            {{- item.original_price | money -}}
+                            {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{- item.original_price | money -}}{%- endif -%}
                           </s>
                           <span class="visually-hidden">
                             {{ 'products.product.price.sale_price' | t }}
                           </span>
                           <strong class="cart-item__final-price product-option">
-                            {{ item.final_price | money }}
+                            {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.final_price | money }}{%- endif -%}
                           </strong>
                         </div>
                       {%- else -%}
                         <div class="product-option">
-                          {{ item.original_price | money }}
+                          {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.original_price | money }}{%- endif -%}
                         </div>
                       {%- endif -%}
 
@@ -197,19 +197,19 @@
                             </dt>
                             <dd>
                               <s class="cart-item__old-price price price--end">
-                                {{ item.original_line_price | money }}
+                                {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.original_line_price | money }}{%- endif -%}
                               </s>
                             </dd>
                             <dt class="visually-hidden">
                               {{ 'products.product.price.sale_price' | t }}
                             </dt>
                             <dd class="price price--end">
-                              {{ item.final_line_price | money }}
+                              {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.final_line_price | money }}{%- endif -%}
                             </dd>
                           </dl>
                         {%- else -%}
                           <span class="price price--end">
-                            {{ item.original_line_price | money }}
+                            {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.original_line_price | money }}{%- endif -%}
                           </span>
                         {%- endif -%}
 
@@ -425,19 +425,19 @@
                             </dt>
                             <dd>
                               <s class="cart-item__old-price price price--end">
-                                {{ item.original_line_price | money }}
+                                {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.original_line_price | money }}{%- endif -%}
                               </s>
                             </dd>
                             <dt class="visually-hidden">
                               {{ 'products.product.price.sale_price' | t }}
                             </dt>
                             <dd class="price price--end">
-                              {{ item.final_line_price | money }}
+                              {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.final_line_price | money }}{%- endif -%}
                             </dd>
                           </dl>
                         {%- else -%}
                           <span class="price price--end">
-                            {{ item.original_line_price | money }}
+                            {%- if settings.ecru_prix_a_definir -%}{{ settings.ecru_prix_texte | escape }}{%- else -%}{{ item.original_line_price | money }}{%- endif -%}
                           </span>
                         {%- endif -%}
 

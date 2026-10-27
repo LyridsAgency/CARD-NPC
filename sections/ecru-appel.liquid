@@ -1,0 +1,43 @@
+{%- comment -%} ECRU — Appel final. {%- endcomment -%}
+<section
+  class="ecru-section ecru-appel"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+    {%- endif -%}
+    <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+    <div class="ecru-actions ecru-actions--centre ecru-reveal">
+      {%- if section.settings.button_label != blank -%}
+        <a class="ecru-bouton" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+      {%- if section.settings.button_2_label != blank -%}
+        <a class="ecru-bouton ecru-bouton--ligne" href="{{ section.settings.button_2_link | default: settings.ecru_contact_link | default: '/pages/contact' }}">
+          {{- section.settings.button_2_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Appel final ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Ils reviennent. Naturellement." },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Faites-les revenir." },
+    { "type": "text", "id": "button_label", "label": "Bouton principal", "default": "Créer mes cartes" },
+    { "type": "url", "id": "button_link", "label": "Lien du bouton principal" },
+    { "type": "text", "id": "button_2_label", "label": "Bouton secondaire", "default": "Demande spécifique" },
+    { "type": "url", "id": "button_2_link", "label": "Lien du bouton secondaire", "info": "Par défaut : la page contact." },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 200, "step": 8, "unit": "px", "default": 128 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 200, "step": 8, "unit": "px", "default": 128 }
+  ],
+  "presets": [{ "name": "Appel final ECRU" }]
+}
+{% endschema %}

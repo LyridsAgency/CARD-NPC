@@ -1,0 +1,134 @@
+{%- comment -%} ECRU — Les offres, côte à côte. {%- endcomment -%}
+<section
+  id="offres"
+  class="ecru-section ecru-offres{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete ecru-entete--centre">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+    </header>
+
+    <div class="ecru-offres__grille">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign produit = block.settings.product
+          assign lien = block.settings.link
+          if lien == blank and produit != blank
+            assign lien = produit.url
+          endif
+          if lien == blank
+            assign lien = routes.all_products_collection_url
+          endif
+          assign points = block.settings.features | newline_to_br | split: '<br />'
+        -%}
+        <article
+          class="ecru-offre ecru-reveal{% if block.settings.highlight %} ecru-offre--mise-en-avant{% endif %}"
+          style="--d: {{ forloop.index0 }}"
+          {{ block.shopify_attributes }}
+        >
+          <div class="ecru-offre__haut">
+            <h3 class="ecru-titre ecru-titre--m">{{ block.settings.title | escape }}</h3>
+            {%- if block.settings.badge != blank -%}
+              <span class="ecru-offre__badge">{{ block.settings.badge | escape }}</span>
+            {%- endif -%}
+          </div>
+          <p class="ecru-texte">{{ block.settings.text | escape }}</p>
+
+          <p class="ecru-offre__prix">
+            <span class="ecru-prix">
+              {%- if settings.ecru_prix_a_definir or produit == blank -%}
+                {{ settings.ecru_prix_texte | default: '[Prix à définir]' | escape }}
+              {%- else -%}
+                {{ produit.price | money }}
+              {%- endif -%}
+            </span>
+            {%- if block.settings.price_note != blank -%}
+              <small>{{ block.settings.price_note | escape }}</small>
+            {%- endif -%}
+          </p>
+
+          <ul class="ecru-offre__liste" role="list">
+            {%- for point in points -%}
+              {%- assign p = point | strip -%}
+              {%- if p != blank -%}
+                <li>{{ p | escape }}</li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+
+          <div class="ecru-actions">
+            <a class="ecru-bouton{% unless block.settings.highlight %} ecru-bouton--ligne{% endunless %}" href="{{ lien }}">
+              {{- block.settings.button_label | escape -}}
+            </a>
+          </div>
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Offres ECRU",
+  "tag": "div",
+  "max_blocks": 3,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Les offres" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Deux façons d'entrer." },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": false },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "offre",
+      "name": "Offre",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Nom", "default": "Fidélité" },
+        { "type": "text", "id": "badge", "label": "Étiquette" },
+        { "type": "textarea", "id": "text", "label": "Texte" },
+        { "type": "product", "id": "product", "label": "Produit lié", "info": "Sert au lien et au prix." },
+        { "type": "text", "id": "price_note", "label": "Précision sous le prix" },
+        { "type": "textarea", "id": "features", "label": "Points forts (un par ligne)" },
+        { "type": "text", "id": "button_label", "label": "Bouton", "default": "Choisir" },
+        { "type": "url", "id": "link", "label": "Lien du bouton", "info": "Par défaut : le produit lié." },
+        { "type": "checkbox", "id": "highlight", "label": "Mettre en avant", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Offres ECRU",
+      "blocks": [
+        {
+          "type": "offre",
+          "settings": {
+            "title": "Fidélité",
+            "badge": "Le programme complet",
+            "text": "La carte et tout ce qui la fait vivre : programme de fidélité, récompenses, suivi.",
+            "price_note": "Cartes + abonnement mensuel",
+            "features": "Cartes au nom de vos clients\nProgramme de fidélité clé en main\nRécompenses modifiables à tout moment\nRapport chaque mois\nSans application",
+            "button_label": "Choisir Fidélité",
+            "highlight": true
+          }
+        },
+        {
+          "type": "offre",
+          "settings": {
+            "title": "Cartes simples",
+            "text": "Une carte noire ou blanche. Un geste, un lien : votre site, votre menu, vos avis, vos réseaux.",
+            "price_note": "Paiement unique",
+            "features": "Noir ou blanc\nUn lien au choix, modifiable\nPVC, aluminium ou acier\nSans application",
+            "button_label": "Choisir Cartes simples"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

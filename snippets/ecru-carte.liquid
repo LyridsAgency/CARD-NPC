@@ -1,0 +1,97 @@
+{%- comment -%}
+  ECRU — Carte 3D réutilisable (accueil, pages produit, configurateur).
+
+  Paramètres :
+  - id (obligatoire) : identifiant unique
+  - text : marque gravée en haut à gauche (défaut ECRU)
+  - holder : nom du titulaire, en bas à gauche
+  - tier : niveau, en bas à droite
+  - color, ink : couleur de la carte et du relief
+  - finish : 'metal' ou 'mat'
+  - poster : image de secours (image Shopify), sinon rendu par défaut
+  - alt : description de la carte
+  - avantages : liste séparée par « | » (5 max), affichée avec des flèches au survol
+  - toggle_label : libellé du bouton des avantages
+  - compact : true pour une scène moins haute (pages produit)
+
+  La scène three.js (assets/ecru-carte-3d.js) n'est chargée qu'à l'approche de la carte.
+  Pour mettre à jour la carte en direct : el.dispatchEvent(new CustomEvent('ecru:card-update', { detail: { text, holder, tier, color, ink, finish } }))
+{%- endcomment -%}
+{%- liquid
+  assign text = text | default: 'ECRU' | strip | upcase
+  assign finish = finish | default: 'metal'
+  assign alt = alt | default: 'Carte ECRU en métal noir brossé.'
+  assign toggle_label = toggle_label | default: 'Les avantages'
+  assign items = avantages | split: '|'
+-%}
+{{ 'ecru-carte.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'ecru-carte-loader.js' | asset_url }}" defer="defer"></script>
+
+<div
+  id="{{ id }}"
+  class="ecru-carte{% if compact %} ecru-carte--compact{% endif %}"
+  data-ecru-carte
+  data-module="{{ 'ecru-carte-3d.js' | asset_url }}"
+  data-font="{{ 'archivo-black.woff2' | asset_url }}"
+  data-font-body="{{ 'inter-500.woff2' | asset_url }}"
+  data-text="{{ text | escape }}"
+  data-holder="{{ holder | escape }}"
+  data-tier="{{ tier | escape }}"
+  data-color="{{ color | default: '#0d0d0c' }}"
+  data-ink="{{ ink | default: '#e9e4d8' }}"
+  data-finish="{{ finish }}"
+>
+  <div class="ecru-carte__scene">
+    <div class="ecru-carte__vue" data-ecru-stage>
+      <div class="ecru-carte__affiche">
+        {%- if poster != blank -%}
+          {{
+            poster
+            | image_url: width: 1800
+            | image_tag:
+              widths: '600, 900, 1200, 1800',
+              sizes: '(min-width: 990px) 70vw, 100vw',
+              alt: alt,
+              class: 'ecru-carte__affiche-img'
+          }}
+        {%- else -%}
+          <img
+            class="ecru-carte__affiche-img"
+            src="{{ 'ecru-carte-secours.webp' | asset_url }}"
+            alt="{{ alt | escape }}"
+            width="1600"
+            height="1052"
+            fetchpriority="high"
+            decoding="async"
+          >
+        {%- endif -%}
+      </div>
+      {%- if items.size > 0 -%}
+        <svg class="ecru-carte__fleches" aria-hidden="true" focusable="false"></svg>
+      {%- endif -%}
+    </div>
+
+    {%- if items.size > 0 -%}
+      <ul class="ecru-carte__avantages" id="{{ id }}-avantages" role="list">
+        {%- for item in items limit: 5 -%}
+          <li class="ecru-carte__avantage" style="--i: {{ forloop.index0 }}">
+            <span class="ecru-carte__num" aria-hidden="true">0{{ forloop.index }}</span>
+            <span class="ecru-carte__libelle">{{ item | strip | escape }}</span>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+
+  {%- if items.size > 0 -%}
+    <button
+      type="button"
+      class="ecru-carte__bascule"
+      aria-expanded="false"
+      aria-controls="{{ id }}-avantages"
+    >
+      <span class="ecru-carte__bascule-ouvrir">{{ toggle_label | escape }}</span>
+      <span class="ecru-carte__bascule-fermer">Masquer</span>
+    </button>
+  {%- endif -%}
+</div>

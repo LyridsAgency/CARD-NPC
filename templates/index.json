@@ -1,36 +1,48 @@
 {
   "sections": {
-    "ecru_carte": {
+    "hero": {
       "type": "ecru-carte-3d",
+      "settings": {
+        "show_text": true,
+        "heading_h1": true,
+        "eyebrow": "Cartes NFC pour commerçants",
+        "heading": "Ils reviennent. Naturellement.",
+        "button_label": "Créer mes cartes",
+        "button_link": "shopify://collections/cartes",
+        "padding_top": 56,
+        "padding_bottom": 56,
+        "card_holder": "Prénom Nom",
+        "card_tier": "Privilège"
+      },
       "blocks": {
         "avantage_1": {
           "type": "avantage",
           "settings": {
-            "text": "Ils reviennent"
+            "text": "Ils reviennent d'eux-mêmes"
           }
         },
         "avantage_2": {
           "type": "avantage",
           "settings": {
-            "text": "Une carte à leur nom"
+            "text": "Gravée à leur nom"
           }
         },
         "avantage_3": {
           "type": "avantage",
           "settings": {
-            "text": "Sans application"
+            "text": "Un geste, sans application"
           }
         },
         "avantage_4": {
           "type": "avantage",
           "settings": {
-            "text": "Récompenses modifiables"
+            "text": "Récompenses à la carte"
           }
         },
         "avantage_5": {
           "type": "avantage",
           "settings": {
-            "text": "Rapport chaque mois"
+            "text": "Vos chiffres chaque mois"
           }
         }
       },
@@ -40,15 +52,214 @@
         "avantage_3",
         "avantage_4",
         "avantage_5"
-      ],
+      ]
+    },
+    "avantages": {
+      "type": "ecru-avantages",
+      "settings": {},
+      "blocks": {
+        "avantage_1": {
+          "type": "avantage",
+          "settings": {
+            "title": "La fidélité, sans effort",
+            "text": "Chaque passage compte. Vos clients cumulent, vous récompensez. Ils reviennent, parce qu'ils ont une raison de le faire.",
+            "pour": "Restaurants, cafés, salons"
+          }
+        },
+        "avantage_2": {
+          "type": "avantage",
+          "settings": {
+            "title": "Votre marque, dans leur poche",
+            "text": "Une carte gravée à votre nom, qu'on garde et qu'on montre. Votre commerce existe aussi en dehors de vos murs.",
+            "pour": "Boutiques, instituts, clubs"
+          }
+        },
+        "avantage_3": {
+          "type": "avantage",
+          "settings": {
+            "title": "On parle de vous",
+            "text": "Un geste contre un téléphone, et votre page s'ouvre : avis, réseaux, programme, billetterie. Partager devient naturel.",
+            "pour": "Festivals, soirées, événements"
+          }
+        }
+      },
+      "block_order": [
+        "avantage_1",
+        "avantage_2",
+        "avantage_3"
+      ]
+    },
+    "etapes": {
+      "type": "ecru-etapes",
+      "settings": {},
+      "blocks": {
+        "etape_1": {
+          "type": "etape",
+          "settings": {
+            "title": "On crée votre carte",
+            "text": "Votre nom, votre logo, votre matière. Nous la dessinons et la programmons pour vous."
+          }
+        },
+        "etape_2": {
+          "type": "etape",
+          "settings": {
+            "title": "Ils la scannent",
+            "text": "Un geste contre le téléphone. Pas d'application, pas de compte à créer."
+          }
+        },
+        "etape_3": {
+          "type": "etape",
+          "settings": {
+            "title": "Ils reviennent",
+            "text": "Ils cumulent, vous récompensez. Et chaque mois, vous voyez ce qui marche."
+          }
+        }
+      },
+      "block_order": [
+        "etape_1",
+        "etape_2",
+        "etape_3"
+      ]
+    },
+    "offres": {
+      "type": "ecru-offres",
+      "settings": {},
+      "blocks": {
+        "offre_1": {
+          "type": "offre",
+          "settings": {
+            "title": "Fidélité",
+            "badge": "Le programme complet",
+            "text": "La carte et tout ce qui la fait vivre : programme de fidélité, récompenses, suivi.",
+            "price_note": "Cartes + abonnement mensuel",
+            "features": "Cartes au nom de vos clients\nProgramme de fidélité clé en main\nRécompenses modifiables à tout moment\nRapport chaque mois\nSans application",
+            "button_label": "Choisir Fidélité",
+            "highlight": true,
+            "product": "carte-fidelite"
+          }
+        },
+        "offre_2": {
+          "type": "offre",
+          "settings": {
+            "title": "Cartes simples",
+            "text": "Une carte noire ou blanche. Un geste, un lien : votre site, votre menu, vos avis, vos réseaux.",
+            "price_note": "Paiement unique",
+            "features": "Noir ou blanc\nUn lien au choix, modifiable\nPVC, aluminium ou acier\nSans application",
+            "button_label": "Choisir Cartes simples",
+            "product": "cartes-simples"
+          }
+        }
+      },
+      "block_order": [
+        "offre_1",
+        "offre_2"
+      ]
+    },
+    "matieres": {
+      "type": "ecru-matieres",
+      "settings": {},
+      "blocks": {
+        "matiere_1": {
+          "type": "matiere",
+          "settings": {
+            "title": "PVC",
+            "text": "Léger, mat, net. L'essentiel, bien fait.",
+            "visual": "pvc"
+          }
+        },
+        "matiere_2": {
+          "type": "matiere",
+          "settings": {
+            "title": "Aluminium",
+            "text": "Brossé, plus présent. On sent la différence en la prenant.",
+            "visual": "aluminium"
+          }
+        },
+        "matiere_3": {
+          "type": "matiere",
+          "settings": {
+            "title": "Acier inoxydable",
+            "text": "Lourd en main, poli. Celle qu'on ne range jamais.",
+            "visual": "acier"
+          }
+        }
+      },
+      "block_order": [
+        "matiere_1",
+        "matiere_2",
+        "matiere_3"
+      ]
+    },
+    "faq": {
+      "type": "ecru-faq",
+      "settings": {},
+      "blocks": {
+        "question_1": {
+          "type": "question",
+          "settings": {
+            "question": "Mes clients doivent-ils installer une application ?",
+            "answer": "<p>Non. Ils approchent la carte de leur téléphone et la page s'ouvre. C'est tout.</p>"
+          }
+        },
+        "question_2": {
+          "type": "question",
+          "settings": {
+            "question": "Quelle différence entre Fidélité et Cartes simples ?",
+            "answer": "<p>Fidélité, c'est le programme complet : cartes, récompenses, suivi et rapport mensuel, avec un abonnement. Cartes simples, c'est une carte noire ou blanche qui ouvre le lien de votre choix.</p>"
+          }
+        },
+        "question_3": {
+          "type": "question",
+          "settings": {
+            "question": "Puis-je changer les récompenses ?",
+            "answer": "<p>Oui, quand vous voulez. Vos cartes restent les mêmes.</p>"
+          }
+        },
+        "question_4": {
+          "type": "question",
+          "settings": {
+            "question": "La carte peut-elle porter mon logo ?",
+            "answer": "<p>Oui. Chaque carte est créée pour vous : votre nom, votre logo, et le nom de vos clients si vous le souhaitez.</p>"
+          }
+        },
+        "question_5": {
+          "type": "question",
+          "settings": {
+            "question": "Quelle matière choisir ?",
+            "answer": "<p>Le PVC pour l'essentiel, l'aluminium pour plus de présence, l'acier pour marquer les esprits. Toutes fonctionnent de la même façon.</p>"
+          }
+        },
+        "question_6": {
+          "type": "question",
+          "settings": {
+            "question": "J'ai un besoin particulier.",
+            "answer": "<p>Événement, quantité, finition : écrivez-nous, nous étudions chaque demande.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "question_1",
+        "question_2",
+        "question_3",
+        "question_4",
+        "question_5",
+        "question_6"
+      ]
+    },
+    "appel": {
+      "type": "ecru-appel",
       "settings": {
-        "card_text": "ECRU",
-        "card_color": "#0d0d0c",
-        "ink_color": "#e9e4d8"
+        "button_link": "shopify://collections/cartes"
       }
     }
   },
   "order": [
-    "ecru_carte"
+    "hero",
+    "avantages",
+    "etapes",
+    "offres",
+    "matieres",
+    "faq",
+    "appel"
   ]
 }

@@ -86,11 +86,11 @@ function canvas(w, h) {
 }
 
 // Dessine le texte lettre par lettre (letterSpacing n'est pas partout supporté)
-function drawSpaced(ctx, text, cx, cy, size, tracking) {
+function drawSpaced(ctx, text, cx, cy, size, tracking, align = 'center') {
   const chars = [...text];
   const widths = chars.map((ch) => ctx.measureText(ch).width);
   const total = widths.reduce((a, b) => a + b, 0) + tracking * size * (chars.length - 1);
-  let x = cx - total / 2;
+  let x = align === 'left' ? cx : align === 'right' ? cx - total : cx - total / 2;
   chars.forEach((ch, i) => {
     ctx.fillText(ch, x, cy);
     x += widths[i] + tracking * size;
@@ -107,7 +107,8 @@ function fitFontSize(ctx, text, family, maxW, maxH, tracking) {
 
 // Construit les cartes de texture d'une face.
 // drawMask(ctx, w, h) dessine en blanc ce qui est en relief (texte, symbole).
-function buildFace({ w, h, base, ink, seed, drawMask, relief, metal }) {
+// drawEngrave(ctx, w, h), facultatif : gravure fine dans la matière (relief seul, sans couleur).
+function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, relief, metal }) {
   const mask = canvas(w, h);
   const mctx = mask.getContext('2d');
   mctx.fillStyle = '#000';
@@ -127,6 +128,17 @@ function buildFace({ w, h, base, ink, seed, drawMask, relief, metal }) {
 
   const md = mctx.getImageData(0, 0, w, h).data;
   const sd = sctx.getImageData(0, 0, w, h).data;
+  let ed = null;
+  if (drawEngrave) {
+    const eng = canvas(w, h);
+    const ectx = eng.getContext('2d');
+    ectx.fillStyle = '#000';
+    ectx.fillRect(0, 0, w, h);
+    ectx.strokeStyle = '#fff';
+    ectx.fillStyle = '#fff';
+    drawEngrave(ectx, w, h);
+    ed = ectx.getImageData(0, 0, w, h).data;
+  }
 
   const color = canvas(w, h);
   const orm = canvas(w, h);
@@ -172,11 +184,13 @@ function buildFace({ w, h, base, ink, seed, drawMask, relief, metal }) {
       cd[i + 3] = 255;
       // G = rugosité, B = métal
       od[i] = 255;
-      od[i + 1] = ((metal ? 0.3 : 0.82) + g * (metal ? 0.035 : 0.1)) * 255 * (1 - m) + (metal ? 0.22 : 0.36) * 255 * m;
+      const rough = (metal ? 0.3 : 0.82) + g * (metal ? 0.035 : 0.1) - (ed ? (ed[i] / 255) * 0.12 : 0);
+      od[i + 1] = rough * 255 * (1 - m) + (metal ? 0.22 : 0.36) * 255 * m;
       od[i + 2] = (metal ? 255 * (1 - m) + 0.8 * 255 * m : 255 * m * 0.62);
       od[i + 3] = 255;
       // Relief : grain + texte surélevé (ou gravé si relief < 0)
-      const v = 128 + g * (metal ? 9 : 26) + relief * (s * 0.55 + m * 0.45) * 110;
+      const e = ed ? ed[i] / 255 : 0;
+      const v = 128 + g * (metal ? 9 : 26) + relief * (s * 0.55 + m * 0.45) * 110 - e * 38;
       bd[i] = bd[i + 1] = bd[i + 2] = v;
       bd[i + 3] = 255;
     }
@@ -224,18 +238,27 @@ function radialTexture(stops) {
   return t;
 }
 
-function drawNfc(ctx, w, h) {
-  // Symbole sans contact : quatre arcs, discret, côté droit
-  const unit = h * 0.034;
-  const cx = w * 0.79;
-  const cy = h * 0.5;
+// Symbole sans contact : quatre arcs. (x, y) = centre du symbole, unit = échelle.
+function drawNfc(ctx, x, y, unit, alpha = 0.85) {
+  ctx.save();
   ctx.lineWidth = unit * 0.9;
   ctx.lineCap = 'round';
+  ctx.globalAlpha = alpha;
   for (let i = 0; i < 4; i++) {
-    const r = unit * (1.6 + i * 1.55);
-    ctx.globalAlpha = 0.85;
     ctx.beginPath();
-    ctx.arc(cx - unit * 4.2, cy, r, -0.62, 0.62);
+    ctx.arc(x - unit * 3.4, y, unit * (1.6 + i * 1.55), -0.62, 0.62);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// Guillochage : arcs concentriques très fins, partant d'un coin, comme sur un billet ou une montre
+function drawGuilloche(ctx, w, h, cx, cy, from, to) {
+  ctx.lineWidth = Math.max(1, w / 1500);
+  for (let r = from; r < to; r += h * 0.021) {
+    ctx.globalAlpha = 0.55 + 0.45 * Math.sin(r / (h * 0.09));
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
@@ -272,7 +295,9 @@ export async function mount(el) {
   if (el.__ecru) return el.__ecru;
   const stage = el.querySelector('[data-ecru-stage]');
   const fontUrl = el.dataset.font;
+  const bodyUrl = el.dataset.fontBody;
   const family = 'Archivo Black';
+  const bodyFamily = 'Inter';
 
   let renderer;
   try {
@@ -282,13 +307,20 @@ export async function mount(el) {
     return null;
   }
 
-  if (fontUrl && document.fonts) {
-    try {
-      const ff = new FontFace(family, `url(${fontUrl})`);
-      document.fonts.add(await ff.load());
-    } catch (e) {
-      /* police système en secours */
-    }
+  if (document.fonts) {
+    await Promise.all(
+      [
+        [family, fontUrl, '400'],
+        [bodyFamily, bodyUrl, '500'],
+      ].map(async ([name, url, weight]) => {
+        if (!url) return;
+        try {
+          document.fonts.add(await new FontFace(name, `url(${url})`, { weight }).load());
+        } catch (e) {
+          /* police système en secours */
+        }
+      })
+    );
   }
 
   const small = Math.min(window.innerWidth, window.innerHeight) < 820;
@@ -380,8 +412,10 @@ export async function mount(el) {
   const texH = Math.round((texW * H) / W);
   let current = {};
 
-  function applyLook({ text, color, ink, finish }) {
+  function applyLook({ text, holder, tier, color, ink, finish }) {
     text = (text || 'ECRU').toUpperCase().slice(0, 18);
+    holder = (holder || '').toUpperCase().slice(0, 26);
+    tier = (tier || '').toUpperCase().slice(0, 18);
     const metal = finish !== 'mat';
     // Un métal noir pur ne refléterait rien : on remonte l'albédo vers un gris acier très sombre
     const base = metal
@@ -396,6 +430,10 @@ export async function mount(el) {
         m.dispose();
       }
     });
+    const small = (ctx, txt, size, x, y, tracking, align, weight = 500) => {
+      ctx.font = `${weight} ${size}px "${bodyFamily}", sans-serif`;
+      drawSpaced(ctx, txt, x, y, size, tracking, align);
+    };
     const frontTex = buildFace({
       w: texW,
       h: texH,
@@ -405,22 +443,49 @@ export async function mount(el) {
       relief: 1,
       metal,
       drawMask(ctx, w, h) {
-        const tracking = 0.06;
-        const size = fitFontSize(ctx, text, family, w * (text.length > 6 ? 0.78 : 0.5), h * 0.3, tracking);
-        ctx.font = `${size}px "${family}", sans-serif`;
+        const m = w * 0.068;
         ctx.textBaseline = 'middle';
-        drawSpaced(ctx, text, w / 2, h * 0.5, size, tracking);
+        // Marque en haut à gauche, petite et très espacée
+        const size = Math.min(h * 0.082, fitFontSize(ctx, text, family, w * 0.5, h * 0.082, 0.16));
+        ctx.font = `${size}px "${family}", sans-serif`;
+        drawSpaced(ctx, text, m, m + size * 0.5, size, 0.16, 'left');
+        // Sans contact, en haut à droite
+        drawNfc(ctx, w - m - h * 0.018, m + size * 0.5, h * 0.016, 0.9);
+        // Titulaire et niveau, en bas
+        if (holder) {
+          small(ctx, 'MEMBRE', h * 0.03, m, h - m - h * 0.105, 0.32, 'left');
+          small(ctx, holder, h * 0.05, m, h - m - h * 0.035, 0.14, 'left');
+        }
+        if (tier) small(ctx, tier, h * 0.034, w - m, h - m - h * 0.035, 0.32, 'right');
+      },
+      drawEngrave(ctx, w, h) {
+        drawGuilloche(ctx, w, h, w * 1.02, h * 1.12, h * 0.34, h * 1.05);
       },
     });
     const backTex = buildFace({
       w: texW,
       h: texH,
       base,
-      ink: inkRgb.map((v, i) => v * 0.42 + base[i] * 0.58),
+      ink: inkRgb.map((v, i) => v * 0.55 + base[i] * 0.45),
       seed: 11,
       relief: -0.8,
       metal,
-      drawMask: drawNfc,
+      drawMask(ctx, w, h) {
+        ctx.textBaseline = 'middle';
+        drawNfc(ctx, w / 2 + h * 0.03, h * 0.43, h * 0.032, 0.8);
+        small(ctx, 'APPROCHEZ VOTRE TÉLÉPHONE', h * 0.03, w / 2, h * 0.64, 0.3, 'center');
+        const m = w * 0.068;
+        ctx.font = `${h * 0.04}px "${family}", sans-serif`;
+        drawSpaced(ctx, text, m, h - m - h * 0.02, h * 0.04, 0.16, 'left');
+      },
+      drawEngrave(ctx, w, h) {
+        // Filet gravé à l'intérieur du bord
+        const i = w * 0.03;
+        ctx.lineWidth = Math.max(1, w / 1400);
+        ctx.beginPath();
+        ctx.roundRect(i, i, w - i * 2, h - i * 2, h * 0.04);
+        ctx.stroke();
+      },
     });
     front.material = faceMaterial(frontTex, anisotropy, metal);
     back.material = faceMaterial(backTex, anisotropy, metal);
@@ -430,10 +495,11 @@ export async function mount(el) {
     edgeMat.metalness = metal ? 1 : 0.35;
     edgeMat.roughness = metal ? 0.22 : 0.42;
     scene.environmentIntensity = metal ? 1.15 : 0.75;
-    current = { text, color, ink, finish };
+    current = { text, holder, tier, color, ink, finish };
   }
 
-  applyLook({ text: el.dataset.text, color: el.dataset.color, ink: el.dataset.ink, finish: el.dataset.finish });
+  const d = el.dataset;
+  applyLook({ text: d.text, holder: d.holder, tier: d.tier, color: d.color, ink: d.ink, finish: d.finish });
 
   // ---- Cadrage : la carte occupe toujours la même part de la scène (cohérent avec l'image de secours)
   let sw = 1;

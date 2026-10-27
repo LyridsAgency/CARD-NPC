@@ -12,6 +12,10 @@
   Usage:
   {% render 'price', product: product %}
 {% endcomment %}
+{%- comment -%} ECRU : tant que les prix ne sont pas fixés, on affiche le texte réglé dans les paramètres du thème. {%- endcomment -%}
+{%- if settings.ecru_prix_a_definir -%}
+  <div class="price ecru-prix{% if class %} {{ class }}{% endif %}">{{ settings.ecru_prix_texte | default: '[Prix à définir]' | escape }}</div>
+{%- else -%}
 {%- liquid
   if use_variant
     assign target = product.selected_or_first_available_variant
@@ -123,3 +127,5 @@
     {%- endif -%}
   </div>
 {% endunless %}
+
+{%- endif -%}
