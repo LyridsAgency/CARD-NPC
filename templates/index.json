@@ -1,75 +1,54 @@
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
+    "ecru_carte": {
+      "type": "ecru-carte-3d",
       "blocks": {
-        "heading": {
-          "type": "heading",
+        "avantage_1": {
+          "type": "avantage",
           "settings": {
-            "heading": "Browse our latest products",
-            "heading_size": "h0"
+            "text": "Ils reviennent"
           }
         },
-        "button": {
-          "type": "buttons",
+        "avantage_2": {
+          "type": "avantage",
           "settings": {
-            "button_label_1": "Shop all",
-            "button_link_1": "shopify://collections/all",
-            "button_style_secondary_1": true,
-            "button_label_2": "",
-            "button_link_2": "",
-            "button_style_secondary_2": false
+            "text": "Une carte à leur nom"
+          }
+        },
+        "avantage_3": {
+          "type": "avantage",
+          "settings": {
+            "text": "Sans application"
+          }
+        },
+        "avantage_4": {
+          "type": "avantage",
+          "settings": {
+            "text": "Récompenses modifiables"
+          }
+        },
+        "avantage_5": {
+          "type": "avantage",
+          "settings": {
+            "text": "Rapport chaque mois"
           }
         }
       },
       "block_order": [
-        "heading",
-        "button"
+        "avantage_1",
+        "avantage_2",
+        "avantage_3",
+        "avantage_4",
+        "avantage_5"
       ],
       "settings": {
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
-        "image_behavior": "none",
-        "desktop_content_alignment": "center",
-        "color_scheme": "scheme-3",
-        "mobile_content_alignment": "center",
-        "stack_images_on_mobile": false,
-        "show_text_below": false
-      }
-    },
-    "featured_collection": {
-      "type": "featured-collection",
-      "settings": {
-        "title": "Featured products",
-        "heading_size": "h2",
-        "description": "",
-        "show_description": false,
-        "description_style": "body",
-        "collection": "all",
-        "products_to_show": 8,
-        "columns_desktop": 4,
-        "color_scheme": "scheme-1",
-        "full_width": false,
-        "show_view_all": true,
-        "view_all_style": "solid",
-        "enable_desktop_slider": false,
-        "swipe_on_mobile": false,
-        "image_ratio": "adapt",
-        "image_shape": "default",
-        "show_secondary_image": true,
-        "show_vendor": false,
-        "show_rating": false,
-        "quick_add": "none",
-        "columns_mobile": "2",
-        "padding_top": 44,
-        "padding_bottom": 36
+        "card_text": "ECRU",
+        "card_color": "#0d0d0c",
+        "ink_color": "#e9e4d8"
       }
     }
   },
   "order": [
-    "image_banner",
-    "featured_collection"
+    "ecru_carte"
   ]
 }
