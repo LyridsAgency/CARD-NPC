@@ -128,17 +128,29 @@
       function (entries) {
         if (!entries[0].isIntersecting) return;
         io.disconnect();
-        var url = el.dataset.module;
-        var p = loaded[url] || (loaded[url] = import(url));
-        p.then(function (m) {
-          return m.mount(el);
-        }).catch(function () {
-          el.classList.add('is-fallback');
+        // La 3D attend la fin du chargement et un moment calme : l'image fixe s'affiche d'abord
+        whenIdle(function () {
+          var url = el.dataset.module;
+          var p = loaded[url] || (loaded[url] = import(url));
+          p.then(function (m) {
+            return m.mount(el);
+          }).catch(function () {
+            el.classList.add('is-fallback');
+          });
         });
       },
       { rootMargin: '300px 0px' }
     );
     io.observe(el);
+  }
+
+  function whenIdle(fn) {
+    var go = function () {
+      if ('requestIdleCallback' in window) window.requestIdleCallback(fn, { timeout: 2500 });
+      else setTimeout(fn, 600);
+    };
+    if (document.readyState === 'complete') go();
+    else window.addEventListener('load', go, { once: true });
   }
 
   function initAll(root) {
