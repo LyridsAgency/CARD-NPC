@@ -9,7 +9,7 @@ import { chromium } from 'playwright';
 const ROOT = resolve(import.meta.dirname, '..');
 const OUT = process.env.OUT || ROOT;
 
-const engine = new Liquid({ root: join(ROOT, 'sections'), extname: '.liquid' });
+const engine = new Liquid({ root: [join(ROOT, 'sections'), join(ROOT, 'snippets')], extname: '.liquid' });
 const raw = (open, close) => ({
   parse(_, remain) {
     this.text = '';
@@ -42,6 +42,7 @@ engine.registerTag('style', {
   },
 });
 engine.registerFilter('asset_url', (f) => `/assets/${f}`);
+engine.registerFilter('stylesheet_tag', (u) => `<link rel="stylesheet" href="${u}">`);
 
 async function renderSection(name, overrides = {}) {
   const src = await readFile(join(ROOT, 'sections', `${name}.liquid`), 'utf8');
@@ -94,7 +95,7 @@ if (mode === 'poster') {
   await p.addStyleTag({ content: '' }).catch(() => {});
   await p.goto(url);
   await p.addStyleTag({
-    content: 'body{background:transparent!important}.ecru-carte{background:transparent!important;padding:0!important}.ecru-carte__inner{padding:0!important}.ecru-carte__vue{height:1052px!important}.ecru-carte__bascule{display:none}',
+    content: 'body{background:transparent!important}.ecru-section{background:transparent!important;padding:0!important}.ecru-carte__vue{height:1052px!important}.ecru-carte__bascule{display:none}',
   });
   await p.waitForSelector('.ecru-carte.is-ready', { timeout: 60000 });
   await p.waitForTimeout(800);
