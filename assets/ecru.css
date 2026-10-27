@@ -880,7 +880,7 @@ a:not(.button):not(.ecru-bouton) {
 /* Modèle : pastilles rondes teintées, avec leur nom */
 .ecru-option--couleur .ecru-option__choix {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.4rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(7.2rem, 1fr));
   gap: 1.2rem;
 }
 .ecru-option .ecru-pastille {
