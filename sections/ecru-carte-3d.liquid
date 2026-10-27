@@ -29,43 +29,49 @@
   aria-labelledby="{{ uid }}-titre"
 >
   <div class="ecru-hero__inner">
-    {%- if section.settings.show_text -%}
-      <div class="ecru-hero__texte">
-        {%- if section.settings.eyebrow != blank -%}
-          <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
-        {%- endif -%}
-        <{{ heading_tag }} id="{{ uid }}-titre" class="ecru-titre ecru-hero__titre ecru-reveal">
-          {{- section.settings.heading | escape -}}
-        </{{ heading_tag }}>
-        {%- if section.settings.subheading != blank -%}
-          <p class="ecru-texte ecru-hero__sous-titre ecru-reveal">{{ section.settings.subheading | escape }}</p>
-        {%- endif -%}
-      </div>
-    {%- else -%}
-      <h2 id="{{ uid }}-titre" class="visually-hidden">{{ section.settings.a11y_label | escape }}</h2>
+    {%- if section.settings.show_text and section.settings.eyebrow != blank -%}
+      <p class="ecru-surtitre ecru-hero__surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
     {%- endif -%}
 
-    {%- render 'ecru-carte',
-      id: uid,
-      elements: elements,
-      auto_open: section.settings.auto_open,
-      color: section.settings.card_color,
-      ink: section.settings.ink_color,
-      finish: section.settings.finish,
-      poster: section.settings.poster,
-      alt: section.settings.a11y_label,
-      avantages: avantages,
-      toggle_label: section.settings.toggle_label
-    -%}
+    <div class="ecru-hero__scene">
+      {%- if section.settings.show_text -%}
+        {%- comment -%} Le titre passe derrière la carte : première phrase au-dessus, la suite en dessous {%- endcomment -%}
+        {%- assign phrases = section.settings.heading | split: '. ' -%}
+        <{{ heading_tag }} id="{{ uid }}-titre" class="ecru-titre ecru-hero__titre">
+          {%- if phrases.size > 1 -%}
+            <span class="ecru-hero__ligne">{{ phrases[0] | escape }}.</span>
+            <span class="ecru-hero__ligne">{{ section.settings.heading | remove_first: phrases[0] | remove_first: '. ' | escape }}</span>
+          {%- else -%}
+            <span class="ecru-hero__ligne">{{ section.settings.heading | escape }}</span>
+          {%- endif -%}
+        </{{ heading_tag }}>
+      {%- else -%}
+        <h2 id="{{ uid }}-titre" class="visually-hidden">{{ section.settings.a11y_label | escape }}</h2>
+      {%- endif -%}
 
-    {%- if section.settings.show_text and section.settings.button_label != blank -%}
-      <div class="ecru-hero__actions ecru-reveal">
-        <a
-          class="ecru-bouton"
-          href="{{ section.settings.button_link | default: routes.all_products_collection_url }}"
-        >
-          {{- section.settings.button_label | escape -}}
-        </a>
+      {%- render 'ecru-carte',
+        id: uid,
+        elements: elements,
+        auto_open: section.settings.auto_open,
+        color: section.settings.card_color,
+        ink: section.settings.ink_color,
+        finish: section.settings.finish,
+        poster: section.settings.poster,
+        alt: section.settings.a11y_label,
+        avantages: avantages
+      -%}
+    </div>
+
+    {%- if section.settings.show_text -%}
+      <div class="ecru-hero__pied ecru-reveal">
+        {%- if section.settings.subheading != blank -%}
+          <p class="ecru-texte ecru-hero__sous-titre">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.button_label != blank -%}
+          <a class="ecru-bouton" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+            {{- section.settings.button_label | escape -}}
+          </a>
+        {%- endif -%}
       </div>
     {%- endif -%}
   </div>
@@ -128,12 +134,6 @@
       "id": "a11y_label",
       "label": "Description de la carte (accessibilité)",
       "default": "Carte NFC ECRU en métal noir mat, avec sa fenêtre NFC."
-    },
-    {
-      "type": "text",
-      "id": "toggle_label",
-      "label": "Bouton des avantages",
-      "default": "Les avantages"
     },
     {
       "type": "header",

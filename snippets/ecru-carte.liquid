@@ -10,7 +10,6 @@
   - poster : image de secours (image Shopify), sinon rendu par défaut
   - alt : description de la carte
   - avantages : liste séparée par « | » (5 max), affichée avec des flèches au survol
-  - toggle_label : libellé du bouton des avantages
   - compact : true pour une scène moins haute (pages produit)
   - pose : « angle,inclinaison,zoom » pour une vue fixe
   - auto_open : true pour afficher les avantages dès l'arrivée (ordinateur)
@@ -22,7 +21,6 @@
 {%- liquid
   assign finish = finish | default: 'metal'
   assign alt = alt | default: 'Carte NFC ECRU en métal noir.'
-  assign toggle_label = toggle_label | default: 'Les avantages'
   assign items = avantages | split: '|'
 -%}
 {{ 'ecru-carte.css' | asset_url | stylesheet_tag }}
@@ -85,15 +83,4 @@
     {%- endif -%}
   </div>
 
-  {%- if items.size > 0 -%}
-    <button
-      type="button"
-      class="ecru-carte__bascule"
-      aria-expanded="false"
-      aria-controls="{{ id }}-avantages"
-    >
-      <span class="ecru-carte__bascule-ouvrir">{{ toggle_label | escape }}</span>
-      <span class="ecru-carte__bascule-fermer">Masquer</span>
-    </button>
-  {%- endif -%}
 </div>

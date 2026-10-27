@@ -1,8 +1,7 @@
 {%- comment -%}
   ECRU — Page produit en configurateur : la carte 3D à la place de la photo.
   - Matière : PVC (mat) ou Métal (satiné).
-  - Modèle : Noir et Blanc (cartes vierges), Couleur sur mesure (teinte seule),
-    Design sur mesure (éditeur : textes et logo placés librement, couleurs).
+  - Modèle : Noir et Blanc (cartes vierges), Sur mesure (éditeur : couleur, nom et logo placés librement).
   - MOQ par option (Paramètres du thème → ECRU). Le plus grand minimum des options choisies s'applique.
   - Tous les choix partent avec la commande (propriétés de ligne).
 {%- endcomment -%}
@@ -35,8 +34,8 @@
     assign ink = '#121211'
   endif
 
-  assign palette = 'Noir profond:#0d0d0c|Anthracite:#2b2b2a|Graphite:#4a4a48|Crème:#e9e4d8|Ivoire:#f3efe6|Sable:#cdbb9a|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440|Or:#b8975a|Argent:#c9c8c4|Rose poudré:#d8b4ac' | split: '|'
-  assign palette_marquage = 'Crème:#e9e4d8|Blanc:#f7f5f0|Noir:#121211|Or:#c2a165|Argent:#c9c8c4' | split: '|'
+  assign palette = 'Noir profond:#0d0d0c|Anthracite:#2b2b2a|Crème:#e9e4d8|Sable:#cdbb9a|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440|Or:#b8975a' | split: '|'
+  assign palette_marquage = 'Crème:#e9e4d8|Noir:#121211|Or:#c2a165|Argent:#c9c8c4' | split: '|'
 -%}
 
 <section
@@ -47,16 +46,15 @@
   <div class="ecru-conteneur ecru-produit__grille">
     <div class="ecru-produit__visuel">
       {%- render 'ecru-carte', id: uid, color: color, ink: ink, finish: finish, alt: product.title, compact: true -%}
-      <div class="ecru-vues" role="group" aria-label="Point de vue">
-        <button type="button" class="ecru-vues__btn" data-ecru-vue="recto">Recto</button>
-        <button type="button" class="ecru-vues__btn" data-ecru-vue="verso">Verso</button>
-        <button type="button" class="ecru-vues__btn" data-ecru-vue="profil">Profil</button>
-        <button type="button" class="ecru-vues__btn" data-ecru-vue="auto" aria-pressed="true">Rotation</button>
+      <div class="ecru-produit__sous-carte">
+        <p class="ecru-produit__mention">
+          <span data-ecru-legende>{{ current.options | join: ' · ' }}</span> · Rendu indicatif
+        </p>
+        <button type="button" class="ecru-retourner" data-ecru-retourner aria-pressed="false">
+          <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M4 8a6 6 0 0 1 11-2l1 1M16 12a6 6 0 0 1-11 2l-1-1M16 3v4h-4M4 17v-4h4" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          Retourner
+        </button>
       </div>
-      <p class="ecru-produit__mention">
-        <span data-ecru-legende>{{ current.options | join: ' · ' }}</span>
-        · 85,6 × 54 mm · Rendu indicatif
-      </p>
     </div>
 
     <div class="ecru-produit__infos">
@@ -110,10 +108,8 @@
                       endif
                     endfor
                     assign genre = 'teinte'
-                    if vb contains 'design'
+                    if vb contains 'design' or vb contains 'mesure' or vb contains 'custom' or vb contains 'personnal'
                       assign genre = 'design'
-                    elsif vb contains 'mesure' or vb contains 'custom' or vb contains 'personnal'
-                      assign genre = 'palette'
                     endif
                   -%}
                   <input
@@ -131,8 +127,6 @@
                       <span class="ecru-pastille__teinte" style="--teinte: {{ teinte | default: '#2a2926' }}" aria-hidden="true">
                         {%- if genre == 'design' -%}
                           <svg viewBox="0 0 20 20" width="16" height="16"><path d="M4 16l1-4 8-8 3 3-8 8-4 1z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
-                        {%- elsif genre == 'palette' -%}
-                          <svg viewBox="0 0 20 20" width="16" height="16"><path d="M10 4v12M4 10h12" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
                         {%- endif -%}
                       </span>
                       <span class="ecru-pastille__nom">{{ value | escape }}</span>
@@ -148,30 +142,31 @@
               </div>
 
               {%- if est_couleur -%}
-                <p class="ecru-perso__note" data-ecru-note="standard">Cartes vierges, sans écriture. Pour un texte ou un logo, choisissez Design sur mesure.</p>
-                <p class="ecru-perso__note" data-ecru-note="palette" hidden>La teinte de votre choix, sans écriture. Pour un texte ou un logo, choisissez Design sur mesure.</p>
+                <p class="ecru-perso__note" data-ecru-note="standard">Carte vierge, sans écriture.</p>
 
-                {%- comment -%} Couleur sur mesure : palette {%- endcomment -%}
-                <div class="ecru-panneau" data-ecru-panneau="palette" hidden>
-                  <p class="ecru-panneau__titre">Teinte de la carte</p>
-                  {%- render 'ecru-palette', cible: 'fond-palette', teintes: palette, libre: '#5a1a22', label: 'Teinte de la carte' -%}
-                  <input type="hidden" name="properties[Couleur sur mesure]" value="" data-ecru-champ="fond-palette" disabled>
-                  <p class="ecru-champ__aide">Teinte choisie : <strong data-ecru-affiche="fond-palette">—</strong>. Nous ajustons la teinte exacte avec vous.</p>
-                </div>
-
-                {%- comment -%} Design sur mesure : éditeur intégré {%- endcomment -%}
+                {%- comment -%} Sur mesure : éditeur intégré {%- endcomment -%}
                 <div class="ecru-panneau ecru-createur" data-ecru-panneau="design" hidden>
-                  <p class="ecru-panneau__titre">Composez votre carte</p>
-
                   <div class="ecru-editeur" data-ecru-editeur aria-label="Recto de la carte, à composer" role="group">
                     <div class="ecru-editeur__nfc" aria-hidden="true"><span>NFC</span></div>
                     <div class="ecru-editeur__guide ecru-editeur__guide--v" aria-hidden="true"></div>
                     <div class="ecru-editeur__guide ecru-editeur__guide--h" aria-hidden="true"></div>
                   </div>
-                  <p class="ecru-champ__aide">Faites glisser les éléments. Au clavier : flèches pour déplacer, Suppr pour retirer.</p>
+                  <p class="ecru-champ__aide">Glissez le nom et le logo où vous voulez.</p>
 
-                  <div class="ecru-editeur__outils">
-                    <button type="button" class="ecru-outil" data-ecru-ajout-texte>+ Texte</button>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Couleur</span>
+                    {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Marquage</span>
+                    {%- render 'ecru-palette', cible: 'relief', teintes: palette_marquage, libre: '#c2a165', label: 'Couleur du nom et du logo' -%}
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <label class="ecru-createur__label" for="{{ uid }}-nom">Nom</label>
+                    <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" name="properties[Nom]" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom disabled>
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Logo</span>
                     <input
                       id="{{ uid }}-logo"
                       class="ecru-outil__fichier"
@@ -181,42 +176,17 @@
                       data-ecru-fichier
                       disabled
                     >
-                    <label for="{{ uid }}-logo" class="ecru-outil">+ Logo</label>
+                    <label for="{{ uid }}-logo" class="ecru-outil">Ajouter</label>
                     <span class="ecru-fichier__nom" data-ecru-fichier-nom></span>
+                    <button type="button" class="ecru-outil ecru-outil--discret" data-ecru-logo-retirer hidden>Retirer</button>
+                  </div>
+                  <div class="ecru-createur__ligne" data-ecru-reglages hidden>
+                    <label class="ecru-createur__label" for="{{ uid }}-taille">Taille</label>
+                    <input id="{{ uid }}-taille" class="ecru-createur__taille" type="range" min="4" max="40" step="1" value="12" data-ecru-el-taille>
                   </div>
 
-                  <div class="ecru-editeur__reglages" data-ecru-reglages hidden>
-                    <div class="ecru-champ" data-ecru-reglage-texte>
-                      <label for="{{ uid }}-texte">Texte</label>
-                      <input id="{{ uid }}-texte" type="text" maxlength="40" data-ecru-el-texte disabled>
-                    </div>
-                    <div class="ecru-demande__ligne">
-                      <div class="ecru-champ">
-                        <label for="{{ uid }}-taille">Taille</label>
-                        <input id="{{ uid }}-taille" type="range" min="3" max="60" step="1" value="12" data-ecru-el-taille disabled>
-                      </div>
-                      <div class="ecru-champ" data-ecru-reglage-style>
-                        <label for="{{ uid }}-style">Style</label>
-                        <select id="{{ uid }}-style" data-ecru-el-style disabled>
-                          <option value="display">Titre</option>
-                          <option value="body">Texte</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="ecru-editeur__actions">
-                      <button type="button" class="ecru-outil" data-ecru-el-centrer>Centrer</button>
-                      <button type="button" class="ecru-outil" data-ecru-el-supprimer>Retirer</button>
-                    </div>
-                  </div>
-
-                  <p class="ecru-champ__titre">Fond</p>
-                  {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur du fond' -%}
-                  <input type="hidden" name="properties[Fond]" value="#0d0d0c" data-ecru-champ="fond" disabled>
-
-                  <p class="ecru-champ__titre">Marquage</p>
-                  {%- render 'ecru-palette', cible: 'relief', teintes: palette_marquage, libre: '#c2a165', label: 'Couleur du texte et du logo' -%}
+                  <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond" disabled>
                   <input type="hidden" name="properties[Marquage]" value="#e9e4d8" data-ecru-champ="relief" disabled>
-
                   <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette disabled>
                   <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json disabled>
                 </div>
@@ -232,23 +202,17 @@
           {%- endfor -%}
         {%- endunless -%}
 
-        {%- if section.settings.show_perso -%}
+        {%- if section.settings.show_perso and product.tags contains 'simple' -%}
           {%- assign etape = etape | plus: 1 -%}
           <fieldset class="ecru-option ecru-perso">
             <legend>
               <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
-              Précisions
+              Lien
             </legend>
-            {%- if product.tags contains 'simple' -%}
-              <div class="ecru-champ">
-                <label for="{{ uid }}-lien">Lien à ouvrir</label>
-                <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
-                <p class="ecru-champ__aide">La page qui s'ouvre quand on approche la carte du téléphone.</p>
-              </div>
-            {%- endif -%}
             <div class="ecru-champ">
-              <label for="{{ uid }}-demande">Votre demande</label>
-              <textarea id="{{ uid }}-demande" name="properties[Demande]" rows="3" placeholder="Une précision sur votre commande…"></textarea>
+              <label class="visually-hidden" for="{{ uid }}-lien">Lien à ouvrir</label>
+              <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
+              <p class="ecru-champ__aide">La page qui s'ouvre au contact du téléphone.</p>
             </div>
           </fieldset>
         {%- endif -%}
@@ -341,7 +305,7 @@
   "class": "section-ecru-produit",
   "settings": [
     { "type": "header", "content": "Commande" },
-    { "type": "checkbox", "id": "show_perso", "label": "Afficher les précisions (lien, demande)", "default": true },
+    { "type": "checkbox", "id": "show_perso", "label": "Demander le lien (produits avec le tag « simple »)", "default": true },
     { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
     { "type": "text", "id": "contact_label", "label": "Demande particulière", "default": "Demande particulière" },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 48 },

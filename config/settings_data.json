@@ -194,7 +194,7 @@
       "ecru_prix_a_definir": true,
       "ecru_prix_texte": "[Prix à définir]",
       "ecru_nom_marque": "ECRU",
-      "ecru_moq": "Noir: 10\nBlanc: 10\nCouleur sur mesure: 100\nDesign sur mesure: 100",
+      "ecru_moq": "Noir: 10\nBlanc: 10\nSur mesure: 100",
       "ecru_moq_texte": "[À définir]",
       "ecru_couleurs": "Noir: #0d0d0c\nBlanc: #e9e4d8"
     }

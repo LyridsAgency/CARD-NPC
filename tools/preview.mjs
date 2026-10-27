@@ -89,22 +89,17 @@ const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--ena
 
 if (mode === 'vues') {
   // Points de vue de l'accueil : poses fixes, enregistrées dans assets/ (webp)
+  // Une seule couleur (métal noir), même lumière que les images produits
   const vues = [
-    { nom: 'recto', pose: '-0.42,0.04,1.05', color: '#0d0d0c', finish: 'metal', elements: [] },
-    { nom: 'verso', pose: '3.55,0.02,1.05', color: '#0d0d0c', finish: 'metal', elements: [] },
-    { nom: 'profil', pose: '1.2,0.1,1.0', color: '#0d0d0c', finish: 'metal', elements: [] },
-    {
-      nom: 'sur-mesure',
-      pose: '-0.3,0.03,1.05',
-      color: '#5a1a22',
-      ink: '#c2a165',
-      finish: 'metal',
-      elements: [
-        { t: 'text', v: 'Maison Lune', x: 0.5, y: 0.5, s: 0.11, f: 'display', a: 'center' },
-        { t: 'text', v: 'Restaurant · Paris', x: 0.5, y: 0.66, s: 0.045, f: 'body', a: 'center' },
-      ],
-    },
+    { nom: 'recto', pose: '-0.38,0.06,1.0', color: '#0d0d0c', finish: 'metal', elements: [] },
+    { nom: 'verso', pose: '3.48,0.04,1.0', color: '#0d0d0c', finish: 'metal', elements: [] },
+    { nom: 'profil', pose: '-1.3,0.1,0.95', color: '#0d0d0c', finish: 'metal', elements: [] },
+    { nom: 'trois-quarts', pose: '0.62,-0.06,1.02', color: '#0d0d0c', finish: 'metal', elements: [] },
+    { nom: 'pvc', pose: '-0.32,0.05,1.0', color: '#0d0d0c', finish: 'mat', elements: [] },
+    { nom: 'metal', pose: '-0.32,0.05,1.0', color: '#0d0d0c', finish: 'metal', elements: [] },
   ];
+  if (process.env.VUES) vues.splice(0, vues.length, ...JSON.parse(process.env.VUES));
+  const dossier = process.env.OUT || join(ROOT, 'assets');
   const { server, url } = await serve(name);
   for (const v of vues) {
     const p = await browser.newPage({ viewport: { width: 1600, height: 1200 }, deviceScaleFactor: 1 });
@@ -120,7 +115,7 @@ if (mode === 'vues') {
       });
     }, v);
     await p.goto(url);
-    await p.addStyleTag({ content: '.ecru-section{padding:0!important}.ecru-carte__vue{height:1200px!important}.ecru-carte__bascule,.ecru-carte__avantages,.ecru-carte__fleches,.ecru-hero__texte,.ecru-hero__actions{display:none!important}' });
+    await p.addStyleTag({ content: '.ecru-section{padding:0!important}.ecru-carte__vue{height:1200px!important}.ecru-hero__titre,.ecru-hero__surtitre,.ecru-hero__pied,.ecru-carte__avantages,.ecru-carte__fleches,.ecru-hero__texte,.ecru-hero__actions{display:none!important}' });
     await p.waitForSelector('.ecru-carte.is-ready', { timeout: 90000 });
     await p.waitForTimeout(1200);
     const png = await p.locator('.ecru-carte__vue').screenshot();
@@ -134,7 +129,7 @@ if (mode === 'vues') {
       c.getContext('2d').drawImage(img, 0, 0);
       return c.toDataURL('image/webp', 0.84).split(',')[1];
     }, png.toString('base64'));
-    await writeFile(join(ROOT, 'assets', `ecru-vue-${v.nom}.webp`), Buffer.from(webp, 'base64'));
+    await writeFile(join(dossier, `ecru-vue-${v.nom}.webp`), Buffer.from(webp, 'base64'));
     console.log(`assets/ecru-vue-${v.nom}.webp`);
     await p.close();
   }
@@ -153,7 +148,7 @@ if (mode === 'vues') {
         await p.emulateMedia({ reducedMotion: 'reduce' });
         await p.goto(url);
         await p.addStyleTag({
-          content: '.ecru-section{padding:0!important}.ecru-carte__vue{height:1600px!important}.ecru-carte__bascule,.ecru-carte__avantages,.ecru-carte__fleches{display:none!important}',
+          content: '.ecru-section{padding:0!important}.ecru-carte__vue{height:1600px!important}.ecru-hero__titre,.ecru-hero__surtitre,.ecru-hero__pied,.ecru-carte__avantages,.ecru-carte__fleches{display:none!important}',
         });
         await p.waitForSelector('.ecru-carte.is-ready', { timeout: 90000 });
         await p.waitForTimeout(900);
@@ -184,7 +179,7 @@ if (mode === 'vues') {
   await p.addStyleTag({ content: '' }).catch(() => {});
   await p.goto(url);
   await p.addStyleTag({
-    content: 'body{background:transparent!important}.ecru-section{background:transparent!important;padding:0!important}.ecru-carte__vue{height:1052px!important}.ecru-carte__bascule{display:none}',
+    content: 'body{background:transparent!important}.ecru-section{background:transparent!important;padding:0!important}.ecru-carte__vue{height:1052px!important}.ecru-hero__titre,.ecru-hero__surtitre,.ecru-hero__pied,.ecru-carte__avantages,.ecru-carte__fleches{display:none!important}',
   });
   await p.waitForSelector('.ecru-carte.is-ready', { timeout: 60000 });
   await p.waitForTimeout(800);

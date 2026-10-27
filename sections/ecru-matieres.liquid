@@ -24,12 +24,15 @@
               }}
             </div>
           {%- else -%}
-            <div
-              class="ecru-matiere__visuel ecru-matiere__visuel--{{ block.settings.visual }}"
-              role="img"
-              aria-label="Carte en {{ block.settings.title | escape }}"
-            >
-              <span class="ecru-matiere__marque" aria-hidden="true">ECRU</span>
+            <div class="ecru-matiere__visuel">
+              <img
+                src="{{ block.settings.visual | prepend: 'ecru-vue-' | append: '.webp' | asset_url }}"
+                alt="Carte ECRU en {{ block.settings.title | escape }} noir"
+                width="1600"
+                height="1200"
+                loading="lazy"
+                decoding="async"
+              >
             </div>
           {%- endif -%}
           <h3 class="ecru-titre ecru-titre--s">{{ block.settings.title | escape }}</h3>

@@ -1,4 +1,4 @@
-/* ECRU — carte 3D : chargement différé, avantages, flèches. */
+/* ECRU — carte 3D : chargement différé, avantages reliés à la carte par un trait et un point. */
 (function () {
   if (window.__ecruCarteLoader) return;
   window.__ecruCarteLoader = true;
@@ -7,8 +7,6 @@
   // tenir : la carte se pose de face (survol, bouton) ; sinon elle continue de tourner
   function setOpen(el, open, tenir) {
     el.classList.toggle('is-open', open);
-    var btn = el.querySelector('.ecru-carte__bascule');
-    if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (tenir !== false) el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: open }));
   }
 
@@ -95,8 +93,6 @@
     if (!el || el.dataset.ecruInit) return;
     el.dataset.ecruInit = '1';
     var stage = el.querySelector('[data-ecru-stage]');
-    var btn = el.querySelector('.ecru-carte__bascule');
-    var pinned = false;
 
     layout(el);
     if ('ResizeObserver' in window) {
@@ -105,18 +101,12 @@
       }).observe(el.querySelector('.ecru-carte__vue') || el);
     }
 
-    if (btn) {
-      btn.addEventListener('click', function () {
-        pinned = !el.classList.contains('is-open');
-        setOpen(el, pinned);
-      });
-    }
     if (stage) {
       stage.addEventListener('pointerenter', function (e) {
         if (e.pointerType === 'mouse' && window.innerWidth >= 900) setOpen(el, true);
       });
       stage.addEventListener('pointerleave', function (e) {
-        if (e.pointerType !== 'mouse' || pinned) return;
+        if (e.pointerType !== 'mouse') return;
         // Avantages affichés d'emblée : ils restent, la carte reprend sa rotation
         if (el.hasAttribute('data-auto-open')) el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: false }));
         else setOpen(el, false);

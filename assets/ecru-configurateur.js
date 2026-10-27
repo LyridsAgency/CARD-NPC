@@ -1,4 +1,4 @@
-/* ECRU — configurateur produit : options, MOQ, palette, éditeur de design, points de vue.
+/* ECRU — configurateur produit : options, MOQ, éditeur sur mesure (couleur, nom, logo), retourner la carte.
    La carte 3D (ecru-carte-3d.js) reçoit chaque changement par l'événement « ecru:card-update ». */
 (function () {
   if (window.__ecruConfigurateur) return;
@@ -75,25 +75,23 @@
     var legende = root.querySelector('[data-ecru-legende]');
     var carte = root.querySelector('[data-ecru-carte]');
     var minimum = 1;
-    var teintes = { 'fond-palette': '', fond: '#0d0d0c', relief: '#e9e4d8' };
+    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8' };
 
-    // ---------- Éditeur ----------
+    // ---------- Éditeur : un nom et un logo, à placer librement ----------
     var editeur = form.querySelector('[data-ecru-editeur]');
     var reglages = form.querySelector('[data-ecru-reglages]');
-    var champTexte = form.querySelector('[data-ecru-el-texte]');
+    var champNom = form.querySelector('[data-ecru-nom]');
     var champTaille = form.querySelector('[data-ecru-el-taille]');
-    var champStyle = form.querySelector('[data-ecru-el-style]');
     var fichier = form.querySelector('[data-ecru-fichier]');
-    var elements = [{ id: 'e1', t: 'text', v: 'Votre marque', x: 0.5, y: 0.52, s: 0.12, f: 'display', a: 'center' }];
+    var logoRetirer = form.querySelector('[data-ecru-logo-retirer]');
+    var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.5, y: 0.62, s: 0.1, f: 'display', a: 'center' }];
     var selection = null;
-    var compteur = 1;
 
     function modeDe(options) {
       var m = 'standard';
       options.forEach(function (o) {
         var v = bas(o);
-        if (v.indexOf('design') !== -1) m = 'design';
-        else if (v.indexOf('mesure') !== -1 || v.indexOf('custom') !== -1 || v.indexOf('personnal') !== -1) m = 'palette';
+        if (/design|mesure|custom|personnal/.test(v)) m = 'design';
       });
       return m;
     }
@@ -104,10 +102,14 @@
       });
       return sel;
     }
+    function visibles() {
+      return elements.filter(function (e) {
+        return e.t === 'logo' ? !!e.u : !!(e.v && e.v.trim());
+      });
+    }
 
     function apparence() {
       var options = choix();
-      var m = modeDe(options);
       var finish = 'metal';
       var color = '#0d0d0c';
       options.forEach(function (o) {
@@ -116,17 +118,12 @@
         if (data.couleurs[v]) color = data.couleurs[v];
       });
       var look = { finish: finish, elements: [] };
-      if (m === 'palette') color = teintes['fond-palette'] || '#5a1a22';
-      if (m === 'design') {
+      if (modeDe(options) === 'design') {
         color = teintes.fond;
         look.ink = teintes.relief;
-        look.elements = elements
-          .filter(function (e) {
-            return e.t === 'logo' ? !!e.u : !!e.v;
-          })
-          .map(function (e) {
-            return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: 'center' };
-          });
+        look.elements = visibles().map(function (e) {
+          return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: 'center' };
+        });
       } else {
         look.ink = inkPour(color);
       }
@@ -149,14 +146,21 @@
       }, 220);
     }
 
+    function element(id) {
+      return elements.find(function (e) {
+        return e.id === id;
+      });
+    }
+
     function dessinerEditeur() {
       if (!editeur) return;
       editeur.style.setProperty('--fond', teintes.fond);
       editeur.style.setProperty('--marquage', teintes.relief);
+      var vis = visibles();
       editeur.querySelectorAll('[data-el]').forEach(function (n) {
-        if (!elements.some((e) => e.id === n.dataset.el)) n.remove();
+        if (!vis.some((e) => e.id === n.dataset.el)) n.remove();
       });
-      elements.forEach(function (e) {
+      vis.forEach(function (e) {
         var n = editeur.querySelector('[data-el="' + e.id + '"]');
         if (!n) {
           n = document.createElement('div');
@@ -174,24 +178,19 @@
         if (e.t === 'logo') {
           n.classList.add('ecru-editeur__el--logo');
           n.textContent = '';
-          n.style.setProperty('--logo', e.u ? 'url(' + e.u + ')' : 'none');
+          n.style.setProperty('--logo', 'url(' + e.u + ')');
           n.style.setProperty('--ratio', e.ratio || 1);
-          n.setAttribute('aria-label', 'Logo, position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser pour déplacer.');
+          n.setAttribute('aria-label', 'Logo, position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
         } else {
-          n.classList.toggle('ecru-editeur__el--titre', e.f !== 'body');
-          n.textContent = e.f !== 'body' ? e.v.toUpperCase() : e.v;
-          n.setAttribute('aria-label', 'Texte « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser pour déplacer.');
+          n.classList.add('ecru-editeur__el--titre');
+          n.textContent = e.v.toUpperCase();
+          n.setAttribute('aria-label', 'Nom « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
         }
       });
       majReglages();
       majMaquette();
     }
 
-    function element(id) {
-      return elements.find(function (e) {
-        return e.id === id;
-      });
-    }
     function selectionner(id) {
       selection = id;
       dessinerEditeur();
@@ -200,19 +199,15 @@
     function majReglages() {
       if (!reglages) return;
       var e = element(selection);
-      reglages.hidden = !e;
-      [champTexte, champTaille, champStyle].forEach(function (c) {
-        if (c) c.disabled = !e;
-      });
-      if (!e) return;
+      var ok = e && visibles().indexOf(e) !== -1;
+      reglages.hidden = !ok;
+      if (!ok) return;
       var estTexte = e.t === 'text';
-      reglages.querySelector('[data-ecru-reglage-texte]').hidden = !estTexte;
-      reglages.querySelector('[data-ecru-reglage-style]').hidden = !estTexte;
-      if (estTexte && document.activeElement !== champTexte) champTexte.value = e.v;
-      champTaille.min = estTexte ? 3 : 8;
-      champTaille.max = estTexte ? 40 : 80;
+      reglages.querySelector('label').textContent = 'Taille';
+      champTaille.setAttribute('aria-label', estTexte ? 'Taille du nom' : 'Taille du logo');
+      champTaille.min = estTexte ? 4 : 10;
+      champTaille.max = estTexte ? 30 : 70;
       champTaille.value = Math.round(e.s * 100);
-      if (estTexte) champStyle.value = e.f;
     }
 
     // Résumé lisible de la maquette, envoyé avec la commande
@@ -220,15 +215,16 @@
       var lisible = form.querySelector('[data-ecru-maquette]');
       var brut = form.querySelector('[data-ecru-maquette-json]');
       if (!lisible) return;
-      lisible.value = elements
+      var vis = visibles();
+      lisible.value = vis
         .map(function (e) {
           var pos = 'position ' + pct(e.x) + ' / ' + pct(e.y) + ', taille ' + Math.round(e.s * 100);
-          return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Texte « ' + e.v + ' » (' + (e.f === 'body' ? 'texte' : 'titre') + ', ' + pos + ')';
+          return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Nom « ' + e.v + ' » (' + pos + ')';
         })
         .join(' ; ');
       brut.value = JSON.stringify(
-        elements.map(function (e) {
-          return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3), f: e.f };
+        vis.map(function (e) {
+          return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3) };
         })
       );
     }
@@ -288,45 +284,26 @@
           dessinerEditeur();
           n.focus();
           rendreBientot();
-        } else if (ev.key === 'Delete' || ev.key === 'Backspace') {
-          ev.preventDefault();
-          retirer(e.id);
         }
       });
     }
 
-    function retirer(id) {
-      var e = element(id);
-      elements = elements.filter(function (x) {
-        return x.id !== id;
+    function retirerLogo() {
+      elements = elements.filter(function (e) {
+        return e.t !== 'logo';
       });
-      if (e && e.t === 'logo' && fichier) {
-        fichier.value = '';
-        form.querySelector('[data-ecru-fichier-nom]').textContent = '';
-      }
-      selection = null;
+      if (fichier) fichier.value = '';
+      form.querySelector('[data-ecru-fichier-nom]').textContent = '';
+      if (logoRetirer) logoRetirer.hidden = true;
+      if (selection === 'logo') selection = null;
       dessinerEditeur();
       rendre(false);
     }
 
     if (editeur) {
-      form.querySelector('[data-ecru-ajout-texte]').addEventListener('click', function () {
-        if (elements.filter((e) => e.t === 'text').length >= 4) {
-          statut.textContent = 'Quatre textes au maximum.';
-          return;
-        }
-        compteur += 1;
-        var e = { id: 'e' + compteur, t: 'text', v: 'Prénom Nom', x: 0.5, y: 0.8, s: 0.07, f: 'body', a: 'center' };
-        elements.push(e);
-        selectionner(e.id);
-        rendre(false);
-        var n = editeur.querySelector('[data-el="' + e.id + '"]');
-        if (n) n.focus();
-      });
-      champTexte.addEventListener('input', function () {
-        var e = element(selection);
-        if (!e) return;
-        e.v = champTexte.value;
+      champNom.addEventListener('input', function () {
+        element('nom').v = champNom.value;
+        selection = champNom.value.trim() ? 'nom' : null;
         dessinerEditeur();
         rendreBientot();
       });
@@ -337,43 +314,25 @@
         dessinerEditeur();
         rendreBientot();
       });
-      champStyle.addEventListener('change', function () {
-        var e = element(selection);
-        if (!e) return;
-        e.f = champStyle.value;
-        dessinerEditeur();
-        rendre(false);
-      });
-      form.querySelector('[data-ecru-el-centrer]').addEventListener('click', function () {
-        var e = element(selection);
-        if (!e) return;
-        e.x = 0.5;
-        dessinerEditeur();
-        rendre(false);
-      });
-      form.querySelector('[data-ecru-el-supprimer]').addEventListener('click', function () {
-        if (selection) retirer(selection);
-      });
       editeur.addEventListener('pointerdown', function (ev) {
         if (ev.target === editeur) selectionner(null);
       });
+      if (logoRetirer) logoRetirer.addEventListener('click', retirerLogo);
       fichier.addEventListener('change', function () {
         var f = fichier.files && fichier.files[0];
-        form.querySelector('[data-ecru-fichier-nom]').textContent = f ? f.name : '';
         elements = elements.filter(function (e) {
           return e.t !== 'logo';
         });
         if (!f || !/^image\//.test(f.type)) {
-          dessinerEditeur();
-          rendre(false);
+          retirerLogo();
           return;
         }
+        form.querySelector('[data-ecru-fichier-nom]').textContent = f.name;
+        if (logoRetirer) logoRetirer.hidden = false;
         masquerLogo(URL.createObjectURL(f)).then(function (m) {
           if (!m) return;
-          compteur += 1;
-          var e = { id: 'e' + compteur, t: 'logo', u: m.url, ratio: m.ratio, x: 0.5, y: 0.36, s: 0.26 };
-          elements.push(e);
-          selectionner(e.id);
+          elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.5, y: 0.36, s: 0.26 });
+          selectionner('logo');
           rendre(true);
         });
       });
@@ -384,7 +343,7 @@
       form.querySelectorAll('[data-ecru-panneau]').forEach(function (p) {
         var actif = p.dataset.ecruPanneau === m;
         p.hidden = !actif;
-        p.querySelectorAll('input:not([type=color]):not([data-ecru-el-texte]):not([data-ecru-el-taille])').forEach(function (f) {
+        p.querySelectorAll('input:not([type=color]):not([type=range])').forEach(function (f) {
           f.disabled = !actif;
         });
       });
@@ -454,11 +413,6 @@
       teintes[cible] = teinte;
       var champ = form.querySelector('[data-ecru-champ="' + cible + '"]');
       if (champ) champ.value = teinte;
-      var affiche = form.querySelector('[data-ecru-affiche="' + cible + '"]');
-      if (affiche) {
-        var b = form.querySelector('[data-cible="' + cible + '"][data-teinte="' + teinte + '"]');
-        affiche.textContent = (b ? b.title + ' ' : '') + teinte.toUpperCase();
-      }
       form.querySelectorAll('[data-cible="' + cible + '"]').forEach(function (b) {
         b.setAttribute('aria-checked', b.dataset.teinte === teinte ? 'true' : 'false');
       });
@@ -496,23 +450,18 @@
         e.preventDefault();
         quantite.value = minimum;
         statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
-        return;
-      }
-      if (modeDe(choix()) === 'palette' && !teintes['fond-palette']) {
-        e.preventDefault();
-        statut.textContent = 'Choisissez une teinte dans la palette.';
       }
     });
 
-    // ---------- Points de vue ----------
-    root.querySelectorAll('[data-ecru-vue]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        root.querySelectorAll('[data-ecru-vue]').forEach(function (x) {
-          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
-        });
-        if (carte) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: b.dataset.ecruVue } }));
+    // ---------- Retourner la carte ----------
+    var retourner = root.querySelector('[data-ecru-retourner]');
+    if (retourner && carte) {
+      retourner.addEventListener('click', function () {
+        var verso = retourner.getAttribute('aria-pressed') !== 'true';
+        retourner.setAttribute('aria-pressed', verso ? 'true' : 'false');
+        carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: verso ? 'verso' : 'recto' } }));
       });
-    });
+    }
 
     form.querySelectorAll('[data-cible="fond"][data-teinte="#0d0d0c"], [data-cible="relief"][data-teinte="#e9e4d8"]').forEach(function (b) {
       b.setAttribute('aria-checked', 'true');

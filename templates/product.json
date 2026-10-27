@@ -3,49 +3,11 @@
     "main": {
       "type": "ecru-produit",
       "settings": {},
-      "blocks": {
-        "details_1": {
-          "type": "details",
-          "settings": {
-            "title": "Comment ça marche",
-            "content": "<p>Vos clients approchent la carte de leur téléphone. La page s'ouvre. Sans application, sans compte à créer.</p>"
-          }
-        },
-        "details_2": {
-          "type": "details",
-          "settings": {
-            "title": "Personnalisation",
-            "content": "<p>Votre nom, votre logo, et le nom de vos clients si vous le souhaitez.</p>"
-          }
-        },
-        "details_3": {
-          "type": "details",
-          "settings": {
-            "title": "Une demande particulière ?",
-            "content": "<p>Quantité, finition, événement : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>.</p>"
-          }
-        }
-      },
-      "block_order": [
-        "details_1",
-        "details_2",
-        "details_3"
-      ]
-    },
-    "appel": {
-      "type": "ecru-appel",
-      "settings": {
-        "eyebrow": "",
-        "heading": "Faites-les revenir.",
-        "button_label": "",
-        "button_2_label": "Demande particulière",
-        "padding_top": 96,
-        "padding_bottom": 128
-      }
+      "blocks": {},
+      "block_order": []
     }
   },
   "order": [
-    "main",
-    "appel"
+    "main"
   ]
 }

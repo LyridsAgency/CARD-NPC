@@ -28,7 +28,6 @@
   container-type: size;
   touch-action: pan-y;
 }
-.ecru-hero--texte .ecru-carte__vue,
 .ecru-carte--compact .ecru-carte__vue {
   height: clamp(380px, 46vw, 640px);
 }
@@ -154,38 +153,9 @@
   color: var(--ecru-text);
 }
 
-.ecru-carte__bascule {
-  margin-top: 1.2rem;
-  padding: 1.2rem 2.2rem;
-  min-height: 44px;
-  background: transparent;
-  border: 1px solid var(--ecru-border);
-  border-radius: 999px;
-  color: var(--ecru-muted);
-  font: inherit;
-  font-size: 1.2rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.6s var(--ecru-ease), border-color 0.6s var(--ecru-ease);
-}
-.ecru-carte__bascule:hover,
-.ecru-carte__bascule:focus-visible {
-  color: var(--ecru-text);
-  border-color: var(--ecru-muted);
-}
-.ecru-carte__bascule:focus-visible {
-  outline: 1px solid var(--ecru-text);
-  outline-offset: 4px;
-}
-.ecru-carte__bascule-fermer,
-.ecru-carte.is-open .ecru-carte__bascule-ouvrir { display: none; }
-.ecru-carte.is-open .ecru-carte__bascule-fermer { display: inline; }
-
-/* Mobile et tablette : les avantages passent sous la carte, en liste */
+/* Mobile et tablette : les avantages passent sous la carte, en ligne, chacun précédé d'un point */
 @media (max-width: 899px) {
   .ecru-carte__vue,
-  .ecru-hero--texte .ecru-carte__vue,
   .ecru-carte--compact .ecru-carte__vue {
     height: clamp(340px, 92vw, 560px);
   }
@@ -193,45 +163,38 @@
     display: none;
   }
   .ecru-carte__avantages {
-    display: grid;
-    gap: 2rem;
-    justify-items: center;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 1.2s var(--ecru-ease), padding 1.2s var(--ecru-ease);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem 2rem;
+    padding: 0 16px;
   }
   .ecru-carte__avantage,
   .ecru-carte__avantage.is-gauche {
     position: static;
-    transform: translateY(8px);
+    flex-direction: row;
     align-items: center;
-    text-align: center;
-    gap: 0.4rem;
-    transition: opacity 0.9s var(--ecru-ease) calc(var(--i) * 0.1s + 0.2s),
-      transform 0.9s var(--ecru-ease) calc(var(--i) * 0.1s + 0.2s);
+    gap: 0.8rem;
+    transform: none;
+    opacity: 1;
+    text-align: left;
   }
-  /* Petite flèche verticale vers la carte : trait fin + pointe */
   .ecru-carte__avantage::before {
     content: '';
-    width: 9px;
-    height: 22px;
-    margin-bottom: 0.4rem;
-    background:
-      linear-gradient(var(--ecru-text), var(--ecru-text)) center 1px / 1px 100% no-repeat,
-      linear-gradient(45deg, transparent 47%, var(--ecru-text) 47%, var(--ecru-text) 53%, transparent 53%) 0 0 / 5px 5px no-repeat,
-      linear-gradient(-45deg, transparent 47%, var(--ecru-text) 47%, var(--ecru-text) 53%, transparent 53%) 4px 0 / 5px 5px no-repeat;
-    opacity: 0.7;
+    flex: 0 0 auto;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ecru-text);
+    box-shadow: 0 0 0 3px rgba(233, 228, 216, 0.12);
+  }
+  .ecru-carte__num {
+    display: none;
   }
   .ecru-carte__libelle {
-    font-size: 1.25rem;
-  }
-  .ecru-carte.is-open .ecru-carte__avantages {
-    max-height: 60rem;
-    padding: 0.4rem 0 1.6rem;
-  }
-  .ecru-carte.is-open .ecru-carte__avantage {
-    opacity: 1;
-    transform: none;
+    font-size: 1.1rem;
+    letter-spacing: 0.14em;
+    color: var(--ecru-muted);
   }
 }
 
@@ -239,8 +202,7 @@
   .ecru-carte.is-open .ecru-carte__anneau {
     animation: none;
   }
-  .ecru-carte *,
-  .ecru-carte *::before {
+  .ecru-carte * {
     transition-duration: 0.01ms !important;
     transition-delay: 0s !important;
   }

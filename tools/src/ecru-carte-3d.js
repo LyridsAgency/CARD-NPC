@@ -307,7 +307,7 @@ function studioScene() {
     s.add(m);
   };
   // Grande boîte douce derrière la caméra : la face de la carte la reflète quand elle est de face
-  panel(10, 6, 0, 4, 19.5, Math.PI, 0, 1.4);
+  panel(14, 5, 3, 7.5, 19.5, Math.PI, 0, 2.1);
   // Bandes verticales tout autour : à chaque angle de rotation, un reflet traverse le métal
   const powers = [4.2, 1.4, 3, 1.1, 3.6, 1.3, 2.4, 1.1];
   powers.forEach((pw, k) => {
@@ -418,9 +418,13 @@ export async function mount(el) {
   const fill = new DirectionalLight(0xfffaf2, 1.2);
   fill.position.set(-7, 3, 7);
   scene.add(fill);
-  const rim = new DirectionalLight(0xffffff, 0.6);
-  rim.position.set(-6, 2, -5);
+  // Contre-jour : dessine le contour de la carte sur le fond noir
+  const rim = new DirectionalLight(0xffffff, 1.4);
+  rim.position.set(-6, 5, -6);
   scene.add(rim);
+  const rim2 = new DirectionalLight(0xfff6e8, 0.9);
+  rim2.position.set(7, -2, -6);
+  scene.add(rim2);
 
   const camera = new PerspectiveCamera(26, 1, 0.1, 200);
   const ELEV = (8 * Math.PI) / 180;
@@ -459,7 +463,7 @@ export async function mount(el) {
   const glow = new Mesh(
     new PlaneGeometry(1, 1),
     new MeshBasicMaterial({
-      map: radialTexture([[0, 'rgba(233,228,216,0.10)'], [0.55, 'rgba(233,228,216,0.035)'], [1, 'rgba(233,228,216,0)']]),
+      map: radialTexture([[0, 'rgba(233,228,216,0.14)'], [0.55, 'rgba(233,228,216,0.045)'], [1, 'rgba(233,228,216,0)']]),
       transparent: true,
       depthWrite: false,
       toneMapped: false,
@@ -511,7 +515,8 @@ export async function mount(el) {
     const metal = finish !== 'mat';
     const brushed = finish === 'brosse';
     const cardColor = new Color(color || '#0d0d0c');
-    const hsl = cardColor.getHSL({});
+    // Teinte lue en sRGB, comme le nuancier : les réglages suivent ce que le client voit
+    const hsl = cardColor.getHSL({}, SRGBColorSpace);
     const dark = hsl.l < 0.35;
     const neutre = hsl.s < 0.18;
     // Métal satiné, comme les cartes réelles : ni miroir, ni brossé
@@ -523,16 +528,16 @@ export async function mount(el) {
     if (neutre) {
       metalBase = cardColor.clone().lerp(new Color(dark ? '#3a3936' : '#d2d1cd'), dark ? 0.38 : 0.55);
     } else {
-      metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s * 0.9), Math.max(hsl.l, 0.26)).lerp(new Color('#8d8b85'), 0.12);
+      metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s * 0.85), Math.max(hsl.l, 0.4), SRGBColorSpace).lerp(new Color('#8d8b85'), 0.16);
     }
     // PVC mat : une teinte foncée paraîtrait noire, on l'éclaircit légèrement
     const matBase = neutre
       ? dark
         ? cardColor.clone().lerp(new Color('#3a3936'), 0.45)
         : cardColor
-      : cardColor.clone().setHSL(hsl.h, hsl.s, Math.max(hsl.l, 0.3));
+      : cardColor.clone().setHSL(hsl.h, hsl.s * 0.95, Math.max(hsl.l, 0.32), SRGBColorSpace);
     const base = hexToRgb(`#${(metal ? metalBase : matBase).getHexString()}`);
-    const inkRgb = hexToRgb(ink || (cardColor.getHSL({}).l > 0.6 ? '#121211' : '#e9e4d8'));
+    const inkRgb = hexToRgb(ink || (hsl.l > 0.6 ? '#121211' : '#e9e4d8'));
     [front.material, back.material].forEach((m) => {
       if (m && m.map) {
         m.map.dispose();
@@ -552,7 +557,7 @@ export async function mount(el) {
       brushed,
       polish,
       metalAmt,
-      inlayShade: dark ? 0.38 : 0.1,
+      inlayShade: neutre ? (dark ? 0.38 : 0.1) : 0.7,
       drawMask(ctx, w, h) {
         ctx.textBaseline = 'middle';
         elements.forEach((el) => {
@@ -602,10 +607,10 @@ export async function mount(el) {
     front.material = faceMaterial(frontTex, anisotropy, metal, brushed);
     back.material = faceMaterial(backTex, anisotropy, metal, brushed);
     // Tranche : métal poli plus clair, qui accroche la lumière
-    const edge = cardColor.clone().lerp(new Color('#8d8b85'), metal ? (dark ? 0.55 : 0.2) : 0.12);
+    const edge = cardColor.clone().lerp(new Color('#b5b2aa'), metal ? (dark ? 0.7 : 0.3) : 0.16);
     edgeMat.color.copy(edge);
     edgeMat.metalness = metal ? 1 : 0.35;
-    edgeMat.roughness = brushed ? 0.22 : metal ? 0.3 : 0.42;
+    edgeMat.roughness = brushed ? 0.2 : metal ? 0.18 : 0.42;
     scene.environmentIntensity = metal ? 1.9 : 1.35;
     current = { color, ink, finish, elements, inlay };
   }
