@@ -507,6 +507,26 @@ a:not(.button):not(.ecru-bouton) {
     grid-template-columns: repeat(3, 1fr);
     gap: 2.4rem;
   }
+  .ecru-matieres__grille--2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4.8rem;
+  }
+  .ecru-matieres__grille--1 {
+    grid-template-columns: minmax(0, 56rem);
+  }
+}
+.ecru-matiere__details {
+  margin: 2.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-matiere__details li {
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--ecru-border);
+  font-size: 1.3rem;
+  letter-spacing: 0.08em;
+  color: var(--ecru-text);
 }
 .ecru-matiere__visuel {
   position: relative;
@@ -535,21 +555,24 @@ a:not(.button):not(.ecru-bouton) {
     radial-gradient(120% 90% at 20% 0%, rgba(233, 228, 216, 0.05), transparent 60%),
     #0e0e0d;
 }
-/* Aluminium : brossé, reflet doux */
-.ecru-matiere__visuel--aluminium {
+/* Métal : lisse et brillant, un reflet qui traverse */
+.ecru-matiere__visuel--metal {
   background:
-    repeating-linear-gradient(0deg, rgba(233, 228, 216, 0.035) 0 1px, transparent 1px 3px),
-    linear-gradient(105deg, #121211 0%, #2a2926 38%, #3c3a36 48%, #2a2926 58%, #121211 100%);
+    linear-gradient(118deg, transparent 34%, rgba(233, 228, 216, 0.22) 46%, rgba(233, 228, 216, 0.06) 49%, transparent 54%),
+    linear-gradient(118deg, #0c0c0b 0%, #1d1d1b 34%, #4a4843 48%, #1d1d1b 62%, #0c0c0b 100%);
 }
-/* Acier inoxydable : poli, reflet net */
-.ecru-matiere__visuel--acier {
-  background:
-    linear-gradient(118deg, transparent 30%, rgba(233, 228, 216, 0.16) 44%, transparent 46%),
-    linear-gradient(118deg, #1a1a19 0%, #4a4843 30%, #a29d92 46%, #3a3935 60%, #121211 100%);
+.ecru-matiere__visuel--metal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(118deg, transparent 40%, rgba(233, 228, 216, 0.14) 50%, transparent 60%);
+  transform: translateX(-60%);
+  transition: transform 2.4s var(--ecru-ease);
 }
-.ecru-matiere__visuel--acier .ecru-matiere__marque {
-  color: rgba(7, 7, 7, 0.7);
+.ecru-matiere:hover .ecru-matiere__visuel--metal::before {
+  transform: translateX(60%);
 }
+
 .ecru-matiere .ecru-texte {
   margin-top: 1.2rem;
   font-size: 1.5rem;
@@ -767,13 +790,6 @@ a:not(.button):not(.ecru-bouton) {
 .ecru-produit__quantite input::-webkit-outer-spin-button {
   -webkit-appearance: none;
 }
-.ecru-produit__boutons {
-  display: grid;
-  gap: 1.2rem;
-}
-.ecru-produit__boutons .ecru-bouton {
-  width: 100%;
-}
 .ecru-produit__note {
   margin: 2.4rem 0 0;
   font-size: 1.3rem;
@@ -788,6 +804,189 @@ a:not(.button):not(.ecru-bouton) {
   margin-top: 1.2rem;
   font-size: 1.3rem;
   color: var(--ecru-text);
+}
+
+/* Configurateur produit */
+.ecru-produit__mention {
+  margin: 0.8rem 0 0;
+  text-align: center;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
+.ecru-option {
+  padding-top: 2.8rem;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-option legend {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  width: 100%;
+  float: left;
+  margin-bottom: 1.8rem;
+}
+.ecru-option legend + * {
+  clear: both;
+}
+.ecru-option__etape {
+  font-family: var(--font-heading-family);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  color: var(--ecru-text);
+}
+.ecru-option__valeur {
+  margin-left: auto;
+  letter-spacing: 0.14em;
+  color: var(--ecru-text);
+}
+.ecru-option__aide {
+  margin: 1.4rem 0 0;
+  font-size: 1.3rem;
+  color: var(--ecru-muted);
+}
+.ecru-option__aide strong {
+  font-weight: 500;
+  color: var(--ecru-text);
+}
+/* Matière : deux grandes tuiles */
+.ecru-option--matiere .ecru-option__choix {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+.ecru-option .ecru-matiere-choix {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  min-height: 7.2rem;
+  padding: 1.6rem 2rem;
+  border-radius: 4px;
+  letter-spacing: 0;
+}
+.ecru-matiere-choix__nom {
+  font-family: var(--font-heading-family);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ecru-matiere-choix__desc {
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+/* Couleur : pastilles rondes teintées */
+.ecru-option--couleur .ecru-option__choix {
+  gap: 1.2rem;
+}
+.ecru-option .ecru-pastille {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  border-color: var(--ecru-border);
+  background: transparent;
+}
+.ecru-pastille__teinte {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: var(--teinte);
+  box-shadow: inset 0 0 0 1px rgba(233, 228, 216, 0.18), inset 0 6px 10px -6px rgba(255, 255, 255, 0.35);
+}
+.ecru-option input:checked + .ecru-pastille {
+  background: transparent;
+  border-color: var(--ecru-text);
+}
+.ecru-option input:disabled + .ecru-pastille {
+  text-decoration: none;
+}
+/* Personnalisation */
+.ecru-champ {
+  margin-bottom: 2rem;
+}
+.ecru-champ label {
+  display: block;
+  min-height: 0;
+  margin-bottom: 0.8rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  color: var(--ecru-text);
+  cursor: default;
+}
+.ecru-champ label:hover {
+  border: 0;
+}
+.ecru-champ input[type='text'],
+.ecru-champ textarea {
+  width: 100%;
+  padding: 1.4rem 1.6rem;
+  background: transparent;
+  border: 1px solid var(--ecru-border);
+  border-radius: 2px;
+  color: var(--ecru-text);
+  font: inherit;
+  font-size: 1.5rem;
+  transition: border-color 0.6s var(--ecru-ease);
+}
+.ecru-champ input[type='text']:focus,
+.ecru-champ textarea:focus {
+  outline: none;
+  border-color: var(--ecru-muted);
+}
+.ecru-champ input::placeholder,
+.ecru-champ textarea::placeholder {
+  color: #6f6b63;
+}
+.ecru-champ input[type='file'] {
+  position: static;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  font-size: 1.3rem;
+  color: var(--ecru-muted);
+}
+.ecru-champ input[type='file']::file-selector-button {
+  margin-right: 1.4rem;
+  padding: 1rem 1.8rem;
+  background: transparent;
+  border: 1px solid var(--ecru-border);
+  border-radius: 999px;
+  color: var(--ecru-text);
+  font: inherit;
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ecru-champ__aide {
+  margin: 0.6rem 0 0;
+  font-size: 1.2rem;
+  color: var(--ecru-muted);
+}
+.ecru-produit__achat {
+  display: flex;
+  gap: 1.2rem;
+  padding-top: 2.8rem;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-produit__achat .ecru-produit__quantite {
+  flex-shrink: 0;
+  margin: 0;
+}
+.ecru-produit__achat .ecru-bouton {
+  flex-grow: 1;
+}
+.ecru-produit__contact {
+  width: 100%;
+  margin-top: 1.2rem;
 }
 
 /* Formulaires Dawn (contact, newsletter) */

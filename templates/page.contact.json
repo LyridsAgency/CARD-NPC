@@ -4,13 +4,13 @@
       "type": "main-page",
       "settings": {
         "padding_top": 96,
-        "padding_bottom": 0
+        "padding_bottom": 24
       }
     },
     "form": {
       "type": "contact-form",
       "settings": {
-        "heading": "Demande spécifique",
+        "heading": "",
         "heading_size": "h1",
         "color_scheme": "scheme-1",
         "padding_top": 24,

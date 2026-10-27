@@ -108,7 +108,8 @@ function fitFontSize(ctx, text, family, maxW, maxH, tracking) {
 // Construit les cartes de texture d'une face.
 // drawMask(ctx, w, h) dessine en blanc ce qui est en relief (texte, symbole).
 // drawEngrave(ctx, w, h), facultatif : gravure fine dans la matière (relief seul, sans couleur).
-function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, relief, metal }) {
+// brushed : stries de brossage (aluminium) ; sinon métal poli (acier) ou matière mate (PVC).
+function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, relief, metal, brushed, polish = 0.14 }) {
   const mask = canvas(w, h);
   const mctx = mask.getContext('2d');
   mctx.fillStyle = '#000';
@@ -173,8 +174,10 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, relief, metal
       const i = (y * w + x) * 4;
       const m = md[i] / 255;
       const s = sd[i] / 255;
-      const g = metal
+      const g = brushed
         ? row * 0.9 + (rand() - 0.5) * 0.25
+        : metal
+        ? (rand() - 0.5) * 0.12
         : (rand() - 0.5) * 0.6 + coarse[cy + ((x / 3) | 0)];
       const gb = 1 + g * (metal ? 0.035 : 0.1);
       // Couleur : matière mate grainée, encre métallique sur le relief
@@ -184,7 +187,7 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, relief, metal
       cd[i + 3] = 255;
       // G = rugosité, B = métal
       od[i] = 255;
-      const rough = (metal ? 0.3 : 0.82) + g * (metal ? 0.035 : 0.1) - (ed ? (ed[i] / 255) * 0.12 : 0);
+      const rough = (brushed ? 0.3 : metal ? polish : 0.82) + g * (metal ? 0.035 : 0.1) - (ed ? (ed[i] / 255) * 0.12 : 0);
       od[i + 1] = rough * 255 * (1 - m) + (metal ? 0.22 : 0.36) * 255 * m;
       od[i + 2] = (metal ? 255 * (1 - m) + 0.8 * 255 * m : 255 * m * 0.62);
       od[i + 3] = 255;
@@ -208,10 +211,10 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, relief, metal
   return { map, orm: ormTex, bump: bumpTex };
 }
 
-function faceMaterial(tex, anisotropy, metal) {
+function faceMaterial(tex, anisotropy, metal, brushed) {
   [tex.map, tex.orm, tex.bump].forEach((t) => (t.anisotropy = anisotropy));
   return new MeshPhysicalMaterial({
-    anisotropy: metal ? 0.75 : 0,
+    anisotropy: brushed ? 0.75 : 0,
     specularIntensity: metal ? 1 : 0.6,
     color: 0xffffff,
     map: tex.map,
@@ -221,8 +224,8 @@ function faceMaterial(tex, anisotropy, metal) {
     metalnessMap: tex.orm,
     bumpMap: tex.bump,
     bumpScale: 1.4,
-    clearcoat: metal ? 0.35 : 0.12,
-    clearcoatRoughness: metal ? 0.3 : 0.55,
+    clearcoat: brushed ? 0.35 : metal ? 0.6 : 0.12,
+    clearcoatRoughness: brushed ? 0.3 : metal ? 0.12 : 0.55,
   });
 }
 
@@ -416,10 +419,16 @@ export async function mount(el) {
     text = (text || 'ECRU').toUpperCase().slice(0, 18);
     holder = (holder || '').toUpperCase().slice(0, 26);
     tier = (tier || '').toUpperCase().slice(0, 18);
+    // finish : 'mat' (PVC) ou 'metal' (métal lisse). 'brosse' reste disponible pour un métal brossé.
     const metal = finish !== 'mat';
+    const brushed = finish === 'brosse';
+    const cardColor = new Color(color || '#0d0d0c');
+    const dark = cardColor.getHSL({}).l < 0.35;
     // Un métal noir pur ne refléterait rien : on remonte l'albédo vers un gris acier très sombre
+    // Métal clair : satiné argenté plutôt que miroir
+    const polish = dark ? 0.14 : 0.3;
     const base = metal
-      ? hexToRgb(`#${new Color(color || '#0d0d0c').lerp(new Color('#6b6a66'), 0.5).getHexString()}`)
+      ? hexToRgb(`#${cardColor.clone().lerp(new Color(dark ? '#6b6a66' : '#d2d1cd'), dark ? 0.5 : 0.55).getHexString()}`)
       : hexToRgb(color || '#0d0d0c');
     const inkRgb = hexToRgb(ink || '#e9e4d8');
     [front.material, back.material].forEach((m) => {
@@ -442,6 +451,8 @@ export async function mount(el) {
       seed: 7,
       relief: 1,
       metal,
+      brushed,
+      polish,
       drawMask(ctx, w, h) {
         const m = w * 0.068;
         ctx.textBaseline = 'middle';
@@ -470,6 +481,8 @@ export async function mount(el) {
       seed: 11,
       relief: -0.8,
       metal,
+      brushed,
+      polish,
       drawMask(ctx, w, h) {
         ctx.textBaseline = 'middle';
         drawNfc(ctx, w / 2 + h * 0.03, h * 0.43, h * 0.032, 0.8);
@@ -487,14 +500,14 @@ export async function mount(el) {
         ctx.stroke();
       },
     });
-    front.material = faceMaterial(frontTex, anisotropy, metal);
-    back.material = faceMaterial(backTex, anisotropy, metal);
+    front.material = faceMaterial(frontTex, anisotropy, metal, brushed);
+    back.material = faceMaterial(backTex, anisotropy, metal, brushed);
     // Tranche : métal poli plus clair, qui accroche la lumière
-    const edge = new Color(color || '#0d0d0c').lerp(new Color('#8d8b85'), metal ? 0.55 : 0.12);
+    const edge = cardColor.clone().lerp(new Color('#8d8b85'), metal ? (dark ? 0.55 : 0.2) : 0.12);
     edgeMat.color.copy(edge);
     edgeMat.metalness = metal ? 1 : 0.35;
-    edgeMat.roughness = metal ? 0.22 : 0.42;
-    scene.environmentIntensity = metal ? 1.15 : 0.75;
+    edgeMat.roughness = brushed ? 0.22 : metal ? 0.1 : 0.42;
+    scene.environmentIntensity = metal ? 1.15 : 1;
     current = { text, holder, tier, color, ink, finish };
   }
 

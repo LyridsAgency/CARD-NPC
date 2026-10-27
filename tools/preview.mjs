@@ -87,7 +87,44 @@ export async function serve(name, overrides) {
 const [, , mode = 'shots', name = 'ecru-carte-3d'] = process.argv;
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 
-if (mode === 'poster') {
+if (mode === 'rendus') {
+  // Images produits : une par matière × couleur, fond noir, carré 1600 px
+  const out = process.env.OUT || ROOT;
+  const finishes = { pvc: 'mat', metal: 'metal' };
+  const couleurs = { noir: ['#0d0d0c', '#e9e4d8'], blanc: ['#e9e4d8', '#121211'] };
+  const produits = { fidelite: { card_holder: 'Prénom Nom', card_tier: 'Privilège' }, simple: { card_holder: '', card_tier: '' } };
+  for (const [prod, extra] of Object.entries(produits)) {
+    for (const [mat, finish] of Object.entries(finishes)) {
+      for (const [coul, [color, ink]] of Object.entries(couleurs)) {
+        const { server, url } = await serve(name, { ...extra, card_color: color, ink_color: ink, finish });
+        const p = await browser.newPage({ viewport: { width: 1600, height: 1600 }, deviceScaleFactor: 1 });
+        await p.emulateMedia({ reducedMotion: 'reduce' });
+        await p.goto(url);
+        await p.addStyleTag({
+          content: '.ecru-section{padding:0!important}.ecru-carte__vue{height:1600px!important}.ecru-carte__bascule,.ecru-carte__avantages,.ecru-carte__fleches{display:none!important}',
+        });
+        await p.waitForSelector('.ecru-carte.is-ready', { timeout: 90000 });
+        await p.waitForTimeout(900);
+        const png = await p.locator('.ecru-carte__vue').screenshot();
+        const jpg = await p.evaluate(async (b64) => {
+          const img = new Image();
+          img.src = `data:image/png;base64,${b64}`;
+          await img.decode();
+          const c = document.createElement('canvas');
+          c.width = img.width;
+          c.height = img.height;
+          c.getContext('2d').drawImage(img, 0, 0);
+          return c.toDataURL('image/jpeg', 0.9).split(',')[1];
+        }, png.toString('base64'));
+        const file = `ecru-${prod}-${mat}-${coul}.jpg`;
+        await writeFile(join(out, file), Buffer.from(jpg, 'base64'));
+        console.log(file);
+        await p.close();
+        server.close();
+      }
+    }
+  }
+} else if (mode === 'poster') {
   // Image de secours : carte = 62,5 % de la largeur, fond transparent
   const { server, url } = await serve(name);
   const p = await browser.newPage({ viewport: { width: 1600, height: 1400 }, deviceScaleFactor: 1 });

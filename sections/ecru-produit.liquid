@@ -1,38 +1,62 @@
 {%- comment -%}
-  ECRU — Page produit : la carte 3D à la place de la photo.
-  La carte suit les options choisies (matière → finition, couleur → teinte de la carte).
+  ECRU — Page produit en configurateur : la carte 3D à la place de la photo.
+  - Matière : PVC → rendu mat, Métal → métal lisse. MOQ par matière (Paramètres du thème → ECRU).
+  - Couleur : pastilles teintées d'après « Couleurs des cartes » (Paramètres du thème → ECRU).
+  - Personnalisation : nom gravé (affiché en direct sur la carte), logo, demande libre.
+    Ces champs partent avec la commande (propriétés de ligne).
 {%- endcomment -%}
 {%- liquid
   assign current = product.selected_or_first_available_variant
   assign uid = 'ecru-produit-' | append: section.id
   assign contact = settings.ecru_contact_link | default: '/pages/contact'
+  assign moq_texte = settings.ecru_moq_texte | default: '[À définir]'
+  assign lignes_moq = settings.ecru_moq | newline_to_br | split: '<br />'
+  assign lignes_couleurs = settings.ecru_couleurs | newline_to_br | split: '<br />'
 
+  assign holder = section.settings.card_holder
+  assign tier = section.settings.card_tier
+  if product.tags contains 'simple'
+    assign holder = ''
+    assign tier = ''
+  endif
+
+  comment
+    Apparence de départ d'après la variante choisie
+  endcomment
   assign finish = 'metal'
   assign color = '#0d0d0c'
-  assign ink = '#e9e4d8'
   for value in current.options
-    assign v = value | downcase
+    assign v = value | downcase | strip
     if v contains 'pvc'
       assign finish = 'mat'
     endif
-    if v contains 'blanc' or v contains 'white'
-      assign color = '#e9e4d8'
-      assign ink = '#121211'
-    endif
+    for l in lignes_couleurs
+      assign parts = l | split: ':'
+      assign k = parts[0] | strip | downcase
+      if k == v and parts[1] != blank
+        assign color = parts[1] | strip
+      endif
+    endfor
   endfor
+  assign ink = '#e9e4d8'
+  assign c = color | color_brightness
+  if c > 150
+    assign ink = '#121211'
+  endif
 -%}
 
 <section
   class="ecru-section ecru-produit"
   style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  data-ecru-produit
 >
   <div class="ecru-conteneur ecru-produit__grille">
     <div class="ecru-produit__visuel">
       {%- render 'ecru-carte',
         id: uid,
         text: section.settings.card_text,
-        holder: section.settings.card_holder,
-        tier: section.settings.card_tier,
+        holder: holder,
+        tier: tier,
         color: color,
         ink: ink,
         finish: finish,
@@ -40,6 +64,7 @@
         avantages: section.settings.avantages,
         compact: true
       -%}
+      <p class="ecru-produit__mention">Rendu 3D indicatif.</p>
     </div>
 
     <div class="ecru-produit__infos">
@@ -48,20 +73,50 @@
       {%- endif -%}
       <h1 class="ecru-titre">{{ product.title | escape }}</h1>
 
-      <div class="ecru-produit__prix" data-ecru-prix>
+      <div class="ecru-produit__prix">
         {%- render 'price', product: product, use_variant: true -%}
       </div>
 
       {%- form 'product', product, id: 'form-produit', class: 'ecru-produit__form', novalidate: 'novalidate', data-ecru-form: '' -%}
         <input type="hidden" name="id" value="{{ current.id }}" data-ecru-variant>
 
+        {%- assign etape = 0 -%}
         {%- unless product.has_only_default_variant -%}
           {%- for option in product.options_with_values -%}
-            <fieldset class="ecru-option">
-              <legend>{{ option.name | escape }}</legend>
+            {%- liquid
+              assign etape = etape | plus: 1
+              assign nom_option = option.name | downcase
+              assign est_couleur = false
+              if nom_option contains 'couleur' or nom_option contains 'color'
+                assign est_couleur = true
+              endif
+              assign est_matiere = false
+              if nom_option contains 'mati'
+                assign est_matiere = true
+              endif
+            -%}
+            <fieldset class="ecru-option{% if est_couleur %} ecru-option--couleur{% endif %}{% if est_matiere %} ecru-option--matiere{% endif %}">
+              <legend>
+                <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
+                {{ option.name | escape }}
+                {%- if est_couleur -%}
+                  <span class="ecru-option__valeur" data-ecru-valeur="{{ option.position }}">{{ option.selected_value | escape }}</span>
+                {%- endif -%}
+              </legend>
               <div class="ecru-option__choix">
                 {%- for value in option.values -%}
-                  {%- assign oid = uid | append: '-' | append: option.position | append: '-' | append: forloop.index -%}
+                  {%- liquid
+                    assign oid = uid | append: '-' | append: option.position | append: '-' | append: forloop.index
+                    assign vb = value | downcase | strip
+                    assign teinte = ''
+                    for l in lignes_couleurs
+                      assign parts = l | split: ':'
+                      assign k = parts[0] | strip | downcase
+                      if k == vb
+                        assign teinte = parts[1] | strip
+                      endif
+                    endfor
+                  -%}
                   <input
                     type="radio"
                     id="{{ oid }}"
@@ -72,21 +127,78 @@
                       checked
                     {% endif %}
                   >
-                  <label for="{{ oid }}">{{ value | escape }}</label>
+                  {%- if est_couleur -%}
+                    <label for="{{ oid }}" class="ecru-pastille" title="{{ value | escape }}">
+                      <span class="ecru-pastille__teinte" style="--teinte: {{ teinte | default: '#2a2926' }}"></span>
+                      <span class="visually-hidden">{{ value | escape }}</span>
+                    </label>
+                  {%- elsif est_matiere -%}
+                    <label for="{{ oid }}" class="ecru-matiere-choix">
+                      <span class="ecru-matiere-choix__nom">{{ value | escape }}</span>
+                      <span class="ecru-matiere-choix__desc">
+                        {%- if vb contains 'pvc' -%}
+                          Mat, léger
+                        {%- elsif vb contains 'métal' or vb contains 'metal' -%}
+                          Lisse, brillant
+                        {%- endif -%}
+                      </span>
+                    </label>
+                  {%- else -%}
+                    <label for="{{ oid }}">{{ value | escape }}</label>
+                  {%- endif -%}
                 {%- endfor -%}
               </div>
+              {%- if est_matiere -%}
+                <p class="ecru-option__aide">
+                  Minimum de commande :
+                  <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
+                </p>
+              {%- endif -%}
             </fieldset>
           {%- endfor -%}
         {%- endunless -%}
 
-        <div class="ecru-produit__quantite">
-          <button type="button" data-ecru-qte="-1" aria-label="Retirer une carte">−</button>
-          <label class="visually-hidden" for="{{ uid }}-qte">Quantité</label>
-          <input id="{{ uid }}-qte" type="number" name="quantity" value="1" min="1" inputmode="numeric">
-          <button type="button" data-ecru-qte="1" aria-label="Ajouter une carte">+</button>
-        </div>
+        {%- if section.settings.show_perso -%}
+          {%- assign etape = etape | plus: 1 -%}
+          <fieldset class="ecru-option ecru-perso">
+            <legend>
+              <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
+              Personnalisation
+            </legend>
+            {%- if holder != blank -%}
+              <div class="ecru-champ">
+                <label for="{{ uid }}-nom">Nom gravé sur la carte</label>
+                <input
+                  id="{{ uid }}-nom"
+                  type="text"
+                  name="properties[Nom gravé]"
+                  maxlength="26"
+                  placeholder="{{ holder | escape }}"
+                  autocomplete="off"
+                  data-ecru-nom
+                >
+                <p class="ecru-champ__aide">Facultatif. S'affiche sur la carte ci-contre.</p>
+              </div>
+            {%- endif -%}
+            <div class="ecru-champ">
+              <label for="{{ uid }}-logo">Votre logo</label>
+              <input id="{{ uid }}-logo" type="file" name="properties[Logo]" accept="image/png,image/jpeg,image/svg+xml,application/pdf">
+              <p class="ecru-champ__aide">Facultatif. PNG, JPG, SVG ou PDF.</p>
+            </div>
+            <div class="ecru-champ">
+              <label for="{{ uid }}-demande">Votre demande</label>
+              <textarea id="{{ uid }}-demande" name="properties[Demande]" rows="3" placeholder="Couleurs, texte, lien, quantité par nom…"></textarea>
+            </div>
+          </fieldset>
+        {%- endif -%}
 
-        <div class="ecru-produit__boutons">
+        <div class="ecru-produit__achat">
+          <div class="ecru-produit__quantite">
+            <button type="button" data-ecru-qte="-1" aria-label="Retirer une carte">−</button>
+            <label class="visually-hidden" for="{{ uid }}-qte">Quantité</label>
+            <input id="{{ uid }}-qte" type="number" name="quantity" value="1" min="1" inputmode="numeric" data-ecru-quantite>
+            <button type="button" data-ecru-qte="1" aria-label="Ajouter une carte">+</button>
+          </div>
           <button
             type="submit"
             class="ecru-bouton"
@@ -101,10 +213,10 @@
               Indisponible
             {%- endif -%}
           </button>
-          <a class="ecru-bouton ecru-bouton--ligne" href="{{ contact }}?produit={{ product.title | url_encode }}">
-            {{- section.settings.contact_label | escape -}}
-          </a>
         </div>
+        <a class="ecru-bouton ecru-bouton--ligne ecru-produit__contact" href="{{ contact }}?produit={{ product.title | url_encode }}">
+          {{- section.settings.contact_label | escape -}}
+        </a>
         <p class="ecru-produit__erreur" role="status" aria-live="polite" data-ecru-statut></p>
       {%- endform -%}
 
@@ -125,8 +237,37 @@
     </div>
   </div>
 
-  <script type="application/json" data-ecru-variants>
-    {{ product.variants | json }}
+  <script type="application/json" data-ecru-donnees>
+    {
+      "variants": {{ product.variants | json }},
+      "moq": {
+        {%- assign premier = true -%}
+        {%- for l in lignes_moq -%}
+          {%- assign parts = l | split: ':' -%}
+          {%- assign k = parts[0] | strip | downcase -%}
+          {%- if k != blank -%}
+            {%- assign q = parts[1] | strip | plus: 0 -%}
+            {%- unless premier %},{% endunless -%}
+            {{ k | json }}: {{ q }}
+            {%- assign premier = false -%}
+          {%- endif -%}
+        {%- endfor -%}
+      },
+      "couleurs": {
+        {%- assign premier = true -%}
+        {%- for l in lignes_couleurs -%}
+          {%- assign parts = l | split: ':' -%}
+          {%- assign k = parts[0] | strip | downcase -%}
+          {%- if k != blank and parts[1] != blank -%}
+            {%- unless premier %},{% endunless -%}
+            {{ k | json }}: {{ parts[1] | strip | json }}
+            {%- assign premier = false -%}
+          {%- endif -%}
+        {%- endfor -%}
+      },
+      "moqTexte": {{ moq_texte | json }},
+      "ajout": {{ section.settings.add_label | json }}
+    }
   </script>
 </section>
 
@@ -135,12 +276,20 @@
     var root = document.currentScript.previousElementSibling;
     var form = root.querySelector('[data-ecru-form]');
     if (!form) return;
-    var variants = JSON.parse(root.querySelector('[data-ecru-variants]').textContent);
+    var data = JSON.parse(root.querySelector('[data-ecru-donnees]').textContent);
+    var variants = data.variants;
     var input = form.querySelector('[data-ecru-variant]');
     var bouton = form.querySelector('[data-ecru-ajout]');
     var statut = form.querySelector('[data-ecru-statut]');
+    var quantite = form.querySelector('[data-ecru-quantite]');
+    var moqEl = form.querySelector('[data-ecru-moq]');
+    var nom = form.querySelector('[data-ecru-nom]');
     var carte = root.querySelector('[data-ecru-carte]');
-    var libelle = {{ section.settings.add_label | json }};
+    var minimum = 1;
+
+    function bas(v) {
+      return String(v || '').trim().toLowerCase();
+    }
 
     function choix() {
       var sel = [];
@@ -150,15 +299,40 @@
       return sel;
     }
 
-    // Apparence de la carte d'après les options : PVC → mat, sinon métal ; Blanc → carte claire
+    // Clarté d'une couleur hexadécimale (0 à 255), pour choisir la couleur du relief
+    function clarte(hex) {
+      var h = hex.replace('#', '');
+      if (h.length === 3) h = h.replace(/(.)/g, '$1$1');
+      var n = parseInt(h, 16);
+      return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
+    }
+
     function apparence(options) {
-      var txt = options.join(' ').toLowerCase();
-      var blanc = /blanc|white/.test(txt);
-      return {
-        finish: /pvc/.test(txt) ? 'mat' : 'metal',
-        color: blanc ? '#e9e4d8' : '#0d0d0c',
-        ink: blanc ? '#121211' : '#e9e4d8',
-      };
+      var finish = 'metal';
+      var color = '#0d0d0c';
+      options.forEach(function (o) {
+        var v = bas(o);
+        if (v.indexOf('pvc') !== -1) finish = 'mat';
+        if (data.couleurs[v]) color = data.couleurs[v];
+      });
+      return { finish: finish, color: color, ink: clarte(color) > 150 ? '#121211' : '#e9e4d8' };
+    }
+
+    function majMoq(options) {
+      minimum = 1;
+      var defini = false;
+      options.forEach(function (o) {
+        var q = data.moq[bas(o)];
+        if (q !== undefined) {
+          if (q > 0) {
+            minimum = Math.max(minimum, q);
+            defini = true;
+          }
+        }
+      });
+      if (moqEl) moqEl.textContent = defini ? minimum + ' cartes' : data.moqTexte;
+      quantite.min = minimum;
+      if ((parseInt(quantite.value, 10) || 0) < minimum) quantite.value = minimum;
     }
 
     function maj() {
@@ -173,12 +347,21 @@
       form.querySelectorAll('input[type=radio]').forEach(function (r) {
         var pos = r.dataset.position - 1;
         var possible = variants.some(function (x) {
-          return x.available && x.options[pos] === r.value && x.options.every(function (o, i) {
-            return i === pos || sel[i] === undefined || sel[i] === o;
-          });
+          return (
+            x.available &&
+            x.options[pos] === r.value &&
+            x.options.every(function (o, i) {
+              return i === pos || sel[i] === undefined || sel[i] === o;
+            })
+          );
         });
         r.disabled = !possible && !r.checked;
       });
+      form.querySelectorAll('[data-ecru-valeur]').forEach(function (el) {
+        el.textContent = sel[el.dataset.ecruValeur - 1] || '';
+      });
+
+      majMoq(sel);
 
       if (!v) {
         bouton.disabled = true;
@@ -188,7 +371,7 @@
       }
       input.value = v.id;
       bouton.disabled = !v.available;
-      bouton.textContent = v.available ? libelle : 'Indisponible';
+      bouton.textContent = v.available ? data.ajout : 'Indisponible';
       statut.textContent = '';
       var url = new URL(window.location.href);
       url.searchParams.set('variant', v.id);
@@ -198,12 +381,28 @@
 
     form.addEventListener('change', function (e) {
       if (e.target.type === 'radio') maj();
+      if (e.target === quantite && (parseInt(quantite.value, 10) || 0) < minimum) {
+        quantite.value = minimum;
+        statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
+      }
     });
     form.querySelectorAll('[data-ecru-qte]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var q = form.querySelector('input[name=quantity]');
-        q.value = Math.max(1, (parseInt(q.value, 10) || 1) + parseInt(b.dataset.ecruQte, 10));
+        quantite.value = Math.max(minimum, (parseInt(quantite.value, 10) || minimum) + parseInt(b.dataset.ecruQte, 10));
       });
+    });
+    if (nom && carte) {
+      var defaut = nom.placeholder;
+      nom.addEventListener('input', function () {
+        carte.dispatchEvent(new CustomEvent('ecru:card-update', { detail: { holder: nom.value.trim() || defaut } }));
+      });
+    }
+    form.addEventListener('submit', function (e) {
+      if ((parseInt(quantite.value, 10) || 0) < minimum) {
+        e.preventDefault();
+        quantite.value = minimum;
+        statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
+      }
     });
     maj();
   })();
@@ -217,7 +416,7 @@
   "settings": [
     { "type": "header", "content": "Carte" },
     { "type": "text", "id": "card_text", "label": "Marque gravée", "default": "ECRU" },
-    { "type": "text", "id": "card_holder", "label": "Nom du titulaire", "default": "Prénom Nom" },
+    { "type": "text", "id": "card_holder", "label": "Nom du titulaire (exemple)", "default": "Prénom Nom", "info": "Masqué automatiquement pour les produits marqués « simple »." },
     { "type": "text", "id": "card_tier", "label": "Niveau", "default": "Privilège" },
     {
       "type": "text",
@@ -226,7 +425,8 @@
       "info": "Séparés par « | ». 5 maximum.",
       "default": "Ils reviennent d'eux-mêmes|Gravée à leur nom|Un geste, sans application|Récompenses à la carte|Vos chiffres chaque mois"
     },
-    { "type": "header", "content": "Boutons" },
+    { "type": "header", "content": "Commande" },
+    { "type": "checkbox", "id": "show_perso", "label": "Afficher la personnalisation (nom, logo, demande)", "default": true },
     { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
     { "type": "text", "id": "contact_label", "label": "Demande spécifique", "default": "Demande spécifique" },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 48 },

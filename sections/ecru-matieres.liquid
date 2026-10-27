@@ -12,7 +12,7 @@
       <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
     </header>
 
-    <div class="ecru-matieres__grille">
+    <div class="ecru-matieres__grille ecru-matieres__grille--{{ section.blocks.size }}">
       {%- for block in section.blocks -%}
         <article class="ecru-matiere ecru-reveal" style="--d: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
           {%- if block.settings.image != blank -%}
@@ -34,6 +34,15 @@
           {%- endif -%}
           <h3 class="ecru-titre ecru-titre--s">{{ block.settings.title | escape }}</h3>
           <p class="ecru-texte">{{ block.settings.text | escape }}</p>
+          {%- assign details = block.settings.details | newline_to_br | split: '<br />' -%}
+          {%- if block.settings.details != blank -%}
+            <ul class="ecru-matiere__details" role="list">
+              {%- for d in details -%}
+                {%- assign dd = d | strip -%}
+                {%- if dd != blank -%}<li>{{ dd | escape }}</li>{%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
         </article>
       {%- endfor -%}
     </div>
@@ -44,7 +53,7 @@
 {
   "name": "Matières ECRU",
   "tag": "div",
-  "max_blocks": 4,
+  "max_blocks": 3,
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Matières" },
     { "type": "text", "id": "heading", "label": "Titre", "default": "Le poids des choses." },
@@ -59,14 +68,14 @@
       "settings": [
         { "type": "text", "id": "title", "label": "Nom", "default": "PVC" },
         { "type": "textarea", "id": "text", "label": "Texte" },
+        { "type": "textarea", "id": "details", "label": "Détails (un par ligne)" },
         {
           "type": "select",
           "id": "visual",
           "label": "Rendu",
           "options": [
-            { "value": "pvc", "label": "Mat" },
-            { "value": "aluminium", "label": "Brossé" },
-            { "value": "acier", "label": "Poli" }
+            { "value": "pvc", "label": "PVC mat" },
+            { "value": "metal", "label": "Métal" }
           ],
           "default": "pvc"
         },
@@ -78,9 +87,12 @@
     {
       "name": "Matières ECRU",
       "blocks": [
-        { "type": "matiere", "settings": { "title": "PVC", "text": "Léger, mat, net. L'essentiel, bien fait.", "visual": "pvc" } },
-        { "type": "matiere", "settings": { "title": "Aluminium", "text": "Brossé, plus présent. On sent la différence en la prenant.", "visual": "aluminium" } },
-        { "type": "matiere", "settings": { "title": "Acier inoxydable", "text": "Lourd en main, poli. Celle qu'on ne range jamais.", "visual": "acier" } }
+        { "type": "matiere", "settings": { "title": "PVC", "text": "Léger, mat, net. L'essentiel, bien fait.", "details": "Toucher doux et mat
+Noir ou blanc
+Idéal pour la fidélité au quotidien", "visual": "pvc" } },
+        { "type": "matiere", "settings": { "title": "Métal", "text": "Lourd en main, lisse, brillant. Celle qu'on ne range jamais.", "details": "Reflets profonds
+Noir ou blanc
+Idéal pour marquer les esprits", "visual": "metal" } }
       ]
     }
   ]

@@ -1495,6 +1495,34 @@
         "id": "ecru_contact_link",
         "label": "Lien « Demande spécifique »",
         "info": "Par défaut : la page /pages/contact."
+      },
+      {
+        "type": "header",
+        "content": "Commande"
+      },
+      {
+        "type": "textarea",
+        "id": "ecru_moq",
+        "label": "Minimum de commande (MOQ) par matière",
+        "default": "PVC:\nMétal:",
+        "info": "Une matière par ligne, au format « Matière: quantité ». Une ligne sans quantité affiche le texte ci-dessous."
+      },
+      {
+        "type": "text",
+        "id": "ecru_moq_texte",
+        "label": "Texte si le MOQ n'est pas défini",
+        "default": "[À définir]"
+      },
+      {
+        "type": "header",
+        "content": "Couleurs des cartes"
+      },
+      {
+        "type": "textarea",
+        "id": "ecru_couleurs",
+        "label": "Couleur de chaque option",
+        "default": "Noir: #0d0d0c\nBlanc: #e9e4d8",
+        "info": "Une couleur par ligne, au format « Nom de l'option: #code ». La pastille et la carte 3D prennent cette teinte."
       }
     ]
   }

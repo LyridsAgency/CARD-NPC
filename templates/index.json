@@ -144,7 +144,7 @@
             "title": "Cartes simples",
             "text": "Une carte noire ou blanche. Un geste, un lien : votre site, votre menu, vos avis, vos réseaux.",
             "price_note": "Paiement unique",
-            "features": "Noir ou blanc\nUn lien au choix, modifiable\nPVC, aluminium ou acier\nSans application",
+            "features": "Noir ou blanc\nUn lien au choix, modifiable\nPVC ou métal\nSans application",
             "button_label": "Choisir Cartes simples",
             "product": "cartes-simples"
           }
@@ -157,37 +157,32 @@
     },
     "matieres": {
       "type": "ecru-matieres",
-      "settings": {},
+      "settings": {
+        "heading": "Le poids des choses."
+      },
       "blocks": {
         "matiere_1": {
           "type": "matiere",
           "settings": {
             "title": "PVC",
             "text": "Léger, mat, net. L'essentiel, bien fait.",
+            "details": "Toucher doux et mat\nNoir ou blanc\nIdéal pour la fidélité au quotidien",
             "visual": "pvc"
           }
         },
         "matiere_2": {
           "type": "matiere",
           "settings": {
-            "title": "Aluminium",
-            "text": "Brossé, plus présent. On sent la différence en la prenant.",
-            "visual": "aluminium"
-          }
-        },
-        "matiere_3": {
-          "type": "matiere",
-          "settings": {
-            "title": "Acier inoxydable",
-            "text": "Lourd en main, poli. Celle qu'on ne range jamais.",
-            "visual": "acier"
+            "title": "Métal",
+            "text": "Lourd en main, lisse, brillant. Celle qu'on ne range jamais.",
+            "details": "Reflets profonds\nNoir ou blanc\nIdéal pour marquer les esprits",
+            "visual": "metal"
           }
         }
       },
       "block_order": [
         "matiere_1",
-        "matiere_2",
-        "matiere_3"
+        "matiere_2"
       ]
     },
     "faq": {
@@ -226,7 +221,7 @@
           "type": "question",
           "settings": {
             "question": "Quelle matière choisir ?",
-            "answer": "<p>Le PVC pour l'essentiel, l'aluminium pour plus de présence, l'acier pour marquer les esprits. Toutes fonctionnent de la même façon.</p>"
+            "answer": "<p>Le PVC pour l'essentiel, le métal pour marquer les esprits. Les deux fonctionnent de la même façon.</p>"
           }
         },
         "question_6": {

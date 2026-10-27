@@ -193,7 +193,10 @@
       },
       "ecru_prix_a_definir": true,
       "ecru_prix_texte": "[Prix à définir]",
-      "ecru_nom_marque": "ECRU"
+      "ecru_nom_marque": "ECRU",
+      "ecru_moq": "PVC:\nMétal:",
+      "ecru_moq_texte": "[À définir]",
+      "ecru_couleurs": "Noir: #0d0d0c\nBlanc: #e9e4d8"
     }
   }
 }
