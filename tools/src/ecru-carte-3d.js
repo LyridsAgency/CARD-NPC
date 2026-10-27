@@ -20,8 +20,10 @@ import {
   ACESFilmicToneMapping,
   DirectionalLight,
   Color,
+  BoxGeometry,
+  BackSide,
+  DoubleSide,
 } from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 // Dimensions réelles (cm) : 85,6 × 54 mm, rayon ISO 3,18 mm. Épaisseur légèrement accentuée pour la lire.
 const W = 8.56;
@@ -105,7 +107,7 @@ function fitFontSize(ctx, text, family, maxW, maxH, tracking) {
 
 // Construit les cartes de texture d'une face.
 // drawMask(ctx, w, h) dessine en blanc ce qui est en relief (texte, symbole).
-function buildFace({ w, h, base, ink, seed, drawMask, relief }) {
+function buildFace({ w, h, base, ink, seed, drawMask, relief, metal }) {
   const mask = canvas(w, h);
   const mctx = mask.getContext('2d');
   mctx.fillStyle = '#000';
@@ -143,16 +145,26 @@ function buildFace({ w, h, base, ink, seed, drawMask, relief }) {
   const coarse = new Float32Array(gw * gh);
   for (let i = 0; i < coarse.length; i++) coarse[i] = rand() - 0.5;
 
+  // Brossé : stries horizontales (une valeur par ligne, lissée) + légère variation le long de la ligne
+  const rows = new Float32Array(h);
+  let acc = 0;
+  for (let y = 0; y < h; y++) {
+    acc = acc * 0.35 + (rand() - 0.5) * 0.8;
+    rows[y] = acc;
+  }
   const [br, bg, bb] = base;
   const [ir, ig, ib] = ink;
   for (let y = 0; y < h; y++) {
     const cy = ((y / 3) | 0) * gw;
+    const row = rows[y];
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
       const m = md[i] / 255;
       const s = sd[i] / 255;
-      const g = (rand() - 0.5) * 0.6 + coarse[cy + ((x / 3) | 0)];
-      const gb = 1 + g * 0.1;
+      const g = metal
+        ? row * 0.9 + (rand() - 0.5) * 0.25
+        : (rand() - 0.5) * 0.6 + coarse[cy + ((x / 3) | 0)];
+      const gb = 1 + g * (metal ? 0.035 : 0.1);
       // Couleur : matière mate grainée, encre métallique sur le relief
       cd[i] = br * gb * (1 - m) + ir * m;
       cd[i + 1] = bg * gb * (1 - m) + ig * m;
@@ -160,11 +172,11 @@ function buildFace({ w, h, base, ink, seed, drawMask, relief }) {
       cd[i + 3] = 255;
       // G = rugosité, B = métal
       od[i] = 255;
-      od[i + 1] = (0.82 + g * 0.1) * 255 * (1 - m) + 0.36 * 255 * m;
-      od[i + 2] = 255 * m * 0.62;
+      od[i + 1] = ((metal ? 0.3 : 0.82) + g * (metal ? 0.035 : 0.1)) * 255 * (1 - m) + (metal ? 0.22 : 0.36) * 255 * m;
+      od[i + 2] = (metal ? 255 * (1 - m) + 0.8 * 255 * m : 255 * m * 0.62);
       od[i + 3] = 255;
       // Relief : grain + texte surélevé (ou gravé si relief < 0)
-      const v = 128 + g * 26 + relief * (s * 0.55 + m * 0.45) * 110;
+      const v = 128 + g * (metal ? 9 : 26) + relief * (s * 0.55 + m * 0.45) * 110;
       bd[i] = bd[i + 1] = bd[i + 2] = v;
       bd[i + 3] = 255;
     }
@@ -182,9 +194,11 @@ function buildFace({ w, h, base, ink, seed, drawMask, relief }) {
   return { map, orm: ormTex, bump: bumpTex };
 }
 
-function faceMaterial(tex, anisotropy) {
+function faceMaterial(tex, anisotropy, metal) {
   [tex.map, tex.orm, tex.bump].forEach((t) => (t.anisotropy = anisotropy));
   return new MeshPhysicalMaterial({
+    anisotropy: metal ? 0.75 : 0,
+    specularIntensity: metal ? 1 : 0.6,
     color: 0xffffff,
     map: tex.map,
     roughness: 1,
@@ -193,8 +207,8 @@ function faceMaterial(tex, anisotropy) {
     metalnessMap: tex.orm,
     bumpMap: tex.bump,
     bumpScale: 1.4,
-    clearcoat: 0.12,
-    clearcoatRoughness: 0.55,
+    clearcoat: metal ? 0.35 : 0.12,
+    clearcoatRoughness: metal ? 0.3 : 0.55,
   });
 }
 
@@ -225,6 +239,33 @@ function drawNfc(ctx, w, h) {
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
+}
+
+// Studio photo virtuel : pièce sombre + boîtes à lumière en bandes.
+// Ce sont leurs reflets qui glissent sur le métal quand la carte tourne.
+function studioScene() {
+  const s = new Scene();
+  const room = new Mesh(new BoxGeometry(40, 24, 40), new MeshBasicMaterial({ color: 0x141413, side: BackSide }));
+  s.add(room);
+  const panel = (w, h, x, y, z, ry, rx, power) => {
+    const m = new Mesh(
+      new PlaneGeometry(w, h),
+      new MeshBasicMaterial({ color: new Color(power, power, power * 0.97), side: DoubleSide })
+    );
+    m.position.set(x, y, z);
+    m.rotation.set(rx, ry, 0);
+    s.add(m);
+  };
+  // Grande boîte douce derrière la caméra : la face de la carte la reflète quand elle est de face
+  panel(10, 6, 0, 4, 19.5, Math.PI, 0, 1.4);
+  // Bandes verticales tout autour : à chaque angle de rotation, un reflet traverse le métal
+  const powers = [4.2, 1.4, 3, 1.1, 3.6, 1.3, 2.4, 1.1];
+  powers.forEach((pw, k) => {
+    const a = (k * Math.PI) / 4 + 0.25;
+    panel(1.3, 15, Math.sin(a) * 18.5, 1, Math.cos(a) * 18.5, a + Math.PI, 0, pw);
+  });
+  panel(30, 1.6, 0, 11.5, 4, 0, Math.PI / 2, 3); // bande au plafond (tranche haute)
+  return s;
 }
 
 export async function mount(el) {
@@ -262,7 +303,7 @@ export async function mount(el) {
 
   const scene = new Scene();
   const pmrem = new PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environment = pmrem.fromScene(studioScene(), 0.03).texture;
   scene.environmentIntensity = 0.62;
   pmrem.dispose();
 
@@ -339,9 +380,13 @@ export async function mount(el) {
   const texH = Math.round((texW * H) / W);
   let current = {};
 
-  function applyLook({ text, color, ink }) {
+  function applyLook({ text, color, ink, finish }) {
     text = (text || 'ECRU').toUpperCase().slice(0, 18);
-    const base = hexToRgb(color || '#0d0d0c');
+    const metal = finish !== 'mat';
+    // Un métal noir pur ne refléterait rien : on remonte l'albédo vers un gris acier très sombre
+    const base = metal
+      ? hexToRgb(`#${new Color(color || '#0d0d0c').lerp(new Color('#6b6a66'), 0.5).getHexString()}`)
+      : hexToRgb(color || '#0d0d0c');
     const inkRgb = hexToRgb(ink || '#e9e4d8');
     [front.material, back.material].forEach((m) => {
       if (m && m.map) {
@@ -358,6 +403,7 @@ export async function mount(el) {
       ink: inkRgb,
       seed: 7,
       relief: 1,
+      metal,
       drawMask(ctx, w, h) {
         const tracking = 0.06;
         const size = fitFontSize(ctx, text, family, w * (text.length > 6 ? 0.78 : 0.5), h * 0.3, tracking);
@@ -373,16 +419,21 @@ export async function mount(el) {
       ink: inkRgb.map((v, i) => v * 0.42 + base[i] * 0.58),
       seed: 11,
       relief: -0.8,
+      metal,
       drawMask: drawNfc,
     });
-    front.material = faceMaterial(frontTex, anisotropy);
-    back.material = faceMaterial(backTex, anisotropy);
-    const edge = new Color(color || '#0d0d0c').lerp(new Color(ink || '#e9e4d8'), 0.12);
+    front.material = faceMaterial(frontTex, anisotropy, metal);
+    back.material = faceMaterial(backTex, anisotropy, metal);
+    // Tranche : métal poli plus clair, qui accroche la lumière
+    const edge = new Color(color || '#0d0d0c').lerp(new Color('#8d8b85'), metal ? 0.55 : 0.12);
     edgeMat.color.copy(edge);
-    current = { text, color, ink };
+    edgeMat.metalness = metal ? 1 : 0.35;
+    edgeMat.roughness = metal ? 0.22 : 0.42;
+    scene.environmentIntensity = metal ? 1.15 : 0.75;
+    current = { text, color, ink, finish };
   }
 
-  applyLook({ text: el.dataset.text, color: el.dataset.color, ink: el.dataset.ink });
+  applyLook({ text: el.dataset.text, color: el.dataset.color, ink: el.dataset.ink, finish: el.dataset.finish });
 
   // ---- Cadrage : la carte occupe toujours la même part de la scène (cohérent avec l'image de secours)
   let sw = 1;
