@@ -181,8 +181,19 @@
               </div>
             {%- endif -%}
             <div class="ecru-champ">
-              <label for="{{ uid }}-logo">Votre logo</label>
-              <input id="{{ uid }}-logo" type="file" name="properties[Logo]" accept="image/png,image/jpeg,image/svg+xml,application/pdf">
+              <span class="ecru-champ__titre" id="{{ uid }}-logo-titre">Votre logo</span>
+              <div class="ecru-fichier">
+                <input
+                  id="{{ uid }}-logo"
+                  type="file"
+                  name="properties[Logo]"
+                  accept="image/png,image/jpeg,image/svg+xml,application/pdf"
+                  aria-labelledby="{{ uid }}-logo-titre"
+                  data-ecru-fichier
+                >
+                <label for="{{ uid }}-logo" class="ecru-fichier__bouton">Choisir un fichier</label>
+                <span class="ecru-fichier__nom" data-ecru-fichier-nom>Aucun fichier</span>
+              </div>
               <p class="ecru-champ__aide">Facultatif. PNG, JPG, SVG ou PDF.</p>
             </div>
             <div class="ecru-champ">
@@ -391,6 +402,13 @@
         quantite.value = Math.max(minimum, (parseInt(quantite.value, 10) || minimum) + parseInt(b.dataset.ecruQte, 10));
       });
     });
+    var fichier = form.querySelector('[data-ecru-fichier]');
+    if (fichier) {
+      fichier.addEventListener('change', function () {
+        var f = fichier.files && fichier.files[0];
+        form.querySelector('[data-ecru-fichier-nom]').textContent = f ? f.name : 'Aucun fichier';
+      });
+    }
     if (nom && carte) {
       var defaut = nom.placeholder;
       nom.addEventListener('input', function () {

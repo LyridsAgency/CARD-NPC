@@ -728,7 +728,7 @@ a:not(.button):not(.ecru-bouton) {
   flex-wrap: wrap;
   gap: 0.8rem;
 }
-.ecru-option input {
+.ecru-option input[type='radio'] {
   position: absolute;
   opacity: 0;
   width: 1px;
@@ -909,7 +909,8 @@ a:not(.button):not(.ecru-bouton) {
 .ecru-champ {
   margin-bottom: 2rem;
 }
-.ecru-champ label {
+.ecru-champ > label,
+.ecru-champ__titre {
   display: block;
   min-height: 0;
   margin-bottom: 0.8rem;
@@ -921,9 +922,7 @@ a:not(.button):not(.ecru-bouton) {
   color: var(--ecru-text);
   cursor: default;
 }
-.ecru-champ label:hover {
-  border: 0;
-}
+
 .ecru-champ input[type='text'],
 .ecru-champ textarea {
   width: 100%;
@@ -945,15 +944,24 @@ a:not(.button):not(.ecru-bouton) {
 .ecru-champ textarea::placeholder {
   color: #6f6b63;
 }
-.ecru-champ input[type='file'] {
-  position: static;
-  width: 100%;
-  height: auto;
-  opacity: 1;
+/* Envoi de fichier : bouton en français, nom du fichier à côté */
+.ecru-fichier {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+}
+.ecru-fichier input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.ecru-fichier__nom {
   font-size: 1.3rem;
   color: var(--ecru-muted);
 }
-.ecru-champ input[type='file']::file-selector-button {
+.ecru-champ .ecru-fichier__bouton {
   margin-right: 1.4rem;
   padding: 1rem 1.8rem;
   background: transparent;
@@ -965,6 +973,24 @@ a:not(.button):not(.ecru-bouton) {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
+  transition: border-color 0.6s var(--ecru-ease);
+}
+.ecru-champ .ecru-fichier__bouton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 2rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 999px;
+}
+.ecru-champ .ecru-fichier__bouton:hover,
+.ecru-fichier input:focus-visible + .ecru-fichier__bouton {
+  border-color: var(--ecru-text);
+}
+.ecru-fichier input:focus-visible + .ecru-fichier__bouton {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 4px;
 }
 .ecru-champ__aide {
   margin: 0.6rem 0 0;
