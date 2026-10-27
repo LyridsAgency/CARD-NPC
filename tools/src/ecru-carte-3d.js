@@ -518,7 +518,9 @@ export async function mount(el) {
     // Teinte lue en sRGB, comme le nuancier : les réglages suivent ce que le client voit
     const hsl = cardColor.getHSL({}, SRGBColorSpace);
     const dark = hsl.l < 0.35;
-    const neutre = hsl.s < 0.18;
+    // Neutre = peu de couleur (écart entre canaux), qu'elle soit claire ou foncée : crème, ivoire, gris, noir
+    const srgb = cardColor.getRGB({}, SRGBColorSpace);
+    const neutre = Math.max(srgb.r, srgb.g, srgb.b) - Math.min(srgb.r, srgb.g, srgb.b) < 0.1;
     // Métal satiné, comme les cartes réelles : ni miroir, ni brossé
     const polish = dark ? 0.4 : 0.44;
     let metalBase;
