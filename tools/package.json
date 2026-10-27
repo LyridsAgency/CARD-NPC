@@ -1,0 +1,2 @@
+{ "name":"ecru-tools","private":true,"type":"module",
+  "devDependencies":{"three":"0.170.0","esbuild":"0.24.0","liquidjs":"10.19.0","@fontsource/archivo-black":"5.1.0","@fontsource/inter":"5.1.0"} }
