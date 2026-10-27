@@ -92,7 +92,7 @@ if (mode === 'rendus') {
   const out = process.env.OUT || ROOT;
   const finishes = { pvc: 'mat', metal: 'metal' };
   const couleurs = { noir: ['#0d0d0c', '#e9e4d8'], blanc: ['#e9e4d8', '#121211'] };
-  const produits = { fidelite: { card_holder: 'Prénom Nom', card_tier: 'Privilège' }, simple: { card_holder: '', card_tier: '' } };
+  const produits = JSON.parse(process.env.PRODUITS || '{"vierge":{"card_text":"","card_holder":"","card_tier":""}}');
   for (const [prod, extra] of Object.entries(produits)) {
     for (const [mat, finish] of Object.entries(finishes)) {
       for (const [coul, [color, ink]] of Object.entries(couleurs)) {

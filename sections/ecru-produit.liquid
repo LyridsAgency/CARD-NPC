@@ -35,6 +35,23 @@
       endif
     endfor
   endfor
+  comment
+    Noir et Blanc : cartes vierges, sans écriture. Tout texte ou logo relève du sur-mesure.
+  endcomment
+  assign sur_mesure = false
+  for value in current.options
+    assign v = value | downcase
+    if v contains 'mesure' or v contains 'design' or v contains 'custom'
+      assign sur_mesure = true
+    endif
+  endfor
+  assign texte_depart = ''
+  assign holder_depart = ''
+  assign tier_depart = ''
+  if sur_mesure
+    assign holder_depart = holder
+  endif
+
   assign ink = '#e9e4d8'
   assign c = color | color_brightness
   if c > 150
@@ -54,9 +71,9 @@
     <div class="ecru-produit__visuel">
       {%- render 'ecru-carte',
         id: uid,
-        text: section.settings.card_text,
-        holder: holder,
-        tier: tier,
+        text: texte_depart,
+        holder: holder_depart,
+        tier: tier_depart,
         color: color,
         ink: ink,
         finish: finish,
@@ -262,22 +279,31 @@
               <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
               Personnalisation
             </legend>
-            {%- if holder != blank -%}
-              <div class="ecru-champ" data-ecru-nom-bloc>
-                <label for="{{ uid }}-nom">Nom gravé sur la carte</label>
-                <input
-                  id="{{ uid }}-nom"
-                  type="text"
-                  name="properties[Nom gravé]"
-                  maxlength="26"
-                  placeholder="{{ holder | escape }}"
-                  autocomplete="off"
-                  data-ecru-nom
-                >
-                <p class="ecru-champ__aide">Facultatif. S'affiche sur la carte.</p>
+            <p class="ecru-perso__note" data-ecru-note-standard>
+              Noir et blanc : cartes vierges, sans écriture.
+              Pour un nom, un texte ou un logo, choisissez Couleur ou Design sur mesure (minimum 100 cartes).
+            </p>
+            {%- if product.tags contains 'simple' -%}
+              <div class="ecru-champ">
+                <label for="{{ uid }}-lien">Lien à ouvrir</label>
+                <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
+                <p class="ecru-champ__aide">La page qui s'ouvre quand on approche la carte du téléphone. Modifiable ensuite.</p>
               </div>
             {%- endif -%}
-            <div class="ecru-champ">
+            <div class="ecru-champ" data-ecru-nom-bloc>
+              <label for="{{ uid }}-nom">Nom gravé sur la carte</label>
+              <input
+                id="{{ uid }}-nom"
+                type="text"
+                name="properties[Nom gravé]"
+                maxlength="26"
+                placeholder="Prénom Nom"
+                autocomplete="off"
+                data-ecru-nom
+              >
+              <p class="ecru-champ__aide">Facultatif. S'affiche sur la carte.</p>
+            </div>
+            <div class="ecru-champ" data-ecru-logo-bloc>
               <span class="ecru-champ__titre" id="{{ uid }}-logo-titre">Votre logo</span>
               <div class="ecru-fichier">
                 <input
@@ -295,7 +321,7 @@
             </div>
             <div class="ecru-champ">
               <label for="{{ uid }}-demande">Votre demande</label>
-              <textarea id="{{ uid }}-demande" name="properties[Demande]" rows="3" placeholder="Lien, texte, quantité par nom…"></textarea>
+              <textarea id="{{ uid }}-demande" name="properties[Demande]" rows="3" placeholder="Précisions, quantité par nom…"></textarea>
             </div>
           </fieldset>
         {%- endif -%}
@@ -440,7 +466,20 @@
       });
       var m = mode(options);
       var look = { finish: finish, logo: logoUrl, logoPos: 'haut', label: 'Membre', text: data.carte.text, holder: data.carte.holder, tier: data.carte.tier };
-      if (m === 'palette') color = choixCouleur['fond-palette'] || '#5a1a22';
+      if (m === 'standard') {
+        // Carte vierge : aucune écriture
+        look.text = '';
+        look.holder = '';
+        look.tier = '';
+        look.logo = '';
+      }
+      if (m === 'palette') {
+        color = choixCouleur['fond-palette'] || '#5a1a22';
+        look.text = '';
+        look.tier = '';
+        look.label = '';
+        look.holder = nom ? nom.value.trim() : '';
+      }
       if (m === 'design') {
         color = choixCouleur.fond;
         look.ink = choixCouleur.relief;
@@ -453,7 +492,6 @@
         var pos = form.querySelector('[data-pos]:checked');
         look.logoPos = pos ? pos.dataset.pos : 'haut';
       } else {
-        if (nom && nom.value.trim()) look.holder = nom.value.trim();
         look.ink = inkPour(color);
       }
       look.color = color;
@@ -469,11 +507,16 @@
           if (f.type !== 'color') f.disabled = !actif;
         });
       });
-      var bloc = form.querySelector('[data-ecru-nom-bloc]');
-      if (bloc) {
-        bloc.hidden = m === 'design';
-        if (nom) nom.disabled = m === 'design';
-      }
+      // Nom : couleur sur mesure seulement (le créateur a ses propres lignes). Logo : tout le sur-mesure.
+      var montrer = { '[data-ecru-nom-bloc]': m === 'palette', '[data-ecru-logo-bloc]': m !== 'standard', '[data-ecru-note-standard]': m === 'standard' };
+      Object.keys(montrer).forEach(function (sel) {
+        var bloc = form.querySelector(sel);
+        if (!bloc) return;
+        bloc.hidden = !montrer[sel];
+        bloc.querySelectorAll('input').forEach(function (f) {
+          f.disabled = !montrer[sel];
+        });
+      });
     }
 
     function majMoq(options) {

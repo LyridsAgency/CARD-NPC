@@ -544,7 +544,11 @@ export async function mount(el) {
         if (tier) small(ctx, tier, h * 0.034, w - m, h - m - h * 0.035, 0.32, 'right');
       },
       // Guillochage gravé : seulement sur le métal (le PVC reste sobre)
-      drawEngrave: metal ? (ctx, w, h) => drawGuilloche(ctx, w, h, w * 1.02, h * 1.12, h * 0.34, h * 1.05) : null,
+      // Guillochage gravé : sur le métal qui porte un design (une carte vierge reste lisse)
+      drawEngrave:
+        metal && (text || holder || tier || logoImg)
+          ? (ctx, w, h) => drawGuilloche(ctx, w, h, w * 1.02, h * 1.12, h * 0.34, h * 1.05)
+          : null,
     });
     const backTex = buildFace({
       w: texW,

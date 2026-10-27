@@ -3,7 +3,7 @@
 
   Paramètres :
   - id (obligatoire) : identifiant unique
-  - text : marque gravée en haut à gauche (défaut ECRU)
+  - text : marque gravée en haut à gauche (vide : aucune)
   - holder : nom du titulaire, en bas à gauche
   - tier : niveau, en bas à droite
   - color, ink : couleur de la carte et du relief
@@ -18,7 +18,7 @@
   Pour mettre à jour la carte en direct : el.dispatchEvent(new CustomEvent('ecru:card-update', { detail: { text, holder, tier, color, ink, finish } }))
 {%- endcomment -%}
 {%- liquid
-  assign text = text | default: 'ECRU' | strip | upcase
+  assign text = text | strip | upcase
   assign finish = finish | default: 'metal'
   assign alt = alt | default: 'Carte ECRU en métal noir.'
   assign toggle_label = toggle_label | default: 'Les avantages'

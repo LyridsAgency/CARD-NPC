@@ -1051,6 +1051,17 @@ a:not(.button):not(.ecru-bouton) {
 }
 
 /* Personnalisation */
+.ecru-perso__note {
+  margin: 0 0 2rem;
+  padding: 1.6rem 2rem;
+  border-left: 1px solid var(--ecru-muted);
+  font-size: 1.35rem;
+  line-height: 1.6;
+  color: var(--ecru-muted);
+}
+.ecru-perso [hidden] {
+  display: none;
+}
 .ecru-champ {
   margin-bottom: 2rem;
 }
@@ -1071,6 +1082,7 @@ a:not(.button):not(.ecru-bouton) {
 .ecru-champ input[type='text'],
 .ecru-champ input[type='email'],
 .ecru-champ input[type='tel'],
+.ecru-champ input[type='url'],
 .ecru-champ input[type='number'],
 .ecru-champ input[type='date'],
 .ecru-champ select,
