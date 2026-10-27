@@ -36,6 +36,7 @@
 
   assign palette = 'Noir profond:#0d0d0c|Anthracite:#2b2b2a|Crème:#e9e4d8|Sable:#cdbb9a|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440|Or:#b8975a' | split: '|'
   assign palette_marquage = 'Crème:#e9e4d8|Noir:#121211|Or:#c2a165|Argent:#c9c8c4' | split: '|'
+  assign assortiments = 'Noir et or:#0d0d0c:#c2a165|Crème et noir:#e9e4d8:#121211|Bordeaux et or:#5a1a22:#c2a165|Vert anglais et crème:#1f3a2e:#e9e4d8|Bleu nuit et argent:#1b2440:#c9c8c4|Sable et noir:#cdbb9a:#121211' | split: '|'
 -%}
 
 <section
@@ -147,12 +148,24 @@
                 {%- comment -%} Sur mesure : éditeur intégré {%- endcomment -%}
                 <div class="ecru-panneau ecru-createur" data-ecru-panneau="design" hidden>
                   <div class="ecru-editeur" data-ecru-editeur aria-label="Recto de la carte, à composer" role="group">
-                    <div class="ecru-editeur__nfc" aria-hidden="true"><span>NFC</span></div>
+                    <div class="ecru-editeur__nfc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg></div>
                     <div class="ecru-editeur__guide ecru-editeur__guide--v" aria-hidden="true"></div>
                     <div class="ecru-editeur__guide ecru-editeur__guide--h" aria-hidden="true"></div>
                   </div>
                   <p class="ecru-champ__aide">Glissez le nom et le logo où vous voulez.</p>
 
+                  <div class="ecru-createur__ligne ecru-createur__ligne--assortiments">
+                    <span class="ecru-createur__label">Assortiments</span>
+                    <div class="ecru-assortiments" role="group" aria-label="Assortiments de couleurs">
+                      {%- for a in assortiments -%}
+                        {%- assign aa = a | split: ':' -%}
+                        <button type="button" class="ecru-assortiment" data-fond="{{ aa[1] }}" data-relief="{{ aa[2] }}" aria-pressed="false" title="{{ aa[0] }}" style="--fond: {{ aa[1] }}; --marquage: {{ aa[2] }}">
+                          <span class="ecru-assortiment__carte" aria-hidden="true"><i></i><b></b></span>
+                          <span class="visually-hidden">{{ aa[0] }}</span>
+                        </button>
+                      {%- endfor -%}
+                    </div>
+                  </div>
                   <div class="ecru-createur__ligne">
                     <span class="ecru-createur__label">Couleur</span>
                     {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
@@ -243,6 +256,22 @@
           {{- section.settings.contact_label | escape -}}
         </a>
         <p class="ecru-produit__erreur" role="status" aria-live="polite" data-ecru-statut></p>
+        <ul class="ecru-produit__rassurance" role="list">
+          <li>Aperçu 3D avant de commander</li>
+          {%- liquid
+            assign moq_min = 0
+            for l in lignes_moq
+              assign q = l | split: ':' | last | strip | plus: 0
+              if q > 0
+                if moq_min == 0 or q < moq_min
+                  assign moq_min = q
+                endif
+              endif
+            endfor
+          -%}
+          {%- if moq_min > 0 -%}<li>Dès {{ moq_min }} cartes</li>{%- endif -%}
+          <li>Sans application pour vos clients</li>
+        </ul>
       {%- endform -%}
 
       {%- if product.description != blank -%}

@@ -11,8 +11,8 @@ for (const [w,h,n] of [[1440,900,'pd'],[390,844,'pm']]) {
   await p.locator('label.ecru-pastille--design').click();
   await p.waitForTimeout(800);
   await p.fill('[data-ecru-nom]','Maison Lune');
-  await p.locator('[data-cible="fond"][title="Bordeaux"]').click();
-  await p.locator('[data-cible="relief"][title="Or"]').click();
+  await p.locator('.ecru-assortiment[title="Bordeaux et or"]').click();
+
   await p.waitForTimeout(5000);
   await p.locator('.ecru-createur').scrollIntoViewIfNeeded();
   await p.screenshot({path:SP+n+'-2.png', fullPage: !mob});

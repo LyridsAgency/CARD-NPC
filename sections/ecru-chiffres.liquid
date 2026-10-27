@@ -1,0 +1,65 @@
+{%- comment -%}
+  ECRU — Chiffres clés, comptés à l'apparition.
+  Ne mettre que des chiffres vrais et vérifiables (ex. résultats clients mesurés, avec leur source).
+{%- endcomment -%}
+<section
+  class="ecru-section ecru-chiffres"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-label="{{ section.settings.label | escape }}"
+>
+  <div class="ecru-conteneur">
+    <ul class="ecru-chiffres__grille" role="list">
+      {%- for block in section.blocks -%}
+        <li class="ecru-chiffre ecru-reveal" style="--d: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <p class="ecru-chiffre__valeur">
+            {%- if block.settings.avant != blank -%}<span>{{ block.settings.avant | escape }}</span>{%- endif -%}
+            <span data-ecru-compte="{{ block.settings.valeur | escape }}">{{ block.settings.valeur | escape }}</span>
+            {%- if block.settings.apres != blank -%}<span class="ecru-chiffre__unite">{{ block.settings.apres | escape }}</span>{%- endif -%}
+          </p>
+          <p class="ecru-chiffre__label">{{ block.settings.label | escape }}</p>
+          {%- if block.settings.source != blank -%}
+            <p class="ecru-chiffre__source">{{ block.settings.source | escape }}</p>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Chiffres ECRU",
+  "tag": "div",
+  "max_blocks": 4,
+  "settings": [
+    { "type": "text", "id": "label", "label": "Description (accessibilité)", "default": "En chiffres" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 }
+  ],
+  "blocks": [
+    {
+      "type": "chiffre",
+      "name": "Chiffre",
+      "settings": [
+        { "type": "paragraph", "content": "Uniquement des chiffres vrais. Pour un résultat client (ex. + 30 % de retours), indiquez la source." },
+        { "type": "text", "id": "avant", "label": "Avant le nombre", "info": "Ex. +" },
+        { "type": "text", "id": "valeur", "label": "Nombre", "default": "1" },
+        { "type": "text", "id": "apres", "label": "Après le nombre", "info": "Ex. %, mm" },
+        { "type": "text", "id": "label", "label": "Légende", "default": "geste pour ouvrir votre page" },
+        { "type": "text", "id": "source", "label": "Source (facultatif)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Chiffres ECRU",
+      "blocks": [
+        { "type": "chiffre", "settings": { "valeur": "1", "label": "geste pour ouvrir votre page" } },
+        { "type": "chiffre", "settings": { "valeur": "0", "label": "application à installer" } },
+        { "type": "chiffre", "settings": { "valeur": "0", "label": "batterie, ni recharge" } },
+        { "type": "chiffre", "settings": { "valeur": "10", "label": "cartes pour commencer" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

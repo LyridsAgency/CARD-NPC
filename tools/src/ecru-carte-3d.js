@@ -266,6 +266,9 @@ function radialTexture(stops) {
 }
 
 // Symbole sans contact : quatre arcs. (x, y) = centre du symbole, unit = échelle.
+// Fenêtre NFC du recto (fractions de la largeur et de la hauteur de la carte)
+const NFC = { x: 0.024, y: 0.04, w: 0.3, h: 0.92 };
+
 function drawNfc(ctx, x, y, unit, alpha = 0.85) {
   ctx.save();
   ctx.lineWidth = unit * 0.9;
@@ -562,6 +565,8 @@ export async function mount(el) {
       inlayShade: neutre ? (dark ? 0.38 : 0.1) : 0.7,
       drawMask(ctx, w, h) {
         ctx.textBaseline = 'middle';
+        // Le symbole sans contact, au centre de la fenêtre
+        if (inlay !== 'aucune') drawNfc(ctx, w * (NFC.x + NFC.w / 2), h * 0.5, h * 0.026, 0.75);
         elements.forEach((el) => {
           const x = (el.x ?? 0.5) * w;
           const y = (el.y ?? 0.5) * h;
@@ -580,13 +585,13 @@ export async function mount(el) {
           }
         });
       },
-      // Fenêtre NFC : le carré par lequel passe le signal, comme sur les cartes métal réelles
+      // Fenêtre NFC : une longue bande sur toute la hauteur, à gauche, comme sur les cartes métal réelles
       drawInlay:
         inlay === 'aucune'
           ? null
           : (ctx, w, h) => {
               ctx.beginPath();
-              ctx.roundRect(w * 0.072, h * 0.12, h * 0.4, h * 0.4, h * 0.03);
+              ctx.roundRect(w * NFC.x, h * NFC.y, w * NFC.w, h * NFC.h, h * 0.05);
               ctx.fill();
             },
     });

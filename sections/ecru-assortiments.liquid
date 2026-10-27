@@ -1,0 +1,90 @@
+{%- comment -%} ECRU — Assortiments : des cartes sur mesure déjà composées, pour donner envie de créer la sienne. {%- endcomment -%}
+<section
+  class="ecru-section ecru-assortiments-section"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete ecru-assortiments-section__entete">
+      <div>
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+        {%- if section.settings.text != blank -%}
+          <p class="ecru-texte ecru-reveal">{{ section.settings.text | escape }}</p>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.button_label != blank -%}
+        <a class="ecru-bouton ecru-reveal" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+          {{- section.settings.button_label | escape -}}
+        </a>
+      {%- endif -%}
+    </header>
+
+    <ul class="ecru-assortiments-section__grille" role="list">
+      {%- for block in section.blocks -%}
+        <li class="ecru-reveal" style="--d: {{ forloop.index0 | modulo: 3 }}" {{ block.shopify_attributes }}>
+          <a
+            class="ecru-mini ecru-spot"
+            href="{{ section.settings.button_link | default: routes.all_products_collection_url }}"
+            style="--fond: {{ block.settings.fond }}; --marquage: {{ block.settings.marquage }};"
+          >
+            <span class="ecru-mini__carte" aria-hidden="true">
+              <span class="ecru-mini__fenetre">
+                <svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg>
+              </span>
+              <span class="ecru-mini__nom">{{ block.settings.nom | escape }}</span>
+            </span>
+            <span class="ecru-mini__legende">
+              <span>{{ block.settings.title | escape }}</span>
+              <span class="ecru-mini__fleche" aria-hidden="true"></span>
+            </span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Assortiments ECRU",
+  "tag": "div",
+  "max_blocks": 6,
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Sur mesure" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "À votre image." },
+    { "type": "text", "id": "text", "label": "Texte", "default": "Votre couleur, votre nom, votre logo, placés où vous voulez. Vous la voyez en 3D avant de commander." },
+    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Composer ma carte" },
+    { "type": "url", "id": "button_link", "label": "Lien" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "assortiment",
+      "name": "Assortiment",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Nom de l'assortiment", "default": "Noir et or" },
+        { "type": "text", "id": "nom", "label": "Texte sur la carte", "default": "Votre marque" },
+        { "type": "color", "id": "fond", "label": "Couleur de la carte", "default": "#0d0d0c" },
+        { "type": "color", "id": "marquage", "label": "Couleur du marquage", "default": "#c2a165" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Assortiments ECRU",
+      "blocks": [
+        { "type": "assortiment", "settings": { "title": "Noir et or", "nom": "Maison Lune", "fond": "#0d0d0c", "marquage": "#c2a165" } },
+        { "type": "assortiment", "settings": { "title": "Crème et noir", "nom": "Atelier Sel", "fond": "#e9e4d8", "marquage": "#121211" } },
+        { "type": "assortiment", "settings": { "title": "Bordeaux et or", "nom": "Le Comptoir", "fond": "#5a1a22", "marquage": "#c2a165" } },
+        { "type": "assortiment", "settings": { "title": "Vert anglais et crème", "nom": "Club Marceau", "fond": "#1f3a2e", "marquage": "#e9e4d8" } },
+        { "type": "assortiment", "settings": { "title": "Bleu nuit et argent", "nom": "Nuit Blanche", "fond": "#1b2440", "marquage": "#c9c8c4" } },
+        { "type": "assortiment", "settings": { "title": "Sable et noir", "nom": "Salon Ambre", "fond": "#cdbb9a", "marquage": "#121211" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

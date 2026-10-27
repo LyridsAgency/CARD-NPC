@@ -4,6 +4,14 @@
   style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
   aria-labelledby="titre-{{ section.id }}"
 >
+  {%- comment -%} Traits de fond : les lignes de la carte, qui se dessinent lentement {%- endcomment -%}
+  <svg class="ecru-appel__traits" viewBox="0 0 1440 600" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    {%- for i in (0..7) -%}
+      {%- assign y1 = i | times: 38 | plus: 140 -%}
+      {%- assign y2 = 460 | minus: y1 | plus: 140 -%}
+      <path style="--i: {{ i }}" d="M-40,{{ y1 }} C380,{{ y1 | minus: 120 }} 620,{{ y2 | plus: 160 }} 1040,{{ y2 }} S1360,{{ y1 | plus: 40 }} 1480,{{ y1 | minus: 30 }}"/>
+    {%- endfor -%}
+  </svg>
   <div class="ecru-conteneur">
     {%- if section.settings.eyebrow != blank -%}
       <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>

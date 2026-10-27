@@ -31,3 +31,44 @@
   if (!produit || !champ || champ.value) return;
   champ.value = 'Demande particulière — ' + produit + ' :\n';
 })();
+
+/* Chiffres : comptés de 0 à leur valeur quand ils apparaissent. */
+(function () {
+  var els = document.querySelectorAll('[data-ecru-compte]');
+  if (!els.length || !('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      var el = e.target;
+      var cible = parseFloat(String(el.dataset.ecruCompte).replace(',', '.'));
+      if (!(cible > 0)) return;
+      var dec = (String(el.dataset.ecruCompte).split(/[.,]/)[1] || '').length;
+      var t0 = performance.now();
+      var duree = 1600;
+      (function pas(t) {
+        var k = Math.min(1, (t - t0) / duree);
+        var v = cible * (1 - Math.pow(1 - k, 3));
+        el.textContent = v.toFixed(dec).replace('.', ',');
+        if (k < 1) requestAnimationFrame(pas);
+        else el.textContent = el.dataset.ecruCompte;
+      })(t0);
+    });
+  }, { threshold: 0.6 });
+  els.forEach(function (el) {
+    io.observe(el);
+  });
+})();
+
+/* Halo qui suit le pointeur sur les cartes (.ecru-spot). */
+(function () {
+  if (!window.matchMedia('(hover: hover)').matches) return;
+  document.addEventListener('pointermove', function (e) {
+    var el = e.target.closest && e.target.closest('.ecru-spot');
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    el.style.setProperty('--mx', e.clientX - r.left + 'px');
+    el.style.setProperty('--my', e.clientY - r.top + 'px');
+  }, { passive: true });
+})();

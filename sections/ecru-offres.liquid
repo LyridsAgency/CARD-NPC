@@ -27,7 +27,7 @@
           assign points = block.settings.features | newline_to_br | split: '<br />'
         -%}
         <article
-          class="ecru-offre ecru-reveal{% if block.settings.highlight %} ecru-offre--mise-en-avant{% endif %}"
+          class="ecru-offre ecru-spot ecru-reveal{% if block.settings.highlight %} ecru-offre--mise-en-avant{% endif %}"
           style="--d: {{ forloop.index0 }}"
           {{ block.shopify_attributes }}
         >

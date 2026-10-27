@@ -84,7 +84,7 @@
     var champTaille = form.querySelector('[data-ecru-el-taille]');
     var fichier = form.querySelector('[data-ecru-fichier]');
     var logoRetirer = form.querySelector('[data-ecru-logo-retirer]');
-    var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.5, y: 0.62, s: 0.1, f: 'display', a: 'center' }];
+    var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.66, y: 0.62, s: 0.09, f: 'display', a: 'center' }];
     var selection = null;
 
     function modeDe(options) {
@@ -331,7 +331,7 @@
         if (logoRetirer) logoRetirer.hidden = false;
         masquerLogo(URL.createObjectURL(f)).then(function (m) {
           if (!m) return;
-          elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.5, y: 0.36, s: 0.26 });
+          elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.66, y: 0.36, s: 0.26 });
           selectionner('logo');
           rendre(true);
         });
@@ -416,12 +416,31 @@
       form.querySelectorAll('[data-cible="' + cible + '"]').forEach(function (b) {
         b.setAttribute('aria-checked', b.dataset.teinte === teinte ? 'true' : 'false');
       });
+      if (typeof majAssortiments === 'function') majAssortiments();
       dessinerEditeur();
       rendre(true);
     }
     form.querySelectorAll('[data-cible]').forEach(function (b) {
       b.addEventListener('click', function () {
         choisirTeinte(b.dataset.cible, b.dataset.teinte);
+      });
+    });
+    // Assortiments : couleur de carte et de marquage choisies ensemble
+    var assortiments = form.querySelectorAll('.ecru-assortiment');
+    function majAssortiments() {
+      assortiments.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.fond === teintes.fond && b.dataset.relief === teintes.relief ? 'true' : 'false');
+      });
+    }
+    assortiments.forEach(function (b) {
+      b.addEventListener('click', function () {
+        teintes.relief = b.dataset.relief;
+        var champ = form.querySelector('[data-ecru-champ="relief"]');
+        if (champ) champ.value = b.dataset.relief;
+        form.querySelectorAll('[data-cible="relief"]').forEach(function (x) {
+          x.setAttribute('aria-checked', x.dataset.teinte === b.dataset.relief ? 'true' : 'false');
+        });
+        choisirTeinte('fond', b.dataset.fond);
       });
     });
     form.querySelectorAll('[data-ecru-libre]').forEach(function (c) {

@@ -1514,21 +1514,24 @@ body::after {
 }
 .ecru-editeur__nfc {
   position: absolute;
-  left: 7.2%;
-  top: 12%;
-  width: 25.2%;
-  height: 40%;
+  left: 2.4%;
+  top: 4%;
+  width: 30%;
+  height: 92%;
   display: grid;
   place-items: center;
-  border: 1px dashed color-mix(in srgb, var(--marquage) 35%, transparent);
-  border-radius: 7%;
-  background: rgba(0, 0, 0, 0.12);
+  border: 1px solid color-mix(in srgb, var(--marquage) 22%, transparent);
+  border-radius: 3% / 5%;
+  background: rgba(0, 0, 0, 0.14);
   pointer-events: none;
 }
-.ecru-editeur__nfc span {
-  font-size: 5cqh;
-  letter-spacing: 0.2em;
-  color: color-mix(in srgb, var(--marquage) 45%, transparent);
+.ecru-editeur__nfc svg {
+  width: 14cqh;
+  height: 14cqh;
+  fill: none;
+  stroke: color-mix(in srgb, var(--marquage) 70%, transparent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
 }
 .ecru-editeur__guide {
   position: absolute;
@@ -1820,5 +1823,364 @@ body::after {
     padding: 0 1.6rem;
     letter-spacing: 0.1em;
     white-space: nowrap;
+  }
+}
+
+/* ----- Assortiments : couleur et marquage choisis ensemble -------------- */
+.ecru-assortiments {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.4rem;
+  max-width: 32rem;
+}
+.ecru-assortiment {
+  min-width: 0;
+  padding: 2px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.5s var(--ecru-ease), transform 0.5s var(--ecru-ease);
+}
+.ecru-assortiment:hover {
+  transform: translateY(-2px);
+}
+.ecru-assortiment[aria-pressed='true'] {
+  border-color: var(--ecru-text);
+}
+.ecru-assortiment:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 2px;
+}
+.ecru-assortiment__carte {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 85.6 / 54;
+  border-radius: 3px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 55%), var(--fond);
+  box-shadow: inset 0 0 0 1px rgba(233, 228, 216, 0.14);
+  overflow: hidden;
+}
+.ecru-assortiment__carte i {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 30%;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--marquage) 30%, transparent);
+}
+.ecru-assortiment__carte b {
+  position: absolute;
+  left: 45%;
+  right: 12%;
+  top: 58%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--marquage);
+}
+
+/* ----- Réassurance sous le bouton d'achat ------------------------------- */
+.ecru-produit__rassurance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 2rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  color: var(--ecru-muted);
+}
+.ecru-produit__rassurance li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.ecru-produit__rassurance li::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ecru-text);
+  box-shadow: 0 0 0 3px rgba(233, 228, 216, 0.12);
+}
+
+/* ----- Mobile : l'aperçu du créateur reste visible, l'achat reste à portée */
+@media (max-width: 989px) {
+  .ecru-createur .ecru-editeur {
+    position: sticky;
+    top: 1.2rem;
+    z-index: 2;
+    box-shadow: 0 24px 40px -12px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(233, 228, 216, 0.12);
+  }
+  .ecru-produit__achat {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    margin: 0 calc(var(--ecru-gutter) * -1);
+    padding: 1.2rem var(--ecru-gutter);
+    background: rgba(7, 7, 7, 0.92);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* ----- Halo qui suit le pointeur (inspiré des « spotlight cards ») ------ */
+.ecru-spot {
+  position: relative;
+  isolation: isolate;
+}
+.ecru-spot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -40%), rgba(233, 228, 216, 0.07), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.8s var(--ecru-ease);
+  pointer-events: none;
+}
+.ecru-spot:hover::after {
+  opacity: 1;
+}
+.ecru-offre.ecru-spot {
+  background: var(--ecru-surface);
+}
+
+/* ----- Héro : second bouton et réassurance ------------------------------ */
+.ecru-hero__pied .ecru-actions {
+  margin-top: 0;
+}
+.ecru-hero__note {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
+
+/* ----- Chiffres ---------------------------------------------------------- */
+.ecru-chiffres {
+  border-top: 1px solid var(--ecru-border);
+  border-bottom: 1px solid var(--ecru-border);
+}
+.ecru-chiffres__grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4rem 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 990px) {
+  .ecru-chiffres__grille {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .ecru-chiffre + .ecru-chiffre {
+    padding-left: 3.2rem;
+    border-left: 1px solid var(--ecru-border);
+  }
+}
+.ecru-chiffre__valeur {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2em;
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: clamp(5.6rem, 7vw, 10.4rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--ecru-text);
+  font-variant-numeric: tabular-nums;
+}
+.ecru-chiffre__unite {
+  font-size: 0.4em;
+  letter-spacing: 0;
+}
+.ecru-chiffre__label {
+  margin: 1.4rem 0 0;
+  max-width: 22ch;
+  font-size: 1.15rem;
+  letter-spacing: 0.22em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
+.ecru-chiffre__source {
+  margin: 0.8rem 0 0;
+  font-size: 1.1rem;
+  color: #6f6b63;
+}
+
+/* ----- Assortiments sur mesure ------------------------------------------ */
+.ecru-assortiments-section__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3.2rem;
+  max-width: none;
+}
+.ecru-assortiments-section__entete > div {
+  max-width: 64rem;
+}
+.ecru-assortiments-section__grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 990px) {
+  .ecru-assortiments-section__grille {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.6rem;
+  }
+}
+.ecru-mini {
+  display: block;
+  padding: clamp(1.6rem, 3vw, 4rem);
+  background: var(--ecru-surface);
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  color: var(--ecru-text);
+  text-decoration: none;
+  transition: border-color 0.8s var(--ecru-ease);
+}
+.ecru-mini:hover {
+  border-color: #3d3b37;
+}
+.ecru-mini__carte {
+  position: relative;
+  display: block;
+  aspect-ratio: 85.6 / 54;
+  container-type: size;
+  border-radius: 3.7% / 5.9%;
+  background:
+    linear-gradient(125deg, rgba(255, 255, 255, 0.1), transparent 40%, rgba(0, 0, 0, 0.18)),
+    var(--fond);
+  box-shadow: 0 30px 50px -28px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(233, 228, 216, 0.1);
+  transform: perspective(900px) rotateY(-8deg) rotateX(4deg);
+  transition: transform 1.4s var(--ecru-ease);
+}
+.ecru-mini:hover .ecru-mini__carte {
+  transform: perspective(900px) rotateY(0) rotateX(0) translateY(-4px);
+}
+.ecru-mini__fenetre {
+  position: absolute;
+  left: 2.4%;
+  top: 4%;
+  width: 30%;
+  height: 92%;
+  display: grid;
+  place-items: center;
+  border-radius: 3% / 5%;
+  background: rgba(0, 0, 0, 0.16);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--marquage) 18%, transparent);
+}
+.ecru-mini__fenetre svg {
+  width: 14cqh;
+  height: 14cqh;
+  fill: none;
+  stroke: var(--marquage);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.ecru-mini__nom {
+  position: absolute;
+  left: 66%;
+  top: 62%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-heading-family);
+  font-size: 8.5cqh;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--marquage);
+}
+.ecru-mini__legende {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: clamp(1.6rem, 2.4vw, 3.2rem);
+  font-size: 1.1rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
+.ecru-mini__fleche {
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  position: relative;
+  transition: width 0.8s var(--ecru-ease);
+}
+.ecru-mini__fleche::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ecru-mini:hover .ecru-mini__legende {
+  color: var(--ecru-text);
+}
+.ecru-mini:hover .ecru-mini__fleche {
+  width: 36px;
+}
+.ecru-mini:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 4px;
+}
+@media (max-width: 749px) {
+  .ecru-mini__legende {
+    letter-spacing: 0.14em;
+    font-size: 1rem;
+  }
+  .ecru-mini__fleche {
+    display: none;
+  }
+}
+
+/* ----- Appel final : traits qui se dessinent ---------------------------- */
+.ecru-appel__traits {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ecru-appel__traits path {
+  fill: none;
+  stroke: var(--ecru-text);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: calc(0.05 + var(--i) * 0.012);
+  stroke-dasharray: 1600;
+  stroke-dashoffset: 1600;
+  animation: ecru-trace 14s var(--ecru-ease) calc(var(--i) * 0.6s) infinite alternate;
+}
+.ecru-appel .ecru-conteneur {
+  position: relative;
+}
+@keyframes ecru-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ecru-appel__traits path {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }

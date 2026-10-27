@@ -67,10 +67,20 @@
         {%- if section.settings.subheading != blank -%}
           <p class="ecru-texte ecru-hero__sous-titre">{{ section.settings.subheading | escape }}</p>
         {%- endif -%}
-        {%- if section.settings.button_label != blank -%}
-          <a class="ecru-bouton" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
-            {{- section.settings.button_label | escape -}}
-          </a>
+        <div class="ecru-actions ecru-actions--centre">
+          {%- if section.settings.button_label != blank -%}
+            <a class="ecru-bouton" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_label | escape -}}
+            </a>
+          {%- endif -%}
+          {%- if section.settings.button_2_label != blank -%}
+            <a class="ecru-bouton ecru-bouton--ligne" href="{{ section.settings.button_2_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_2_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+        {%- if section.settings.note != blank -%}
+          <p class="ecru-hero__note">{{ section.settings.note | escape }}</p>
         {%- endif -%}
       </div>
     {%- endif -%}
@@ -179,6 +189,9 @@
       "id": "button_link",
       "label": "Lien du bouton"
     },
+    { "type": "text", "id": "button_2_label", "label": "Second bouton", "default": "Voir les cartes" },
+    { "type": "url", "id": "button_2_link", "label": "Lien du second bouton" },
+    { "type": "text", "id": "note", "label": "Ligne de réassurance", "default": "Aperçu 3D avant commande · Dès 10 cartes · Sans application" },
     {
       "type": "header",
       "content": "Espacement"

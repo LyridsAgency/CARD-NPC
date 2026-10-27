@@ -7,13 +7,16 @@
         "heading_h1": true,
         "eyebrow": "Cartes NFC pour commerçants",
         "heading": "Ils reviennent. Naturellement.",
-        "button_label": "Créer mes cartes",
-        "button_link": "shopify://collections/cartes",
+        "button_label": "Composer ma carte",
+        "button_link": "/products/cartes-simples?variant=48429022216363",
         "padding_top": 24,
         "padding_bottom": 48,
         "card_text": "ECRU",
         "auto_open": true,
-        "subheading": "Une carte, un geste, et vos clients reviennent. Sans application."
+        "subheading": "",
+        "button_2_label": "Voir les cartes",
+        "button_2_link": "shopify://collections/cartes",
+        "note": "Aperçu 3D avant commande · Dès 10 cartes · Sans application"
       },
       "blocks": {
         "avantage_1": {
@@ -236,7 +239,8 @@
     "appel": {
       "type": "ecru-appel",
       "settings": {
-        "button_link": "shopify://collections/cartes"
+        "button_link": "/products/cartes-simples?variant=48429022216363",
+        "button_label": "Composer ma carte"
       }
     },
     "defilement": {
@@ -359,13 +363,125 @@
         "vue_3",
         "vue_4"
       ]
+    },
+    "chiffres": {
+      "type": "ecru-chiffres",
+      "settings": {},
+      "blocks": {
+        "c1": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "1",
+            "label": "geste pour ouvrir votre page"
+          }
+        },
+        "c2": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "0",
+            "label": "application à installer"
+          }
+        },
+        "c3": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "0",
+            "label": "batterie, ni recharge"
+          }
+        },
+        "c4": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "10",
+            "label": "cartes pour commencer"
+          }
+        }
+      },
+      "block_order": [
+        "c1",
+        "c2",
+        "c3",
+        "c4"
+      ]
+    },
+    "assortiments": {
+      "type": "ecru-assortiments",
+      "settings": {
+        "button_link": "/products/cartes-simples?variant=48429022216363"
+      },
+      "blocks": {
+        "a1": {
+          "type": "assortiment",
+          "settings": {
+            "title": "Noir et or",
+            "nom": "Maison Lune",
+            "fond": "#0d0d0c",
+            "marquage": "#c2a165"
+          }
+        },
+        "a2": {
+          "type": "assortiment",
+          "settings": {
+            "title": "Crème et noir",
+            "nom": "Atelier Sel",
+            "fond": "#e9e4d8",
+            "marquage": "#121211"
+          }
+        },
+        "a3": {
+          "type": "assortiment",
+          "settings": {
+            "title": "Bordeaux et or",
+            "nom": "Le Comptoir",
+            "fond": "#5a1a22",
+            "marquage": "#c2a165"
+          }
+        },
+        "a4": {
+          "type": "assortiment",
+          "settings": {
+            "title": "Vert anglais et crème",
+            "nom": "Club Marceau",
+            "fond": "#1f3a2e",
+            "marquage": "#e9e4d8"
+          }
+        },
+        "a5": {
+          "type": "assortiment",
+          "settings": {
+            "title": "Bleu nuit et argent",
+            "nom": "Nuit Blanche",
+            "fond": "#1b2440",
+            "marquage": "#c9c8c4"
+          }
+        },
+        "a6": {
+          "type": "assortiment",
+          "settings": {
+            "title": "Sable et noir",
+            "nom": "Salon Ambre",
+            "fond": "#cdbb9a",
+            "marquage": "#121211"
+          }
+        }
+      },
+      "block_order": [
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6"
+      ]
     }
   },
   "order": [
     "hero",
     "defilement",
+    "chiffres",
     "vues",
     "usages",
+    "assortiments",
     "etapes",
     "offres",
     "matieres",
