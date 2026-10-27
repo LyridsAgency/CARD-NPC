@@ -166,7 +166,7 @@
           "settings": {
             "title": "PVC",
             "text": "Léger, mat, net. L'essentiel, bien fait.",
-            "details": "Toucher doux et mat\nNoir ou blanc\nIdéal pour la fidélité au quotidien",
+            "details": "Format carte bancaire, 85,6 × 54 mm\nToucher doux et mat\nNoir ou blanc\nIdéal pour la fidélité au quotidien",
             "visual": "pvc"
           }
         },
@@ -175,7 +175,7 @@
           "settings": {
             "title": "Métal",
             "text": "Lourd en main, lisse, brillant. Celle qu'on ne range jamais.",
-            "details": "Reflets profonds\nNoir ou blanc\nIdéal pour marquer les esprits",
+            "details": "Format carte bancaire, 85,6 × 54 mm\nReflets profonds\nNoir ou blanc\nIdéal pour marquer les esprits",
             "visual": "metal"
           }
         }
@@ -214,7 +214,7 @@
           "type": "question",
           "settings": {
             "question": "La carte peut-elle porter mon logo ?",
-            "answer": "<p>Oui. Chaque carte est créée pour vous : votre nom, votre logo, et le nom de vos clients si vous le souhaitez.</p>"
+            "answer": "<p>Oui. Choisissez « Design sur mesure » : couleurs, textes et logo, vous créez votre carte directement sur le site.</p>"
           }
         },
         "question_5": {
@@ -227,8 +227,15 @@
         "question_6": {
           "type": "question",
           "settings": {
-            "question": "J'ai un besoin particulier.",
-            "answer": "<p>Événement, quantité, finition : écrivez-nous, nous étudions chaque demande.</p>"
+            "question": "J'ai une demande particulière.",
+            "answer": "<p>Événement, grande quantité, design complet : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>, nous étudions chaque demande.</p>"
+          }
+        },
+        "question_taille": {
+          "type": "question",
+          "settings": {
+            "question": "Quelle taille font les cartes ?",
+            "answer": "<p>Le format carte bancaire : 85,6 × 54 mm. Elle se glisse dans tous les portefeuilles.</p>"
           }
         }
       },
@@ -238,6 +245,7 @@
         "question_3",
         "question_4",
         "question_5",
+        "question_taille",
         "question_6"
       ]
     },

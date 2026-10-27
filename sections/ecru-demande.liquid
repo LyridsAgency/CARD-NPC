@@ -1,0 +1,145 @@
+{%- comment -%}
+  ECRU — Formulaire « Demande particulière » (envoyé par le formulaire de contact Shopify).
+  Les champs supplémentaires arrivent dans l'e-mail de contact, avec leur intitulé.
+{%- endcomment -%}
+<section
+  class="ecru-section ecru-demande"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur ecru-demande__grille">
+    <header class="ecru-entete">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h1 id="titre-{{ section.id }}" class="ecru-titre ecru-titre--m">{{ section.settings.heading | escape }}</h1>
+      {%- if section.settings.text != blank -%}
+        <p class="ecru-texte">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+      {%- assign points = section.settings.points | newline_to_br | split: '<br />' -%}
+      {%- if section.settings.points != blank -%}
+        <ul class="ecru-offre__liste" role="list">
+          {%- for p in points -%}
+            {%- assign pp = p | strip -%}
+            {%- if pp != blank -%}<li>{{ pp | escape }}</li>{%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </header>
+
+    {%- form 'contact', id: 'ecru-demande-form', class: 'ecru-demande__form' -%}
+      {%- if form.posted_successfully? -%}
+        <div class="ecru-demande__message" role="status" tabindex="-1" autofocus>
+          <p class="ecru-titre ecru-titre--s">Merci.</p>
+          <p class="ecru-texte">{{ section.settings.success | escape }}</p>
+        </div>
+      {%- elsif form.errors -%}
+        <div class="ecru-demande__message ecru-demande__message--erreur" role="alert" tabindex="-1" autofocus>
+          <p class="ecru-texte">Vérifiez les champs signalés :</p>
+          <ul>
+            {%- for field in form.errors -%}
+              <li>
+                {%- if field == 'form' -%}
+                  {{ form.errors.messages[field] }}
+                {%- else -%}
+                  {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <input type="hidden" name="contact[Type de message]" value="Demande particulière">
+      <input type="hidden" name="contact[Produit]" value="" data-ecru-produit-source>
+
+      <div class="ecru-demande__ligne">
+        <div class="ecru-champ">
+          <label for="demande-nom">Nom <span aria-hidden="true">*</span></label>
+          <input id="demande-nom" type="text" name="contact[name]" autocomplete="name" required value="{{ form.name }}">
+        </div>
+        <div class="ecru-champ">
+          <label for="demande-email">E-mail <span aria-hidden="true">*</span></label>
+          <input id="demande-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+        </div>
+      </div>
+      <div class="ecru-demande__ligne">
+        <div class="ecru-champ">
+          <label for="demande-tel">Téléphone</label>
+          <input id="demande-tel" type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone }}">
+        </div>
+        <div class="ecru-champ">
+          <label for="demande-commerce">Commerce ou événement</label>
+          <input id="demande-commerce" type="text" name="contact[Commerce ou événement]" autocomplete="organization">
+        </div>
+      </div>
+      <div class="ecru-demande__ligne">
+        <div class="ecru-champ">
+          <label for="demande-type">Type de carte</label>
+          <select id="demande-type" name="contact[Type de carte]">
+            <option>Fidélité</option>
+            <option>Cartes simples</option>
+            <option>Je ne sais pas encore</option>
+          </select>
+        </div>
+        <div class="ecru-champ">
+          <label for="demande-matiere">Matière</label>
+          <select id="demande-matiere" name="contact[Matière]">
+            <option>PVC</option>
+            <option>Métal</option>
+            <option>À conseiller</option>
+          </select>
+        </div>
+      </div>
+      <div class="ecru-demande__ligne">
+        <div class="ecru-champ">
+          <label for="demande-qte">Quantité estimée</label>
+          <input id="demande-qte" type="number" min="1" inputmode="numeric" name="contact[Quantité estimée]">
+        </div>
+        <div class="ecru-champ">
+          <label for="demande-date">Date souhaitée</label>
+          <input id="demande-date" type="date" name="contact[Date souhaitée]">
+        </div>
+      </div>
+      <div class="ecru-champ">
+        <label for="demande-message">Votre demande <span aria-hidden="true">*</span></label>
+        <textarea id="demande-message" name="contact[body]" rows="6" required placeholder="Couleurs, design, quantité, délai, événement…">{{ form.body }}</textarea>
+      </div>
+      <p class="ecru-champ__aide">* Champs obligatoires. Pour un fichier (logo, visuel), mentionnez-le : nous vous répondrons par e-mail.</p>
+      <div class="ecru-actions">
+        <button type="submit" class="ecru-bouton">{{ section.settings.button_label | escape }}</button>
+      </div>
+    {%- endform -%}
+  </div>
+</section>
+
+<script>
+  (function () {
+    var produit = new URLSearchParams(window.location.search).get('produit');
+    var champ = document.querySelector('[data-ecru-produit-source]');
+    if (produit && champ) champ.value = produit;
+    var type = document.getElementById('demande-type');
+    if (produit && type) {
+      if (/fid/i.test(produit)) type.value = 'Fidélité';
+      else if (/simple/i.test(produit)) type.value = 'Cartes simples';
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Demande particulière ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Sur mesure" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Demande particulière." },
+    { "type": "textarea", "id": "text", "label": "Texte", "default": "Un événement, une grande quantité, une finition à part ? Dites-nous tout." },
+    { "type": "textarea", "id": "points", "label": "Exemples (un par ligne)", "default": "Festivals et soirées\nGrandes quantités\nCouleurs et designs sur mesure\nFinitions spéciales" },
+    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Envoyer ma demande" },
+    { "type": "text", "id": "success", "label": "Message après envoi", "default": "Votre demande est bien partie. Nous revenons vers vous par e-mail." },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 128 }
+  ],
+  "presets": [{ "name": "Demande particulière ECRU" }]
+}
+{% endschema %}

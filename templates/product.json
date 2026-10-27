@@ -22,7 +22,7 @@
           "type": "details",
           "settings": {
             "title": "Une demande particulière ?",
-            "content": "<p>Quantité, finition, événement : <a href=\"/pages/contact\">écrivez-nous</a>.</p>"
+            "content": "<p>Quantité, finition, événement : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>.</p>"
           }
         }
       },
@@ -38,7 +38,7 @@
         "eyebrow": "",
         "heading": "Faites-les revenir.",
         "button_label": "",
-        "button_2_label": "Demande spécifique",
+        "button_2_label": "Demande particulière",
         "padding_top": 96,
         "padding_bottom": 128
       }

@@ -877,34 +877,179 @@ a:not(.button):not(.ecru-bouton) {
   letter-spacing: 0.08em;
   opacity: 0.8;
 }
-/* Couleur : pastilles rondes teintées */
+/* Modèle : pastilles rondes teintées, avec leur nom */
 .ecru-option--couleur .ecru-option__choix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.4rem, 1fr));
   gap: 1.2rem;
 }
 .ecru-option .ecru-pastille {
-  position: relative;
-  width: 44px;
-  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   min-height: 0;
-  padding: 0;
-  border-radius: 50%;
-  border-color: var(--ecru-border);
+  padding: 1.2rem 0.6rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
   background: transparent;
+  letter-spacing: 0;
 }
 .ecru-pastille__teinte {
-  position: absolute;
-  inset: 5px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--teinte);
-  box-shadow: inset 0 0 0 1px rgba(233, 228, 216, 0.18), inset 0 6px 10px -6px rgba(255, 255, 255, 0.35);
+  color: var(--ecru-text);
+  box-shadow: 0 0 0 1px var(--ecru-border), inset 0 0 0 1px rgba(233, 228, 216, 0.14), inset 0 8px 12px -8px rgba(255, 255, 255, 0.4);
+  transition: box-shadow 0.6s var(--ecru-ease);
+}
+.ecru-pastille--palette .ecru-pastille__teinte,
+.ecru-pastille--design .ecru-pastille__teinte {
+  background: var(--ecru-bg);
+  box-shadow: 0 0 0 1px var(--ecru-muted);
+  border: 1px dashed var(--ecru-border);
+}
+.ecru-pastille__nom {
+  font-size: 1.15rem;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--ecru-muted);
 }
 .ecru-option input:checked + .ecru-pastille {
   background: transparent;
-  border-color: var(--ecru-text);
+  border-color: var(--ecru-border);
+  color: var(--ecru-text);
+}
+.ecru-option input:checked + .ecru-pastille .ecru-pastille__teinte {
+  box-shadow: 0 0 0 1px var(--ecru-bg), 0 0 0 2px var(--ecru-text), inset 0 8px 12px -8px rgba(255, 255, 255, 0.4);
+}
+.ecru-option input:checked + .ecru-pastille .ecru-pastille__nom {
+  color: var(--ecru-text);
 }
 .ecru-option input:disabled + .ecru-pastille {
   text-decoration: none;
 }
+
+/* Panneaux sur mesure (palette, créateur) */
+.ecru-panneau {
+  margin-top: 2rem;
+  padding: 2.4rem;
+  background: var(--ecru-surface);
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+}
+.ecru-panneau[hidden] {
+  display: none;
+}
+.ecru-panneau__titre {
+  margin: 0 0 1.8rem;
+  font-family: var(--font-heading-family);
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ecru-text);
+}
+.ecru-createur .ecru-champ__titre {
+  margin-top: 0.4rem;
+}
+.ecru-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.ecru-palette__teinte,
+.ecru-palette__libre {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--teinte);
+  box-shadow: 0 0 0 1px var(--ecru-border), inset 0 6px 10px -6px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: box-shadow 0.5s var(--ecru-ease), transform 0.5s var(--ecru-ease);
+}
+.ecru-palette__teinte:hover {
+  transform: scale(1.08);
+}
+.ecru-palette__teinte[aria-checked='true'] {
+  box-shadow: 0 0 0 2px var(--ecru-surface), 0 0 0 3px var(--ecru-text);
+}
+.ecru-palette__teinte:focus-visible,
+.ecru-palette__libre:focus-within {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 4px;
+}
+.ecru-palette__libre {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--ecru-muted);
+  color: var(--ecru-text);
+  font-size: 1.8rem;
+  line-height: 1;
+  overflow: hidden;
+}
+.ecru-option .ecru-palette__libre {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+}
+.ecru-palette__libre input[type='color'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.ecru-position {
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.2rem;
+}
+.ecru-position legend {
+  float: none;
+  margin-bottom: 1rem;
+}
+.ecru-position input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.ecru-option .ecru-position label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: 0 0.6rem 0.6rem 0;
+  padding: 0 1.8rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 999px;
+  font-size: 1.25rem;
+  color: var(--ecru-muted);
+  cursor: pointer;
+}
+.ecru-option .ecru-position input:checked + label {
+  background: var(--ecru-text);
+  border-color: var(--ecru-text);
+  color: var(--ecru-bg);
+}
+.ecru-produit__format {
+  margin: 1.4rem 0 0;
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
+
 /* Personnalisation */
 .ecru-champ {
   margin-bottom: 2rem;
@@ -924,6 +1069,11 @@ a:not(.button):not(.ecru-bouton) {
 }
 
 .ecru-champ input[type='text'],
+.ecru-champ input[type='email'],
+.ecru-champ input[type='tel'],
+.ecru-champ input[type='number'],
+.ecru-champ input[type='date'],
+.ecru-champ select,
 .ecru-champ textarea {
   width: 100%;
   padding: 1.4rem 1.6rem;
@@ -935,7 +1085,8 @@ a:not(.button):not(.ecru-bouton) {
   font-size: 1.5rem;
   transition: border-color 0.6s var(--ecru-ease);
 }
-.ecru-champ input[type='text']:focus,
+.ecru-champ input:focus,
+.ecru-champ select:focus,
 .ecru-champ textarea:focus {
   outline: none;
   border-color: var(--ecru-muted);
@@ -1013,6 +1164,59 @@ a:not(.button):not(.ecru-bouton) {
 .ecru-produit__contact {
   width: 100%;
   margin-top: 1.2rem;
+}
+
+/* Demande particulière */
+.ecru-demande__grille {
+  display: grid;
+  gap: 4.8rem;
+}
+@media (min-width: 990px) {
+  .ecru-demande__grille {
+    grid-template-columns: 5fr 7fr;
+    gap: 8rem;
+    align-items: start;
+  }
+  .ecru-demande__grille .ecru-entete {
+    position: sticky;
+    top: 12rem;
+    margin-bottom: 0;
+  }
+}
+.ecru-demande__ligne {
+  display: grid;
+  gap: 0 1.6rem;
+}
+@media (min-width: 750px) {
+  .ecru-demande__ligne {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.ecru-champ select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ecru-muted) 50%), linear-gradient(135deg, var(--ecru-muted) 50%, transparent 50%);
+  background-position: calc(100% - 2.2rem) 50%, calc(100% - 1.7rem) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+.ecru-champ select option {
+  background: var(--ecru-surface);
+  color: var(--ecru-text);
+}
+.ecru-champ input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+}
+.ecru-demande__message {
+  margin-bottom: 3.2rem;
+  padding: 2.4rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+}
+.ecru-demande__message--erreur {
+  border-color: var(--ecru-muted);
+}
+.ecru-demande__message .ecru-texte {
+  margin-top: 0.8rem;
 }
 
 /* Formulaires Dawn (contact, newsletter) */

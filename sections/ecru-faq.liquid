@@ -12,7 +12,7 @@
       <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-titre--m ecru-reveal">{{ section.settings.heading | escape }}</h2>
       {%- if section.settings.contact_label != blank -%}
         <div class="ecru-actions ecru-reveal">
-          <a class="ecru-bouton ecru-bouton--ligne" href="{{ settings.ecru_contact_link | default: '/pages/contact' }}">
+          <a class="ecru-bouton ecru-bouton--ligne" href="{{ settings.ecru_contact_link | default: '/pages/demande-particuliere' }}">
             {{- section.settings.contact_label | escape -}}
           </a>
         </div>

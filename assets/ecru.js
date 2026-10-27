@@ -24,10 +24,10 @@
   });
 })();
 
-/* Page contact : « Demande spécifique » depuis une page produit pré-remplit le message. */
+/* Page contact : « Demande particulière » depuis une page produit pré-remplit le message. */
 (function () {
   var produit = new URLSearchParams(window.location.search).get('produit');
   var champ = document.getElementById('ContactForm-body');
   if (!produit || !champ || champ.value) return;
-  champ.value = 'Demande spécifique — ' + produit + ' :\n';
+  champ.value = 'Demande particulière — ' + produit + ' :\n';
 })();

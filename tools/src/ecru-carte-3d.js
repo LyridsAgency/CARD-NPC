@@ -294,6 +294,51 @@ function studioScene() {
   return s;
 }
 
+// Logo du client → masque blanc (imprimé dans la couleur du relief).
+// PNG/SVG transparents : on suit la transparence ; JPG : les zones sombres forment le logo.
+function logoMask(img, maxW, maxH) {
+  const ratio = Math.min(maxW / img.width, maxH / img.height);
+  const w = Math.max(1, Math.round(img.width * ratio));
+  const h = Math.max(1, Math.round(img.height * ratio));
+  const c = canvas(w, h);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h);
+  const px = d.data;
+  let transparent = false;
+  for (let i = 3; i < px.length; i += 16) {
+    if (px[i] < 240) {
+      transparent = true;
+      break;
+    }
+  }
+  for (let i = 0; i < px.length; i += 4) {
+    const lum = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114) / 255;
+    const a = transparent ? px[i + 3] / 255 : Math.max(0, Math.min(1, (0.85 - lum) / 0.6));
+    px[i] = px[i + 1] = px[i + 2] = 255;
+    px[i + 3] = a * 255;
+  }
+  ctx.putImageData(d, 0, 0);
+  return c;
+}
+
+const logos = new Map();
+function loadLogo(url) {
+  if (!logos.has(url)) {
+    logos.set(
+      url,
+      new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+      })
+    );
+  }
+  return logos.get(url);
+}
+
 export async function mount(el) {
   if (el.__ecru) return el.__ecru;
   const stage = el.querySelector('[data-ecru-stage]');
@@ -415,8 +460,17 @@ export async function mount(el) {
   const texH = Math.round((texW * H) / W);
   let current = {};
 
-  function applyLook({ text, holder, tier, color, ink, finish }) {
-    text = (text || 'ECRU').toUpperCase().slice(0, 18);
+  let lookId = 0;
+  async function applyLook(look) {
+    const id = ++lookId;
+    // Le logo se charge avant de redessiner ; seule la dernière demande est appliquée
+    const logoImg = look.logo ? await loadLogo(look.logo) : null;
+    if (id !== lookId) return;
+    drawLook(look, logoImg);
+  }
+
+  function drawLook({ text, holder, tier, color, ink, finish, logo, logoPos, label }, logoImg) {
+    text = (text === '' ? '' : text || 'ECRU').toUpperCase().slice(0, 18);
     holder = (holder || '').toUpperCase().slice(0, 26);
     tier = (tier || '').toUpperCase().slice(0, 18);
     // finish : 'mat' (PVC) ou 'metal' (métal lisse). 'brosse' reste disponible pour un métal brossé.
@@ -427,9 +481,18 @@ export async function mount(el) {
     // Un métal noir pur ne refléterait rien : on remonte l'albédo vers un gris acier très sombre
     // Métal clair : satiné argenté plutôt que miroir
     const polish = dark ? 0.14 : 0.3;
-    const base = metal
-      ? hexToRgb(`#${cardColor.clone().lerp(new Color(dark ? '#6b6a66' : '#d2d1cd'), dark ? 0.5 : 0.55).getHexString()}`)
-      : hexToRgb(color || '#0d0d0c');
+    // Teintes : on garde la couleur ; seuls le noir et le blanc sont ramenés vers l'acier
+    const hsl = cardColor.getHSL({});
+    const neutre = hsl.s < 0.18;
+    let metalBase;
+    if (neutre) {
+      metalBase = cardColor.clone().lerp(new Color(dark ? '#6b6a66' : '#d2d1cd'), dark ? 0.5 : 0.55);
+    } else {
+      metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s * 0.9), Math.max(hsl.l, 0.26)).lerp(new Color('#8d8b85'), 0.12);
+    }
+    // PVC mat : une teinte foncée paraîtrait noire, on l'éclaircit légèrement
+    const matBase = neutre ? cardColor : cardColor.clone().setHSL(hsl.h, hsl.s, Math.max(hsl.l, 0.3));
+    const base = hexToRgb(`#${(metal ? metalBase : matBase).getHexString()}`);
     const inkRgb = hexToRgb(ink || '#e9e4d8');
     [front.material, back.material].forEach((m) => {
       if (m && m.map) {
@@ -456,22 +519,32 @@ export async function mount(el) {
       drawMask(ctx, w, h) {
         const m = w * 0.068;
         ctx.textBaseline = 'middle';
-        // Marque en haut à gauche, petite et très espacée
-        const size = Math.min(h * 0.082, fitFontSize(ctx, text, family, w * 0.5, h * 0.082, 0.16));
-        ctx.font = `${size}px "${family}", sans-serif`;
-        drawSpaced(ctx, text, m, m + size * 0.5, size, 0.16, 'left');
+        // Marque en haut à gauche, petite et très espacée (ou le logo du client)
+        const size = text ? Math.min(h * 0.082, fitFontSize(ctx, text, family, w * 0.5, h * 0.082, 0.16)) : h * 0.082;
+        const centre = logoPos === 'centre';
+        if (logoImg && !centre) {
+          const lm = logoMask(logoImg, w * 0.34, h * 0.15);
+          ctx.drawImage(lm, m, m + size * 0.5 - lm.height / 2 + h * 0.02);
+        } else if (text) {
+          ctx.font = `${size}px "${family}", sans-serif`;
+          drawSpaced(ctx, text, m, m + size * 0.5, size, 0.16, 'left');
+        }
+        if (logoImg && centre) {
+          const lm = logoMask(logoImg, w * 0.44, h * 0.36);
+          ctx.drawImage(lm, (w - lm.width) / 2, (h - lm.height) / 2 - h * 0.02);
+        }
         // Sans contact, en haut à droite
         drawNfc(ctx, w - m - h * 0.018, m + size * 0.5, h * 0.016, 0.9);
         // Titulaire et niveau, en bas
         if (holder) {
-          small(ctx, 'MEMBRE', h * 0.03, m, h - m - h * 0.105, 0.32, 'left');
+          const etiquette = label === undefined ? 'MEMBRE' : String(label).toUpperCase();
+          if (etiquette) small(ctx, etiquette, h * 0.03, m, h - m - h * 0.105, 0.32, 'left');
           small(ctx, holder, h * 0.05, m, h - m - h * 0.035, 0.14, 'left');
         }
         if (tier) small(ctx, tier, h * 0.034, w - m, h - m - h * 0.035, 0.32, 'right');
       },
-      drawEngrave(ctx, w, h) {
-        drawGuilloche(ctx, w, h, w * 1.02, h * 1.12, h * 0.34, h * 1.05);
-      },
+      // Guillochage gravé : seulement sur le métal (le PVC reste sobre)
+      drawEngrave: metal ? (ctx, w, h) => drawGuilloche(ctx, w, h, w * 1.02, h * 1.12, h * 0.34, h * 1.05) : null,
     });
     const backTex = buildFace({
       w: texW,
@@ -508,11 +581,11 @@ export async function mount(el) {
     edgeMat.metalness = metal ? 1 : 0.35;
     edgeMat.roughness = brushed ? 0.22 : metal ? 0.1 : 0.42;
     scene.environmentIntensity = metal ? 1.15 : 1;
-    current = { text, holder, tier, color, ink, finish };
+    current = { text, holder, tier, color, ink, finish, logo, logoPos, label };
   }
 
   const d = el.dataset;
-  applyLook({ text: d.text, holder: d.holder, tier: d.tier, color: d.color, ink: d.ink, finish: d.finish });
+  applyLook({ text: d.text, holder: d.holder, tier: d.tier, color: d.color, ink: d.ink, finish: d.finish, logo: d.logo });
 
   // ---- Cadrage : la carte occupe toujours la même part de la scène (cohérent avec l'image de secours)
   let sw = 1;
@@ -544,6 +617,7 @@ export async function mount(el) {
     tx: 0,
     ty: 0,
     hover: false,
+    presentUntil: 0,
     gyro: false,
   };
   const SPIN = 0.2; // rad/s : un tour en ~31 s
@@ -592,7 +666,12 @@ export async function mount(el) {
     }
   }
 
-  el.addEventListener('ecru:card-update', (e) => applyLook({ ...current, ...(e.detail || {}) }));
+  el.addEventListener('ecru:card-update', (e) => {
+    const detail = e.detail || {};
+    // Après un choix, la carte se présente de face quelques secondes pour montrer le changement
+    if (detail.present) state.presentUntil = t + 4;
+    applyLook({ ...current, ...detail });
+  });
   el.addEventListener('ecru:avantages', (e) => (state.hover = !!e.detail));
 
   let visible = true;
@@ -611,7 +690,7 @@ export async function mount(el) {
     state.px += (state.tx - state.px) * k;
     state.py += (state.ty - state.py) * k;
 
-    if (state.hover) {
+    if (state.hover || t < state.presentUntil) {
       // Au survol : la carte se pose de face pour lire les avantages
       const target = Math.round(state.yaw / (Math.PI * 2)) * Math.PI * 2;
       state.yaw += (target - state.yaw) * (1 - Math.exp(-dt * 2.2));

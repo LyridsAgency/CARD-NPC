@@ -1494,7 +1494,7 @@
         "type": "url",
         "id": "ecru_contact_link",
         "label": "Lien « Demande spécifique »",
-        "info": "Par défaut : la page /pages/contact."
+        "info": "Par défaut : la page /pages/demande-particuliere."
       },
       {
         "type": "header",
@@ -1503,9 +1503,9 @@
       {
         "type": "textarea",
         "id": "ecru_moq",
-        "label": "Minimum de commande (MOQ) par matière",
-        "default": "PVC:\nMétal:",
-        "info": "Une matière par ligne, au format « Matière: quantité ». Une ligne sans quantité affiche le texte ci-dessous."
+        "label": "Minimum de commande (MOQ) par option",
+        "default": "Noir: 10\nBlanc: 10\nCouleur sur mesure: 100\nDesign sur mesure: 100",
+        "info": "Une option par ligne, au format « Option: quantité » (ex. Noir, Blanc, Couleur sur mesure, PVC, Métal). Le plus grand minimum des options choisies s'applique."
       },
       {
         "type": "text",

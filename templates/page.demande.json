@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "ecru-demande",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
