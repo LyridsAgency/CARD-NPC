@@ -122,7 +122,27 @@ test('le patron choisit la couleur de sa page depuis son espace', async () => {
   // Valeur invalide : la couleur précédente est gardée
   await reglages({ couleur: 'red;}' });
   assert.match(await (await appel(`/c/${code}`)).text(), /background:#f2c94c/);
-  // Le tableau de bord montre le nuancier, la couleur en cours cochée
+  // Le tableau de bord montre les deux nuanciers
   const tableau = await (await appel('/pro', { headers: { cookie } })).text();
-  assert.match(tableau, /Couleur de votre page/);
+  assert.match(tableau, /Fond de votre page/);
+  assert.match(tableau, /Couleur des tampons/);
+
+  // Seconde couleur : les tampons, la barre et le bouton prennent l'accent
+  await reglages({ couleur: '#0d0d0c', accent: '#c2a165' });
+  let page = await (await appel(`/c/${code}`)).text();
+  assert.match(page, /background:#0d0d0c/);
+  assert.match(page, /\.tampons li\.plein\{background:#c2a165/);
+  assert.match(page, /button\.plein,\.bouton\.plein\{background:#c2a165;border-color:#c2a165;color:#121211/);
+  // Accent trop proche du fond : remplacé par la couleur du texte, toujours visible
+  await reglages({ couleur: '#0d0d0c', accent: 'libre', accent_libre: '#1b2440' });
+  assert.match(await (await appel(`/c/${code}`)).text(), /\.tampons li\.plein\{background:#e9e4d8/);
+  // L'admin modifie la fiche : la couleur des tampons choisie par le patron est gardée
+  await reglages({ couleur: '#0d0d0c', accent: '#c2a165' });
+  await enregistrer({ commerce: 'cafe', nom: 'Café', couleur: '#1f3a2e', actif: 1 });
+  page = await (await appel(`/c/${code}`)).text();
+  assert.match(page, /background:#1f3a2e/);
+  assert.match(page, /\.tampons li\.plein\{background:#c2a165/);
+  // « Automatique » : retour à la couleur du texte
+  await reglages({ couleur: '#1f3a2e', accent: 'auto' });
+  assert.match(await (await appel(`/c/${code}`)).text(), /\.tampons li\.plein\{background:#e9e4d8/);
 });

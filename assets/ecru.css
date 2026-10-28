@@ -4832,8 +4832,11 @@ body::after {
   border-color: rgba(var(--fid-rgb), 0.4);
 }
 .ecru-fidelite-apercu .ecru-apercu__tampons i.is-plein {
-  background: rgb(var(--fid-rgb));
-  border-color: rgb(var(--fid-rgb));
+  background: var(--fid-accent, rgb(var(--fid-rgb)));
+  border-color: var(--fid-accent, rgb(var(--fid-rgb)));
+}
+.ecru-fidelite-apercu .ecru-apercu__barre i {
+  background: var(--fid-accent, rgb(var(--fid-rgb)));
 }
 .ecru-fidelite-apercu .ecru-apercu__lien {
   border-bottom-color: rgba(var(--fid-rgb), 0.2);

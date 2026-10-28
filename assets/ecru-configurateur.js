@@ -94,7 +94,7 @@
     var legende = root.querySelector('[data-ecru-legende]');
     var carte = root.querySelector('[data-ecru-carte]');
     var minimum = 1;
-    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto', page: '#0d0d0c' };
+    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto', page: '#0d0d0c', tampons: 'auto' };
 
     // ---------- Éditeur : un nom et un logo, à placer librement ----------
     var editeur = form.querySelector('[data-ecru-editeur]');
@@ -851,7 +851,16 @@
       var champPage = form.querySelector('[data-ecru-champ="page"]');
       var pastille = form.querySelector('[data-cible="page"][data-teinte="' + fond + '"]');
       if (champPage) champPage.value = (pastille ? pastille.title : 'Sur mesure') + ' · ' + fond;
+      // Tampons : la couleur choisie, sauf si elle se confond avec le fond (même règle que la vraie page)
+      var accent = teintes.tampons || 'auto';
+      marquerTeinte('tampons', accent);
+      var champTampons = form.querySelector('[data-ecru-champ="tampons"]');
+      var pastilleT = form.querySelector('[data-cible="tampons"][data-teinte="' + accent + '"]');
+      if (champTampons) champTampons.value = accent === 'auto' ? 'Automatique' : (pastilleT ? pastilleT.title : 'Sur mesure') + ' · ' + accent;
       if (!ecranFid) return;
+      var lisible = accent !== 'auto' && Math.abs(clarte(accent) - clarte(fond)) > 55;
+      if (lisible) ecranFid.style.setProperty('--fid-accent', accent);
+      else ecranFid.style.removeProperty('--fid-accent');
       ecranFid.style.setProperty('--fid-fond', fond);
       ecranFid.style.setProperty('--fid-rgb', clarte(fond) > 150 ? '18, 18, 17' : '233, 228, 216');
     }
@@ -875,7 +884,7 @@
     }
     function choisirTeinte(cible, teinte) {
       teintes[cible] = teinte;
-      if (cible === 'page') {
+      if (cible === 'page' || cible === 'tampons') {
         majPageFidelite();
         return;
       }
@@ -1297,10 +1306,10 @@
       var avaitFidelite = !!p['Option fidélité'];
       // « Vert sapin · #1f3a2e » (ou un ancien « #1f3a2e » seul)
       var hexPage = String(p['Couleur page fidélité'] || '').split('·').pop().trim();
-      if (teinte(hexPage)) {
-        teintes.page = hexPage.toLowerCase();
-        majPageFidelite();
-      }
+      if (teinte(hexPage)) teintes.page = hexPage.toLowerCase();
+      var hexTampons = String(p['Couleur des tampons'] || '').split('·').pop().trim();
+      if (teinte(hexTampons)) teintes.tampons = hexTampons.toLowerCase();
+      if (teinte(hexPage) || teinte(hexTampons)) majPageFidelite();
       if (caseFidelite && (dejaAbonne || avaitFidelite)) {
         if (dejaAbonne) caseFidelite.value = 'Incluse dans mon abonnement' + (p._commande ? ' (recommande de ' + p._commande + ')' : '');
         caseFidelite.checked = true;

@@ -4,7 +4,7 @@
 //   /admin             création des cartes (CSV d'adresses à encoder) et des liens de connexion commerçant
 import { aleatoire, hacher, egal, creerSession, lireSession, lireCookie } from './securite.js';
 import { lireCommerce } from './shopify.js';
-import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper, couleurValide } from './pages.js';
+import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper, couleurValide, lireCouleurs, ecrireCouleurs } from './pages.js';
 
 const COOKIE = 'ecru_pro';
 const ANTI_DOUBLE = 8; // secondes : un double appui ne donne pas deux tampons
@@ -60,8 +60,9 @@ async function reglageDe(env, c) {
     apres: r.apres === 'termine' ? 'termine' : 'recommence',
     taux: lireTaux(r.taux ?? 1),
     cadeaux: lireCadeaux(r.cadeaux),
-    // Couleur de la page : celle de la fiche du commerce, que le commerçant change depuis son espace
-    couleur: couleurValide(c.couleur) || '#0d0d0c',
+    // Couleurs de la page (« fond » ou « fond;accent ») : celles de la fiche du commerce,
+    // que le commerçant change depuis son espace
+    couleur: ecrireCouleurs(lireCouleurs(c.couleur).fond, lireCouleurs(c.couleur).accent),
   };
 }
 
@@ -219,7 +220,13 @@ async function routesPro(env, requete, url) {
     const apres = f.get('apres') === 'termine' ? 'termine' : 'recommence';
     const taux = lireTaux(f.get('taux'));
     const cadeaux = lireCadeaux([0, 1, 2, 3, 4, 5].map((i) => ({ nom: f.get(`cadeau_nom_${i}`), points: f.get(`cadeau_points_${i}`) })));
-    const couleur = couleurValide(f.get('couleur') === 'libre' ? f.get('couleur_libre') : f.get('couleur')) || avant.couleur;
+    const choix = (nom) => (f.get(nom) === 'libre' ? f.get(`${nom}_libre`) : f.get(nom));
+    const precedentes = lireCouleurs(avant.couleur);
+    const fond = couleurValide(choix('couleur')) || precedentes.fond;
+    // « auto » : pas d'accent ; absent ou invalide : on garde le précédent
+    const accentBrut = choix('accent');
+    const accent = accentBrut === 'auto' ? null : couleurValide(accentBrut) || (accentBrut == null ? precedentes.accent : precedentes.accent);
+    const couleur = ecrireCouleurs(fond, accent);
     await env.DB.prepare(
       `INSERT INTO reglages (commerce, seuil, recompense, mode, apres, taux, cadeaux, modifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(commerce) DO UPDATE SET seuil = excluded.seuil, recompense = excluded.recompense, mode = excluded.mode, apres = excluded.apres,
@@ -263,7 +270,9 @@ async function routesAdmin(env, requete, url) {
 
   if (url.pathname === '/admin/commerce') {
     const t = (k, n = 200) => String(f.get(k) || '').trim().slice(0, n) || null;
-    const couleur = /^#[0-9a-f]{6}$/i.test(t('couleur') || '') ? t('couleur') : '#0d0d0c';
+    // Le fond vient du formulaire ; la couleur des tampons choisie par le commerçant est gardée
+    const existant = await env.DB.prepare('SELECT couleur FROM commerces WHERE handle = ?').bind(commerce).first();
+    const couleur = ecrireCouleurs(couleurValide(t('couleur')) || '#0d0d0c', existant ? lireCouleurs(existant.couleur).accent : null);
     const seuil = Math.min(30, Math.max(3, parseInt(f.get('seuil'), 10) || 10));
     await env.DB.prepare(
       `INSERT INTO commerces (handle, nom, actif, couleur, logo, accroche, recompense, seuil, lien_menu, lien_avis, lien_reseaux, lien_site, modifie)

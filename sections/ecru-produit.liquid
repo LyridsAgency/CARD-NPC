@@ -67,6 +67,7 @@
   assign palette = 'Noir:#0d0d0c|Graphite:#2a2926|Pierre:#8f8a80|Écru:#d6cfbf|Crème:#e9e4d8|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440' | split: '|'
   assign palette_marquage = 'Crème:#e9e4d8|Noir:#121211|Ton sur ton:#7d7b76|Or:#c2a165|Argent:#c9c8c4' | split: '|'
   assign palette_page = 'Noir:#0d0d0c|Crème:#e9e4d8|Bleu nuit:#1b2440|Vert sapin:#1f3a2e|Bordeaux:#5a1a24|Terracotta:#b5532f|Sable:#d6cfbf|Pierre:#8f8a80' | split: '|'
+  assign palette_tampons = 'Automatique:auto|Or:#c2a165|Argent:#c9c8c4|Terracotta:#b5532f|Rose poudré:#d4a59a|Sauge:#5f8a6f|Bleu:#3f5fa8|Crème:#e9e4d8' | split: '|'
   assign palette_fenetre = 'Ton sur ton:auto|Noir:#121211|Graphite:#3a3936|Crème:#e9e4d8|Or:#b8975a|Argent:#c9c8c4|Bordeaux:#5a1a22|Bleu nuit:#1b2440' | split: '|'
   assign modeles = 'editorial:Éditorial|minimal:Minimal|monogramme:Monogramme|signature:Signature|numero:Numéro|pierre:Pierre' | split: '|'
 -%}
@@ -387,12 +388,17 @@
                 </div>
                 <div class="ecru-fidelite-reglages">
                   <p class="ecru-fidelite-reglages__titre">La page de vos clients</p>
-                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte : votre logo, votre couleur. Vous pourrez la changer à tout moment depuis votre espace.</p>
+                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte : votre logo et vos deux couleurs, le fond et les tampons. Vous pourrez les changer à tout moment depuis votre espace.</p>
                   <div class="ecru-createur__ligne">
-                    <span class="ecru-createur__label">Couleur</span>
-                    {%- render 'ecru-palette', cible: 'page', teintes: palette_page, libre: '#b5532f', label: 'Couleur de votre page de fidélité' -%}
+                    <span class="ecru-createur__label">Fond</span>
+                    {%- render 'ecru-palette', cible: 'page', teintes: palette_page, libre: '#b5532f', label: 'Fond de votre page de fidélité' -%}
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Tampons</span>
+                    {%- render 'ecru-palette', cible: 'tampons', teintes: palette_tampons, libre: '#c2a165', label: 'Couleur des tampons de votre page de fidélité' -%}
                   </div>
                   <input type="hidden" name="properties[Couleur page fidélité]" value="#0d0d0c" data-ecru-champ="page" disabled>
+                  <input type="hidden" name="properties[Couleur des tampons]" value="Automatique" data-ecru-champ="tampons" disabled>
                   <div class="ecru-createur__ligne">
                     <span class="ecru-createur__label">Logo *</span>
                     <label for="{{ uid }}-logo" class="ecru-outil">PNG</label>

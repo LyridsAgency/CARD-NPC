@@ -21,15 +21,39 @@ export const COULEURS = [
   ['#d6cfbf', 'Sable'],
   ['#8f8a80', 'Pierre'],
 ];
+// Couleurs des tampons, de la barre et du bouton : nuancier proposé en plus du fond
+export const ACCENTS = [
+  ['auto', 'Automatique'],
+  ['#c2a165', 'Or'],
+  ['#c9c8c4', 'Argent'],
+  ['#b5532f', 'Terracotta'],
+  ['#d4a59a', 'Rose poudré'],
+  ['#5f8a6f', 'Sauge'],
+  ['#3f5fa8', 'Bleu'],
+  ['#e9e4d8', 'Crème'],
+];
 export function couleurValide(v) {
   return /^#[0-9a-f]{6}$/i.test(v || '') ? v.toLowerCase() : null;
 }
-function teintes(accent) {
-  const fond = couleurValide(accent) || '#0d0d0c';
+// Une fiche commerce garde ses deux couleurs dans un seul champ : « fond » ou « fond;accent »
+export function lireCouleurs(v) {
+  const [f, a] = String(v || '').split(';');
+  return { fond: couleurValide(f) || '#0d0d0c', accent: couleurValide(a) };
+}
+export function ecrireCouleurs(fond, accent) {
+  const f = couleurValide(fond) || '#0d0d0c';
+  const a = couleurValide(accent);
+  return a ? `${f};${a}` : f;
+}
+function teintes(valeur) {
+  const { fond, accent } = lireCouleurs(valeur);
   const clair = clarte(fond) > 150;
   const rgb = clair ? '18,18,17' : '233,228,216';
   const encre = clair ? '#121211' : '#e9e4d8';
-  return { fond, encre, doux: `rgba(${rgb},.64)`, ligne: `rgba(${rgb},.2)`, plein: encre };
+  // L'accent n'est gardé que s'il se distingue assez du fond ; sinon, la couleur du texte
+  const plein = accent && Math.abs(clarte(accent) - clarte(fond)) > 55 ? accent : encre;
+  const surPlein = clarte(plein) > 150 ? '#121211' : '#e9e4d8';
+  return { fond, encre, doux: `rgba(${rgb},.64)`, ligne: `rgba(${rgb},.2)`, plein, surPlein };
 }
 
 export function page({ titre, accent, corps }) {
@@ -71,7 +95,7 @@ h1,.titre{margin:0;font:400 34px/0.95 'Archivo Black',sans-serif;letter-spacing:
 .liens a::after{content:'→';color:${t.doux}}
 .boutons{display:grid;grid-template-columns:3fr 1fr;gap:10px}
 button,.bouton{display:flex;align-items:center;justify-content:center;width:100%;min-height:60px;padding:10px 18px;text-align:center;border:1px solid ${t.ligne};border-radius:999px;background:transparent;color:${t.encre};font:500 14px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;cursor:pointer}
-button.plein,.bouton.plein{background:${t.encre};border-color:${t.encre};color:${t.fond}}
+button.plein,.bouton.plein{background:${t.plein};border-color:${t.plein};color:${t.surPlein}}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid ${t.encre};outline-offset:3px}
 form{margin:0}
 .badge{align-self:flex-start;padding:6px 12px;border:1px solid ${t.ligne};border-radius:99px;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
@@ -98,6 +122,7 @@ input{width:100%;padding:14px 16px;border:1px solid ${t.ligne};border-radius:10p
 .pastille input[type=color]::-webkit-color-swatch-wrapper{padding:0}
 .pastille input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 .pastille i{font-style:normal}
+.pastille span.auto{background:linear-gradient(135deg,${t.fond} 50%,${t.encre} 50%)}
 .pastille:has(input:focus-visible){outline:2px solid ${t.encre};outline-offset:2px}
 .cadeau{display:grid;grid-template-columns:1fr 92px;gap:8px}
 .cadeaux{list-style:none;margin:0;padding:0;border-top:1px solid ${t.ligne}}
@@ -116,6 +141,30 @@ details summary{cursor:pointer;list-style:none}
 </head>
 <body><main>${corps}</main></body>
 </html>`;
+}
+
+// Les deux couleurs de la page : le fond, puis les tampons (barre de progression et bouton)
+function nuancier(nom, legende, liste, choisie, aide) {
+  const connue = liste.some(([h]) => h === choisie);
+  const pastilles = liste
+    .map(([hex, n]) => {
+      const rond = hex === 'auto' ? '<span class="auto"></span>' : `<span style="background:${hex}"></span>`;
+      return `<label class="pastille" title="${n}"><input type="radio" name="${nom}" value="${hex}"${choisie === hex ? ' checked' : ''}>${rond}<i>${n}</i></label>`;
+    })
+    .join('');
+  const libre = couleurValide(choisie) || '#c2a165';
+  return `<fieldset class="choix"><legend class="doux">${legende}</legend>
+          <div class="nuancier">${pastilles}
+            <label class="pastille" title="Autre couleur"><input type="radio" name="${nom}" value="libre"${connue ? '' : ' checked'}><input type="color" name="${nom}_libre" value="${libre}" aria-label="${legende} : autre couleur"><i>Autre</i></label>
+          </div>
+          ${aide ? `<p class="doux" style="font-size:13px">${aide}</p>` : ''}
+        </fieldset>`;
+}
+function nuanciers({ fond, accent }) {
+  return (
+    nuancier('couleur', 'Fond de votre page', COULEURS, fond, '') +
+    nuancier('accent', 'Couleur des tampons', ACCENTS, accent || 'auto', 'Vos clients voient ces deux couleurs en scannant leur carte. Le texte s’adapte pour rester lisible ; une couleur de tampons trop proche du fond est remplacée.')
+  );
 }
 
 function enTete(c) {
@@ -328,12 +377,7 @@ export function pageTableau(c, stats, reglage, flash = '', site = '') {
           <div><label for="taux">Points par euro dépensé</label><input id="taux" name="taux" type="text" inputmode="decimal" value="${String(reglage.taux).replace('.', ',')}"></div>
           <div><p class="doux" style="font-size:13px;margin:0 0 6px">Vos cadeaux et leur prix en points</p><div class="champs" style="gap:8px">${lignesCadeaux}</div></div>
         </div>
-        <fieldset class="choix"><legend class="doux">Couleur de votre page</legend>
-          <div class="nuancier">${COULEURS.map(([hex, nom]) => `<label class="pastille" title="${nom}"><input type="radio" name="couleur" value="${hex}"${(reglage.couleur || c.couleur || '#0d0d0c').toLowerCase() === hex ? ' checked' : ''}><span style="background:${hex}"></span><i>${nom}</i></label>`).join('')}
-            <label class="pastille" title="Autre couleur"><input type="radio" name="couleur" value="libre"${COULEURS.some(([h]) => h === (reglage.couleur || c.couleur || '#0d0d0c').toLowerCase()) ? '' : ' checked'}><input type="color" name="couleur_libre" value="${couleurValide(reglage.couleur || c.couleur) || '#0d0d0c'}" aria-label="Autre couleur"><i>Autre</i></label>
-          </div>
-          <p class="doux" style="font-size:13px">Vos clients la voient en scannant leur carte. Le texte s’adapte pour rester lisible.</p>
-        </fieldset>
+        ${nuanciers(lireCouleurs(reglage.couleur || c.couleur))}
         <p class="doux" style="font-size:13px">Changer de système remet les cartes à zéro.</p>
         <button class="plein" type="submit">Enregistrer</button>
       </form>
