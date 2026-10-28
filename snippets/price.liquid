@@ -30,13 +30,13 @@
   assign price_min = product.price_min
   assign price_max = product.price_max
   assign available = target.available | default: false
-  assign money_price = price | money_without_currency | append: ' €'
-  assign money_price_min = price_min | money_without_currency | append: ' €'
-  assign money_price_max = price_max | money_without_currency | append: ' €'
+  assign money_price = price | money_without_currency | replace: '.', ' ' | append: ' €'
+  assign money_price_min = price_min | money_without_currency | replace: '.', ' ' | append: ' €'
+  assign money_price_max = price_max | money_without_currency | replace: '.', ' ' | append: ' €'
   if settings.currency_code_enabled
-    assign money_price = price | money_without_currency | append: ' €'
-    assign money_price_min = price_min | money_without_currency | append: ' €'
-    assign money_price_max = price_max | money_without_currency | append: ' €'
+    assign money_price = price | money_without_currency | replace: '.', ' ' | append: ' €'
+    assign money_price_min = price_min | money_without_currency | replace: '.', ' ' | append: ' €'
+    assign money_price_max = price_max | money_without_currency | replace: '.', ' ' | append: ' €'
   endif
 
   if target == product and product.price_varies
@@ -72,9 +72,9 @@
               <span>
                 <s class="price-item price-item--regular variant-item__old-price">
                   {% if settings.currency_code_enabled %}
-                    {{ compare_at_price | money_without_currency | append: ' €' }}
+                    {{ compare_at_price | money_without_currency | replace: '.', ' ' | append: ' €' }}
                   {% else %}
-                    {{ compare_at_price | money_without_currency | append: ' €' }}
+                    {{ compare_at_price | money_without_currency | replace: '.', ' ' | append: ' €' }}
                   {% endif %}
                 </s>
               </span>
@@ -100,9 +100,9 @@
           <span>
             <s class="price-item price-item--regular">
               {% if settings.currency_code_enabled %}
-                {{ compare_at_price | money_without_currency | append: ' €' }}
+                {{ compare_at_price | money_without_currency | replace: '.', ' ' | append: ' €' }}
               {% else %}
-                {{ compare_at_price | money_without_currency | append: ' €' }}
+                {{ compare_at_price | money_without_currency | replace: '.', ' ' | append: ' €' }}
               {% endif %}
             </s>
           </span>

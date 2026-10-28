@@ -125,7 +125,7 @@
         {%- if settings.ecru_prix_a_definir -%}
           {%- render 'price', product: product, use_variant: true -%}
         {%- else -%}
-          <span class="ecru-produit__montant" data-ecru-prix>{{ current.price | money_without_currency | append: ' €' }}</span>
+          <span class="ecru-produit__montant" data-ecru-prix>{{ current.price | money_without_currency | replace: '.', ' ' | append: ' €' }}</span>
           <span class="ecru-produit__unite">la carte</span>
         {%- endif -%}
       </div>
@@ -347,7 +347,7 @@
             {%- endfor -%}
             <button type="button" class="ecru-outil" data-ecru-lien-ajout>+ Ajouter un lien</button>
             <p class="ecru-champ__aide">
-              {%- if option_lien != blank -%}+ {{ option_lien.price | money_without_currency | append: ' €' }} par carte et par lien. {% endif -%}
+              {%- if option_lien != blank -%}+ {{ option_lien.price | money_without_currency | replace: '.', ' ' | append: ' €' }} par carte et par lien. {% endif -%}
               Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à votre nom qui les réunit. Sans lien, la puce n’est pas programmée.
             </p>
           </fieldset>
@@ -368,7 +368,7 @@
                 <strong>Programme de fidélité</strong>
                 <span>Tampons ou points, avec vos propres récompenses. Le client scanne, vous validez. Résiliable à tout moment.</span>
               </span>
-              <span class="ecru-interrupteur__prix">+ {{ abo.price | money_without_currency | append: ' €' }} / mois</span>
+              <span class="ecru-interrupteur__prix">+ {{ abo.price | money_without_currency | replace: '.', ' ' | append: ' €' }} / mois</span>
             </label>
             <div class="ecru-fidelite-details" data-ecru-fidelite-details hidden>
               <div class="ecru-fidelite-apercu">

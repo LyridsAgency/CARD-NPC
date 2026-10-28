@@ -300,7 +300,7 @@
       reglages.querySelector('label').textContent = 'Taille';
       champTaille.setAttribute('aria-label', estTexte ? 'Taille du nom' : 'Taille du logo');
       champTaille.min = estTexte ? 3 : 10;
-      champTaille.max = estTexte ? 130 : 95;
+      champTaille.max = estTexte ? 130 : Math.round(borner(e, 9) * 100);
       champTaille.value = Math.round(e.s * 100);
     }
 
@@ -337,11 +337,61 @@
     }
 
     // Taille : bornes selon le type d'élément
+    // Logo : 60 % de la hauteur de la carte au plus, et jamais plus large que 60 % de sa largeur
+    var RATIO_CARTE = 85.6 / 54;
+    var LOGO_MAX = 0.6;
     function borner(e, s) {
-      return e.t === 'logo' ? Math.max(0.06, Math.min(0.95, s)) : Math.max(0.025, Math.min(1.4, s));
+      if (e.t !== 'logo') return Math.max(0.025, Math.min(1.4, s));
+      var maxLargeur = (LOGO_MAX * RATIO_CARTE) / (e.ratio || 1);
+      return Math.max(0.06, Math.min(LOGO_MAX, maxLargeur, s));
+    }
+    // Le logo reste entier sur la carte (les textes, eux, peuvent déborder volontairement)
+    function garderDansCarte(e) {
+      if (!e || e.t !== 'logo') return;
+      var demiL = (e.s * (e.ratio || 1)) / RATIO_CARTE / 2;
+      var demiH = e.s / 2;
+      e.x = Math.max(demiL + 0.02, Math.min(1 - demiL - 0.02, e.x));
+      e.y = Math.max(demiH + 0.03, Math.min(1 - demiH - 0.03, e.y));
+    }
+    // Place libre pour un nouveau logo : loin des textes et de la fenêtre NFC
+    function boite(e) {
+      if (e.t === 'logo') {
+        var l = (e.s * (e.ratio || 1)) / RATIO_CARTE;
+        return [e.x - l / 2, e.y - e.s / 2, e.x + l / 2, e.y + e.s / 2];
+      }
+      var larg = (e.s * String(e.v || '').length * 0.62) / RATIO_CARTE;
+      var x0 = e.a === 'left' ? e.x : e.a === 'right' ? e.x - larg : e.x - larg / 2;
+      return [x0, e.y - e.s / 2, x0 + larg, e.y + e.s / 2];
+    }
+    function recouvrement(a, b) {
+      return Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
+    }
+    function placerLogo(logo) {
+      var occupe = elements.filter(function (e) {
+        return e !== logo && (e.t === 'logo' ? !!e.u : !!(e.v && e.v.trim()));
+      }).map(boite);
+      if (teintes.fenetre !== 'aucune') occupe.push([0, 0, 0.3, 1]);
+      var places = [[0.66, 0.36], [0.82, 0.3], [0.82, 0.7], [0.62, 0.62], [0.5, 0.25], [0.5, 0.75], [0.66, 0.5]];
+      var meilleur = null;
+      [0.26, 0.2, 0.15].some(function (taille) {
+        places.forEach(function (pl) {
+          var essai = { t: 'logo', ratio: logo.ratio, s: borner(logo, taille), x: pl[0], y: pl[1] };
+          garderDansCarte(essai);
+          var b = boite(essai);
+          var gene = occupe.reduce(function (t, o) {
+            return t + recouvrement(b, o);
+          }, 0);
+          if (!meilleur || gene < meilleur.gene - 1e-6) meilleur = { gene: gene, x: essai.x, y: essai.y, s: essai.s };
+        });
+        return meilleur.gene < 1e-4;
+      });
+      logo.x = meilleur.x;
+      logo.y = meilleur.y;
+      logo.s = meilleur.s;
     }
     function redimensionner(e, s) {
       e.s = borner(e, s);
+      garderDansCarte(e);
       var n = editeur.querySelector('[data-el="' + e.id + '"]');
       if (n) n.style.setProperty('--s', e.s);
       if (champTaille && selection === e.id) champTaille.value = Math.round(e.s * 100);
@@ -440,6 +490,7 @@
         if (Math.abs(y - 0.5) < 0.012) y = 0.5;
         e.x = Math.max(0.03, Math.min(0.97, x));
         e.y = Math.max(0.05, Math.min(0.95, y));
+        garderDansCarte(e);
         guides(e.x, e.y);
         n.style.left = e.x * 100 + '%';
         n.style.top = e.y * 100 + '%';
@@ -482,6 +533,7 @@
           ev.preventDefault();
           e.x = Math.max(0.03, Math.min(0.97, e.x + bouge[0]));
           e.y = Math.max(0.05, Math.min(0.95, e.y + bouge[1]));
+          garderDansCarte(e);
           dessinerEditeur();
           n.focus();
           rendreBientot();
@@ -530,7 +582,8 @@
       champTaille.addEventListener('input', function () {
         var e = element(selection);
         if (!e) return;
-        e.s = champTaille.value / 100;
+        e.s = borner(e, champTaille.value / 100);
+        garderDansCarte(e);
         dessinerEditeur();
         rendreBientot();
       });
@@ -560,7 +613,9 @@
         if (logoRetirer) logoRetirer.hidden = false;
         masquerLogo(URL.createObjectURL(f)).then(function (m) {
           if (!m) return;
-          elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.66, y: 0.36, s: 0.26 });
+          var logo = { id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.66, y: 0.36, s: 0.26 };
+          placerLogo(logo);
+          elements.push(logo);
           selectionner('logo');
           rendre(true);
         });
@@ -792,6 +847,10 @@
     function majPageFidelite() {
       var fond = teintes.page || '#0d0d0c';
       marquerTeinte('page', fond);
+      // Dans la commande : le nom de la couleur et son code (« Vert sapin · #1f3a2e »)
+      var champPage = form.querySelector('[data-ecru-champ="page"]');
+      var pastille = form.querySelector('[data-cible="page"][data-teinte="' + fond + '"]');
+      if (champPage) champPage.value = (pastille ? pastille.title : 'Sur mesure') + ' · ' + fond;
       if (!ecranFid) return;
       ecranFid.style.setProperty('--fid-fond', fond);
       ecranFid.style.setProperty('--fid-rgb', clarte(fond) > 150 ? '18, 18, 17' : '233, 228, 216');
@@ -1236,8 +1295,10 @@
       // Il peut décocher : ce seront des cartes simples, avec leur lien.
       enRecommande = true;
       var avaitFidelite = !!p['Option fidélité'];
-      if (teinte(p['Couleur page fidélité'])) {
-        teintes.page = p['Couleur page fidélité'];
+      // « Vert sapin · #1f3a2e » (ou un ancien « #1f3a2e » seul)
+      var hexPage = String(p['Couleur page fidélité'] || '').split('·').pop().trim();
+      if (teinte(hexPage)) {
+        teintes.page = hexPage.toLowerCase();
         majPageFidelite();
       }
       if (caseFidelite && (dejaAbonne || avaitFidelite)) {

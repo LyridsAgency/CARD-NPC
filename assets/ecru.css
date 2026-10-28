@@ -3866,6 +3866,27 @@ body::after {
   .ecru-produit.is-edition .ecru-produit__sous-carte {
     padding-bottom: 0.8rem;
   }
+  /* Pendant l'édition, la zone collée reste petite : la carte et un seul rang de boutons.
+     Les choix (matière, couleurs…) gardent toute la place pour être touchés. */
+  .ecru-produit.is-edition .ecru-carte--compact .ecru-carte__vue {
+    height: clamp(170px, 44vw, 230px);
+  }
+  .ecru-produit.is-edition .ecru-produit__vues,
+  .ecru-produit.is-edition .ecru-produit__mention {
+    display: none;
+  }
+  .ecru-produit.is-edition .ecru-produit__sous-carte {
+    gap: 0.6rem;
+    margin-top: 0;
+  }
+  .ecru-produit.is-edition .ecru-produit__sous-carte .ecru-retourner {
+    min-height: 3.4rem;
+    padding-block: 0.4rem;
+  }
+  /* Un choix touché ne se cache jamais sous la carte */
+  .ecru-produit--sur-mesure .ecru-produit__infos :is(fieldset, .ecru-createur__ligne, .ecru-champ) {
+    scroll-margin-top: 30rem;
+  }
 }
 
 /* ----- Page Fidélité ---------------------------------------------------- */
@@ -4782,20 +4803,6 @@ body::after {
   white-space: nowrap;
 }
 
-/* ----- Transitions entre les pages : un fondu court (navigateurs récents) ---- */
-@view-transition {
-  navigation: auto;
-}
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.35s;
-  animation-timing-function: var(--ecru-ease);
-}
-@media (prefers-reduced-motion: reduce) {
-  @view-transition {
-    navigation: none;
-  }
-}
 /* Mobile : la carte d'abord, puis les finitions à toucher juste en dessous */
 @media (max-width: 989px) {
   .ecru-finitions__visuel {
@@ -4830,4 +4837,30 @@ body::after {
 }
 .ecru-fidelite-apercu .ecru-apercu__lien {
   border-bottom-color: rgba(var(--fid-rgb), 0.2);
+}
+
+/* ----- Fluidité sur téléphone ----------------------------------------------------------
+   Les reflets chromés animés redessinent le texte à chaque image : réservés aux ordinateurs.
+   Sur téléphone, le chrome reste, immobile ; l'en-tête passe d'un flou coûteux à un fond plein. */
+@media (hover: none), (max-width: 989px) {
+  .ecru-hero__ligne + .ecru-hero__ligne,
+  .ecru-fid-hero__ligne--creuse,
+  .ecru-offre--mise-en-avant::before,
+  .ecru-option input:checked + label.ecru-chrome-label,
+  .ecru-option input:checked + label.ecru-irise-label,
+  .ecru-signature span {
+    animation: none;
+    background-position: 35% 50%;
+  }
+  .header-wrapper,
+  .ecru-header,
+  sticky-header .header-wrapper {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+@media (hover: none), (max-width: 989px) {
+  .header-wrapper {
+    background: rgba(7, 7, 7, 0.97);
+  }
 }

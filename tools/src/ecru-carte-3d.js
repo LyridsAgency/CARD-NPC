@@ -975,7 +975,6 @@ export async function mount(el) {
   }
 
   let dernierSigne = '';
-  let impair = false;
   let visible = true;
   let last = performance.now();
   let raf = 0;
@@ -1053,12 +1052,10 @@ export async function mount(el) {
     shadow.scale.set(W * 1.12, 1.25 + Math.abs(Math.sin(pivot.rotation.x)) * 2.5, 1);
     shadowMat.opacity = 0.75 - lift * 1.2;
 
-    // Économie : rien ne bouge → pas de dessin ; rotation automatique sur téléphone → une image sur deux
+    // Économie : rien ne bouge → pas de dessin. Sinon une image à chaque rafraîchissement : rotation fluide
     const signe = [pivot.rotation.x, pivot.rotation.y, pivot.position.y, camera.position.z, sw, sh].map((v) => v.toFixed(4)).join();
     const auRepos = signe === dernierSigne && !aRedessiner;
-    const automatique = !state.drag && !state.edition && state.view === null && Math.abs(state.vel) < 0.02;
-    impair = !impair;
-    if (!auRepos && !(automatique && small && impair)) {
+    if (!auRepos) {
       renderer.render(scene, camera);
       dernierSigne = signe;
       aRedessiner = false;
