@@ -30,11 +30,36 @@ function maintenantIso() {
   return new Date().toISOString();
 }
 
+// Cadeaux du mode points : 6 au plus, triés du moins cher au plus cher
+function lireCadeaux(brut) {
+  let l = [];
+  try {
+    l = typeof brut === 'string' ? JSON.parse(brut || '[]') : brut || [];
+  } catch (e) {
+    l = [];
+  }
+  return (Array.isArray(l) ? l : [])
+    .map((x) => ({ nom: String((x && x.nom) || '').trim().slice(0, 60), points: Math.min(100000, Math.max(1, parseInt(x && x.points, 10) || 0)) }))
+    .filter((x) => x.nom && x.points)
+    .sort((a, b) => a.points - b.points)
+    .slice(0, 6);
+}
+
+function lireTaux(v) {
+  const t = Number(String(v ?? '').replace(',', '.'));
+  return Number.isFinite(t) && t > 0 ? Math.min(100, Math.round(t * 100) / 100) : 1;
+}
+
+// Tout est choisi par le commerçant dans son espace ; la fiche du commerce ne donne que les valeurs de départ
 async function reglageDe(env, c) {
-  const r = await env.DB.prepare('SELECT seuil, recompense FROM reglages WHERE commerce = ?').bind(c.handle).first();
+  const r = (await env.DB.prepare('SELECT * FROM reglages WHERE commerce = ?').bind(c.handle).first()) || {};
   return {
-    seuil: Math.min(30, Math.max(3, (r && r.seuil) || c.seuil || 10)),
-    recompense: (r && r.recompense != null ? r.recompense : c.recompense) || '',
+    mode: r.mode === 'points' ? 'points' : 'tampons',
+    seuil: Math.min(30, Math.max(3, r.seuil || c.seuil || 10)),
+    recompense: (r.recompense != null ? r.recompense : c.recompense) || '',
+    apres: r.apres === 'termine' ? 'termine' : 'recommence',
+    taux: lireTaux(r.taux ?? 1),
+    cadeaux: lireCadeaux(r.cadeaux),
   };
 }
 
@@ -72,24 +97,46 @@ async function scanCarte(env, requete, url, code) {
     const action = f.get('action');
     const maintenant = maintenantIso();
     let message = '';
-    if (action === 'tampon') {
+    const ajouter = async (valeur, texte) => {
       const recent = await env.DB.prepare("SELECT a FROM evenements WHERE carte = ? AND type = 'tampon' ORDER BY id DESC LIMIT 1").bind(code).first();
-      if (recent && Date.now() - Date.parse(recent.a) < ANTI_DOUBLE * 1000) {
-        message = 'Tampon déjà ajouté à l’instant.';
-      } else {
-        await env.DB.prepare('UPDATE cartes SET tampons = tampons + 1, visites = visites + 1, derniere_visite = ? WHERE code = ?').bind(maintenant, code).run();
-        await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'tampon', ?)").bind(code, k.commerce, maintenant).run();
-        message = `Tampon ajouté : ${k.tampons + 1} / ${reglage.seuil}.`;
-        if (k.tampons + 1 >= reglage.seuil) message += ' Récompense due !';
+      if (recent && Date.now() - Date.parse(recent.a) < ANTI_DOUBLE * 1000) return reglage.mode === 'points' ? 'Points déjà ajoutés à l’instant.' : 'Tampon déjà ajouté à l’instant.';
+      await env.DB.prepare('UPDATE cartes SET tampons = tampons + ?, visites = visites + 1, derniere_visite = ? WHERE code = ?').bind(valeur, maintenant, code).run();
+      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a, valeur) VALUES (?, ?, 'tampon', ?, ?)").bind(code, k.commerce, maintenant, valeur).run();
+      return texte;
+    };
+    const retirer = async (valeur, texte) => {
+      await env.DB.prepare('UPDATE cartes SET tampons = MAX(tampons - ?, 0) WHERE code = ?').bind(valeur, code).run();
+      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a, valeur) VALUES (?, ?, 'retrait', ?, ?)").bind(code, k.commerce, maintenant, valeur).run();
+      return texte;
+    };
+    const offrir = async (cout, texte) => {
+      await env.DB.prepare('UPDATE cartes SET tampons = tampons - ?, recompenses = recompenses + 1, terminee = ? WHERE code = ?')
+        .bind(cout, reglage.mode === 'tampons' && reglage.apres === 'termine' ? 1 : 0, code).run();
+      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a, valeur) VALUES (?, ?, 'recompense', ?, ?)").bind(code, k.commerce, maintenant, cout).run();
+      return texte;
+    };
+
+    if (reglage.mode === 'points') {
+      if (action === 'achat') {
+        const montant = Math.min(10000, Math.max(0, Number(String(f.get('montant') || '').replace(',', '.')) || 0));
+        const points = Math.floor(montant * reglage.taux);
+        message = points > 0 ? await ajouter(points, `+ ${points} point${points > 1 ? 's' : ''} : ${k.tampons + points} au total.`) : 'Indiquez le montant de l’achat.';
+      } else if (action === 'offrir') {
+        const cadeau = reglage.cadeaux[parseInt(f.get('cadeau'), 10)];
+        if (cadeau && k.tampons >= cadeau.points) message = await offrir(cadeau.points, `${cadeau.nom} : offert. Il reste ${k.tampons - cadeau.points} points.`);
+      } else if (action === 'corriger') {
+        const n = Math.min(k.tampons, Math.max(0, parseInt(f.get('points'), 10) || 0));
+        if (n) message = await retirer(n, `${n} point${n > 1 ? 's' : ''} retiré${n > 1 ? 's' : ''}.`);
       }
+    } else if (action === 'tampon' && !k.terminee) {
+      message = await ajouter(1, `Tampon ajouté : ${k.tampons + 1} / ${reglage.seuil}.` + (k.tampons + 1 >= reglage.seuil ? ' Récompense due !' : ''));
     } else if (action === 'retrait' && k.tampons > 0) {
-      await env.DB.prepare('UPDATE cartes SET tampons = tampons - 1, visites = MAX(visites - 1, 0) WHERE code = ?').bind(code).run();
-      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'retrait', ?)").bind(code, k.commerce, maintenant).run();
-      message = 'Tampon retiré.';
+      message = await retirer(1, 'Tampon retiré.');
     } else if (action === 'recompense' && k.tampons >= reglage.seuil) {
-      await env.DB.prepare('UPDATE cartes SET tampons = tampons - ?, recompenses = recompenses + 1 WHERE code = ?').bind(reglage.seuil, code).run();
-      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'recompense', ?)").bind(code, k.commerce, maintenant).run();
-      message = 'Récompense remise. La carte repart pour un tour.';
+      message = await offrir(reglage.seuil, reglage.apres === 'termine' ? 'Récompense remise. La carte est complète.' : 'Récompense remise. La carte repart pour un tour.');
+    } else if (action === 'relancer' && k.terminee) {
+      await env.DB.prepare('UPDATE cartes SET terminee = 0 WHERE code = ?').bind(code).run();
+      message = 'La carte repart pour un tour.';
     }
     return rediriger(`/c/${code}?ok=${encodeURIComponent(message)}`);
   }
@@ -163,12 +210,27 @@ async function routesPro(env, requete, url) {
   if (chemin === '/pro/reglages' && requete.method === 'POST') {
     if (!memeOrigine(requete, url, env)) return html(pageMessage('Action refusée', 'Requête refusée.'), 403);
     const f = await requete.formData();
+    const avant = await reglageDe(env, c);
+    const mode = f.get('mode') === 'points' ? 'points' : 'tampons';
     const seuil = Math.min(30, Math.max(3, parseInt(f.get('seuil'), 10) || 10));
-    const recompense = String(f.get('recompense') || '').slice(0, 80);
+    const recompense = String(f.get('recompense') || '').trim().slice(0, 80);
+    const apres = f.get('apres') === 'termine' ? 'termine' : 'recommence';
+    const taux = lireTaux(f.get('taux'));
+    const cadeaux = lireCadeaux([0, 1, 2, 3, 4, 5].map((i) => ({ nom: f.get(`cadeau_nom_${i}`), points: f.get(`cadeau_points_${i}`) })));
     await env.DB.prepare(
-      'INSERT INTO reglages (commerce, seuil, recompense, modifie) VALUES (?, ?, ?, ?) ON CONFLICT(commerce) DO UPDATE SET seuil = excluded.seuil, recompense = excluded.recompense, modifie = excluded.modifie'
-    ).bind(commerce, seuil, recompense, maintenantIso()).run();
-    return rediriger('/pro?ok=' + encodeURIComponent('Réglages enregistrés.'));
+      `INSERT INTO reglages (commerce, seuil, recompense, mode, apres, taux, cadeaux, modifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(commerce) DO UPDATE SET seuil = excluded.seuil, recompense = excluded.recompense, mode = excluded.mode, apres = excluded.apres,
+         taux = excluded.taux, cadeaux = excluded.cadeaux, modifie = excluded.modifie`
+    ).bind(commerce, seuil, recompense, mode, apres, taux, JSON.stringify(cadeaux), maintenantIso()).run();
+    // Tampons et points ne se comptent pas pareil : changer de système remet les cartes à zéro
+    let ok = 'Réglages enregistrés.';
+    if (mode !== avant.mode) {
+      await env.DB.prepare('UPDATE cartes SET tampons = 0, terminee = 0 WHERE commerce = ?').bind(commerce).run();
+      ok = mode === 'points' ? 'Passage aux points : les cartes repartent de zéro.' : 'Passage aux tampons : les cartes repartent de zéro.';
+    } else if (apres === 'recommence') {
+      await env.DB.prepare('UPDATE cartes SET terminee = 0 WHERE commerce = ? AND terminee = 1').bind(commerce).run();
+    }
+    return rediriger('/pro?ok=' + encodeURIComponent(ok));
   }
   if (chemin === '/pro') {
     return html(pageTableau(c, await statistiques(env, commerce), await reglageDe(env, c), url.searchParams.get('ok') || ''));

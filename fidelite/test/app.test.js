@@ -244,3 +244,61 @@ test('en-têtes : la politique de référent laisse passer l’origine des formu
   assert.equal(r.headers.get('Referrer-Policy'), 'same-origin');
   assert.doesNotMatch(await r.text(), /content="no-referrer"/);
 });
+
+const vieillir = () => env.DB.db.prepare("UPDATE evenements SET a = '2020-01-01T00:00:00.000Z'").run();
+async function poster(code, cookie, champs) {
+  const r = await appel(`/c/${code}`, { method: 'POST', cookie, origin: BASE, body: form(champs) });
+  assert.equal(r.status, 303);
+  return decodeURIComponent(r.headers.get('Location'));
+}
+async function regler(cookie, champs) {
+  const r = await appel('/pro/reglages', { method: 'POST', cookie, origin: BASE, body: form(champs) });
+  assert.equal(r.status, 303);
+  return decodeURIComponent(r.headers.get('Location'));
+}
+
+test('patron : choisit sa récompense, la carte s’arrête puis il la relance', async () => {
+  const [code] = await creerCartes('client-1', 1);
+  const cookie = await connexionPro('client-1');
+  await regler(cookie, { mode: 'tampons', seuil: 3, recompense: 'La coupe offerte', apres: 'termine' });
+  for (let i = 0; i < 3; i++) {
+    await poster(code, cookie, { action: 'tampon' });
+    vieillir();
+  }
+  assert.match(await poster(code, cookie, { action: 'recompense' }), /La carte est complète/);
+  // Carte complète : plus de tampon, le client le voit
+  assert.equal(await poster(code, cookie, { action: 'tampon' }), `/c/${code}?ok=`);
+  assert.match(await (await appel(`/c/${code}`)).text(), /Carte complète/);
+  assert.match(await (await appel(`/c/${code}`, { cookie })).text(), /Relancer la carte/);
+  assert.match(await poster(code, cookie, { action: 'relancer' }), /repart pour un tour/);
+  assert.match(await poster(code, cookie, { action: 'tampon' }), /Tampon ajouté : 1 \/ 3/);
+});
+
+test('patron : système de points, ses cadeaux à ses prix', async () => {
+  const [code] = await creerCartes('client-1', 1);
+  const cookie = await connexionPro('client-1');
+  assert.match(
+    await regler(cookie, { mode: 'points', taux: '2', cadeau_nom_0: 'Shampoing offert', cadeau_points_0: '300', cadeau_nom_1: 'Café offert', cadeau_points_1: '40' }),
+    /Passage aux points/
+  );
+  let page = await (await appel('/pro', { cookie })).text();
+  assert.match(page, /value="Café offert"/);
+  // 25,50 € à 2 points par euro : 51 points
+  assert.match(await poster(code, cookie, { action: 'achat', montant: '25,50' }), /\+ 51 points : 51 au total/);
+  assert.match(await poster(code, cookie, { action: 'achat', montant: '10' }), /déjà ajoutés/);
+  page = await (await appel(`/c/${code}`)).text();
+  assert.match(page, /<b>51<\/b><span>points<\/span>/);
+  assert.match(page, /Café offert/);
+  assert.match(page, /plus que 249 points pour « Shampoing offert »/);
+  // Cadeaux triés : le café (40) est le premier, et il est offrable
+  page = await (await appel(`/c/${code}`, { cookie })).text();
+  assert.match(page, /Offrir : Café offert · 40 pts/);
+  assert.doesNotMatch(page, /Offrir : Shampoing/);
+  assert.match(await poster(code, cookie, { action: 'offrir', cadeau: '0' }), /Café offert : offert\. Il reste 11 points/);
+  assert.equal(await poster(code, cookie, { action: 'offrir', cadeau: '1' }), `/c/${code}?ok=`);
+  assert.match(await poster(code, cookie, { action: 'corriger', points: '5' }), /5 points retirés/);
+  assert.equal(env.DB.db.prepare('SELECT tampons FROM cartes WHERE code = ?').get(code).tampons, 6);
+  // Retour aux tampons : les compteurs repartent de zéro
+  assert.match(await regler(cookie, { mode: 'tampons', seuil: 5 }), /Passage aux tampons/);
+  assert.equal(env.DB.db.prepare('SELECT tampons FROM cartes WHERE code = ?').get(code).tampons, 0);
+});

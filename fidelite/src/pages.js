@@ -72,6 +72,23 @@ form{margin:0}
 label{display:block;font-size:13px;color:${t.doux};margin:0 0 6px}
 input{width:100%;padding:14px 16px;border:1px solid ${t.ligne};border-radius:10px;background:transparent;color:${t.encre};font:16px Inter,sans-serif}
 .champs{display:flex;flex-direction:column;gap:16px}
+.choix{border:0;padding:0;margin:0;display:grid;gap:8px}
+.choix legend{font-size:13px;margin-bottom:6px}
+.option{display:flex;gap:12px;align-items:flex-start;margin:0;padding:14px 16px;border:1px solid ${t.ligne};border-radius:12px;cursor:pointer;color:${t.encre};font-size:15px}
+.option:has(input:checked){border-color:${t.encre}}
+.option input{width:auto;margin:3px 0 0;accent-color:${t.plein}}
+.option b{display:block;font-weight:500}
+.option span{color:${t.doux};font-size:13px;line-height:1.45}
+.option span b{color:${t.encre};font-size:15px}
+.reglages:has(#mode-points:checked) .si-tampons,.reglages:has(#mode-tampons:checked) .si-points{display:none}
+.cadeau{display:grid;grid-template-columns:1fr 92px;gap:8px}
+.cadeaux{list-style:none;margin:0;padding:0;border-top:1px solid ${t.ligne}}
+.cadeaux li{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid ${t.ligne};color:${t.doux}}
+.cadeaux li.ok{color:${t.encre}}
+.cadeaux li b{font-weight:500;white-space:nowrap}
+.cadeaux li.ok b{color:${t.plein}}
+details summary{cursor:pointer;list-style:none}
+.cadeau-btn{text-transform:none;letter-spacing:0;font-size:16px}
 .pied{margin-top:auto;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:${t.doux}}
 .pied a{color:inherit}
 </style>
@@ -113,13 +130,56 @@ export function pageInconnue() {
   });
 }
 
+// Mode points : le prochain cadeau atteignable et la liste des cadeaux
+function prochainCadeau(points, cadeaux) {
+  return cadeaux.find((x) => x.points > points) || null;
+}
+function listeCadeaux(points, cadeaux) {
+  if (!cadeaux.length) return '';
+  return `<ul class="cadeaux">${cadeaux
+    .map((x) => `<li class="${points >= x.points ? 'ok' : ''}"><span>${echapper(x.nom)}</span><b>${x.points} pts</b></li>`)
+    .join('')}</ul>`;
+}
+
 // Le client scanne sa carte : il voit où il en est
 export function pageClient(c, carte, reglage) {
+  const liens = c.liens.length ? `<nav class="liens">${c.liens.map(([t, u]) => `<a href="${echapper(u)}" rel="noopener">${t}</a>`).join('')}</nav>` : '';
+  const tete = `<header>${enTete(c)}<p class="doux" style="margin-top:12px">${echapper(c.accroche || 'Bon retour parmi nous.')}</p></header>`;
+
+  if (reglage.mode === 'points') {
+    const pts = carte.tampons;
+    const suivant = prochainCadeau(pts, reglage.cadeaux);
+    const dispo = reglage.cadeaux.filter((x) => pts >= x.points);
+    const pct = suivant ? Math.min(100, Math.round((pts / suivant.points) * 100)) : 100;
+    const message = dispo.length
+      ? `<div class="bloc"><p class="petit">À vous de choisir</p><p class="recompense">${echapper(dispo[dispo.length - 1].nom)}</p><p class="doux" style="margin-top:8px">Montrez cette page en caisse.${suivant ? ` Ou continuez : plus que ${suivant.points - pts} points pour « ${echapper(suivant.nom)} ».` : ''}</p></div>`
+      : carte.visites === 0
+      ? `<div class="bloc"><p class="petit">Bienvenue</p><p class="doux" style="margin-top:6px">Montrez votre carte en caisse : chaque achat vous rapporte des points.</p></div>`
+      : suivant
+      ? `<div class="bloc"><p class="petit">Plus que ${suivant.points - pts} points</p><p class="recompense">${echapper(suivant.nom)}</p></div>`
+      : '';
+    return page({
+      titre: c.nom,
+      accent: c.couleur,
+      corps: `${tete}
+    <section aria-label="Vos points">
+      <p class="compte"><b>${pts}</b><span>points</span></p>
+      ${suivant ? `<div class="barre" style="margin-top:16px"><i style="width:${pct}%"></i></div>` : ''}
+    </section>
+    ${message}
+    ${listeCadeaux(pts, reglage.cadeaux)}
+    ${liens}
+    ${pied}`,
+    });
+  }
+
   const seuil = reglage.seuil;
   const n = Math.min(carte.tampons, seuil);
   const prete = carte.tampons >= seuil;
   const reste = Math.max(0, seuil - carte.tampons);
-  const message = prete
+  const message = carte.terminee
+    ? `<div class="bloc"><p class="petit">Carte complète</p><p class="doux" style="margin-top:6px">Merci pour votre fidélité. Demandez en caisse pour repartir pour un tour.</p></div>`
+    : prete
     ? `<div class="bloc"><p class="petit">Récompense disponible</p><p class="recompense">${echapper(reglage.recompense || 'Votre récompense vous attend')}</p><p class="doux" style="margin-top:8px">Montrez cette page en caisse.</p></div>`
     : carte.visites === 0
     ? `<div class="bloc"><p class="petit">Bienvenue</p><p class="doux" style="margin-top:6px">Montrez votre carte en caisse : votre premier tampon est pour aujourd’hui.</p></div>`
@@ -127,39 +187,74 @@ export function pageClient(c, carte, reglage) {
   return page({
     titre: c.nom,
     accent: c.couleur,
-    corps: `<header>${enTete(c)}<p class="doux" style="margin-top:12px">${echapper(c.accroche || 'Bon retour parmi nous.')}</p></header>
+    corps: `${tete}
     <section aria-label="Vos tampons">
-      <p class="compte"><b>${n}</b><span>/ ${seuil}</span></p>
-      <div style="margin-top:16px">${tampons(n, seuil)}</div>
+      <p class="compte"><b>${carte.terminee ? seuil : n}</b><span>/ ${seuil}</span></p>
+      <div style="margin-top:16px">${tampons(carte.terminee ? seuil : n, seuil)}</div>
     </section>
     ${message}
-    ${c.liens.length ? `<nav class="liens">${c.liens.map(([t, u]) => `<a href="${echapper(u)}" rel="noopener">${t}</a>`).join('')}</nav>` : ''}
+    ${liens}
     ${pied}`,
   });
 }
 
-// Le commerçant scanne la même carte avec son téléphone : il voit le niveau et ajoute un tampon
+// Le commerçant scanne la même carte avec son téléphone : il voit le niveau et ajoute un tampon ou des points
 export function pagePro(c, carte, reglage, flash = '') {
-  const seuil = reglage.seuil;
-  const prete = carte.tampons >= seuil;
-  const pct = Math.min(100, Math.round((carte.tampons / seuil) * 100));
   const depuis = carte.derniere_visite ? ilYa(carte.derniere_visite) : 'jamais';
+  const entete = `<span class="badge">Mode commerçant · ${echapper(c.nom)}</span>
+    ${flash ? `<p class="flash" role="status">${echapper(flash)}</p>` : ''}
+    <header><p class="petit">Carte ${echapper(carte.code.toUpperCase())}</p>
+      <p class="doux" style="margin-top:8px">Dernière visite : ${depuis} · ${carte.visites} visite${carte.visites > 1 ? 's' : ''} au total · ${carte.recompenses} récompense${carte.recompenses > 1 ? 's' : ''}</p></header>`;
+
+  if (reglage.mode === 'points') {
+    const pts = carte.tampons;
+    const offrables = reglage.cadeaux.map((x, i) => [x, i]).filter(([x]) => pts >= x.points);
+    return page({
+      titre: `${c.nom} · carte ${carte.code}`,
+      accent: c.couleur,
+      corps: `${entete}
+    <section aria-label="Points du client">
+      <p class="compte"><b>${pts}</b><span>points</span></p>
+    </section>
+    <form method="post" class="champs">
+      <input type="hidden" name="action" value="achat">
+      <div><label for="montant">Montant de l’achat (€) · ${String(reglage.taux).replace('.', ',')} point${reglage.taux > 1 ? 's' : ''} par euro</label>
+      <input id="montant" name="montant" type="text" inputmode="decimal" placeholder="25,00" autocomplete="off" required></div>
+      <button class="plein" type="submit">Ajouter les points</button>
+    </form>
+    ${offrables.length ? `<section aria-label="Cadeaux disponibles" class="champs"><p class="petit">Cadeaux disponibles</p>${offrables
+      .map(([x, i]) => `<form method="post"><input type="hidden" name="action" value="offrir"><input type="hidden" name="cadeau" value="${i}"><button class="cadeau-btn" type="submit">Offrir : ${echapper(x.nom)} · ${x.points} pts</button></form>`)
+      .join('')}</section>` : ''}
+    ${reglage.cadeaux.length ? '' : `<div class="bloc"><p class="doux">Aucun cadeau pour l’instant. Ajoutez-les dans le tableau de bord.</p></div>`}
+    <details class="bloc"><summary class="petit">Corriger</summary>
+      <form method="post" class="champs" style="margin-top:14px"><input type="hidden" name="action" value="corriger">
+        <div><label for="corr">Points à retirer</label><input id="corr" name="points" type="number" min="1" max="${pts}" inputmode="numeric"></div>
+        <button type="submit">Retirer</button></form>
+    </details>
+    <a class="bouton" href="/pro">Tableau de bord</a>
+    ${pied}`,
+    });
+  }
+
+  const seuil = reglage.seuil;
+  const prete = carte.tampons >= seuil && !carte.terminee;
+  const pct = Math.min(100, Math.round((carte.tampons / seuil) * 100));
   return page({
     titre: `${c.nom} · carte ${carte.code}`,
     accent: c.couleur,
-    corps: `<span class="badge">Mode commerçant · ${echapper(c.nom)}</span>
-    ${flash ? `<p class="flash" role="status">${echapper(flash)}</p>` : ''}
-    <header><p class="petit">Carte ${echapper(carte.code.toUpperCase())}</p>
-      <p class="doux" style="margin-top:8px">Dernière visite : ${depuis} · ${carte.visites} visite${carte.visites > 1 ? 's' : ''} au total · ${carte.recompenses} récompense${carte.recompenses > 1 ? 's' : ''}</p></header>
+    corps: `${entete}
     <section aria-label="Niveau du client">
-      <p class="compte"><b>${carte.tampons}</b><span>/ ${seuil}</span></p>
-      <div class="barre" style="margin-top:16px"><i style="width:${pct}%"></i></div>
+      <p class="compte"><b>${carte.terminee ? seuil : carte.tampons}</b><span>/ ${seuil}</span></p>
+      <div class="barre" style="margin-top:16px"><i style="width:${carte.terminee ? 100 : pct}%"></i></div>
     </section>
     ${prete ? `<div class="bloc"><p class="petit">Récompense due</p><p class="recompense">${echapper(reglage.recompense || 'Récompense')}</p></div>` : ''}
-    <div class="boutons">
+    ${carte.terminee
+      ? `<div class="bloc"><p class="petit">Carte complète</p><p class="doux" style="margin-top:6px">La récompense a été remise.</p></div>
+    <form method="post"><input type="hidden" name="action" value="relancer"><button class="plein" type="submit">Relancer la carte</button></form>`
+      : `<div class="boutons">
       <form method="post"><input type="hidden" name="action" value="tampon"><button class="plein" type="submit">+ 1 tampon</button></form>
       <form method="post"><input type="hidden" name="action" value="retrait"><button type="submit" aria-label="Retirer un tampon">− 1</button></form>
-    </div>
+    </div>`}
     ${prete ? `<form method="post"><input type="hidden" name="action" value="recompense"><button class="plein" type="submit">Récompense remise</button></form>` : ''}
     <a class="bouton" href="/pro">Tableau de bord</a>
     ${pied}`,
@@ -167,12 +262,20 @@ export function pagePro(c, carte, reglage, flash = '') {
 }
 
 export function pageTableau(c, stats, reglage, flash = '') {
+  const pts = reglage.mode === 'points';
+  const lignesCadeaux = [0, 1, 2, 3, 4, 5]
+    .map((i) => {
+      const x = reglage.cadeaux[i] || { nom: '', points: '' };
+      return `<div class="cadeau"><input name="cadeau_nom_${i}" maxlength="60" value="${echapper(x.nom)}" placeholder="${['Café offert', 'Soin offert', '-10 % sur le prochain achat', '', '', ''][i]}" aria-label="Cadeau ${i + 1}">
+        <input name="cadeau_points_${i}" type="number" min="1" max="100000" value="${x.points}" placeholder="${['50', '150', '300', '', '', ''][i]}" inputmode="numeric" aria-label="Points pour le cadeau ${i + 1}"></div>`;
+    })
+    .join('');
   return page({
     titre: `${c.nom} · tableau de bord`,
     accent: c.couleur,
     corps: `<span class="badge">Espace commerçant</span>
     ${flash ? `<p class="flash" role="status">${echapper(flash)}</p>` : ''}
-    <header>${enTete(c)}<p class="doux" style="margin-top:12px">Pour ajouter un tampon, scannez la carte du client avec ce téléphone.</p></header>
+    <header>${enTete(c)}<p class="doux" style="margin-top:12px">Pour ajouter ${pts ? 'des points' : 'un tampon'}, scannez la carte du client avec ce téléphone.</p></header>
     ${c.actif ? '' : `<div class="bloc"><p class="petit">Abonnement arrêté</p><p class="doux" style="margin-top:6px">Vos cartes affichent « Ce programme n’est plus actif ».</p></div>`}
     <section aria-label="Ce mois-ci">
       <p class="petit" style="margin-bottom:12px">Ce mois-ci</p>
@@ -184,11 +287,26 @@ export function pageTableau(c, stats, reglage, flash = '') {
       </div>
       <p class="doux" style="margin-top:12px;font-size:14px">Mois précédent : ${stats.visitesMoisPrec} visites. Cartes en circulation : ${stats.cartesActives} sur ${stats.cartes}.</p>
     </section>
-    <section aria-label="Réglages">
-      <p class="petit" style="margin-bottom:12px">Votre récompense</p>
-      <form method="post" action="/pro/reglages" class="champs">
-        <div><label for="seuil">Tampons nécessaires</label><input id="seuil" name="seuil" type="number" min="3" max="30" value="${reglage.seuil}" inputmode="numeric"></div>
-        <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" value="${echapper(reglage.recompense)}" placeholder="Le dessert offert"></div>
+    <section aria-label="Vos récompenses">
+      <p class="petit" style="margin-bottom:12px">Vos récompenses</p>
+      <form method="post" action="/pro/reglages" class="champs reglages">
+        <fieldset class="choix"><legend class="doux">Votre système</legend>
+          <label class="option"><input type="radio" name="mode" value="tampons" id="mode-tampons"${pts ? '' : ' checked'}><span><b>Tampons</b>Un passage, un tampon. Une récompense au bout.</span></label>
+          <label class="option"><input type="radio" name="mode" value="points" id="mode-points"${pts ? ' checked' : ''}><span><b>Points</b>Des points selon le montant, des cadeaux à vos prix.</span></label>
+        </fieldset>
+        <div class="si-tampons champs">
+          <div><label for="seuil">Tampons nécessaires</label><input id="seuil" name="seuil" type="number" min="3" max="30" value="${reglage.seuil}" inputmode="numeric"></div>
+          <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" value="${echapper(reglage.recompense)}" placeholder="La coupe offerte"></div>
+          <fieldset class="choix"><legend class="doux">Une fois la récompense remise</legend>
+            <label class="option"><input type="radio" name="apres" value="recommence"${reglage.apres === 'termine' ? '' : ' checked'}><span><b>La carte recommence</b>Le client repart pour un tour.</span></label>
+            <label class="option"><input type="radio" name="apres" value="termine"${reglage.apres === 'termine' ? ' checked' : ''}><span><b>La carte s’arrête</b>Vous la relancez quand vous voulez, en la scannant.</span></label>
+          </fieldset>
+        </div>
+        <div class="si-points champs">
+          <div><label for="taux">Points par euro dépensé</label><input id="taux" name="taux" type="text" inputmode="decimal" value="${String(reglage.taux).replace('.', ',')}"></div>
+          <div><p class="doux" style="font-size:13px;margin:0 0 6px">Vos cadeaux et leur prix en points</p><div class="champs" style="gap:8px">${lignesCadeaux}</div></div>
+        </div>
+        <p class="doux" style="font-size:13px">Changer de système remet les cartes à zéro.</p>
         <button class="plein" type="submit">Enregistrer</button>
       </form>
     </section>

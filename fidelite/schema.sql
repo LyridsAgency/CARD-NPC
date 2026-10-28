@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS cartes (
   tampons INTEGER NOT NULL DEFAULT 0, -- tampons en cours
   visites INTEGER NOT NULL DEFAULT 0, -- total des tampons donnés
   recompenses INTEGER NOT NULL DEFAULT 0,
+  terminee INTEGER NOT NULL DEFAULT 0, -- carte complétée (si le commerçant ne la fait pas recommencer)
   creee TEXT NOT NULL,
   derniere_visite TEXT
 );
@@ -17,8 +18,9 @@ CREATE TABLE IF NOT EXISTS evenements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   carte TEXT NOT NULL,
   commerce TEXT NOT NULL,
-  type TEXT NOT NULL,                 -- tampon | retrait | recompense | vue
-  a TEXT NOT NULL                     -- date ISO
+  type TEXT NOT NULL,                 -- tampon (une visite, en tampons ou en points) | retrait | recompense | vue
+  a TEXT NOT NULL,                    -- date ISO
+  valeur INTEGER                      -- points gagnés ou dépensés
 );
 CREATE INDEX IF NOT EXISTS evenements_commerce_a ON evenements (commerce, a);
 CREATE INDEX IF NOT EXISTS evenements_carte_a ON evenements (carte, a);
@@ -30,11 +32,16 @@ CREATE TABLE IF NOT EXISTS acces_pro (
   creee TEXT NOT NULL
 );
 
--- Réglages modifiés par le commerçant (sinon : valeurs de la fiche Shopify)
+-- Réglages choisis par le commerçant dans son espace (sinon : valeurs de la fiche du commerce)
+-- Le compteur cartes.tampons contient des tampons ou des points selon le mode.
 CREATE TABLE IF NOT EXISTS reglages (
   commerce TEXT PRIMARY KEY,
   seuil INTEGER,
   recompense TEXT,
+  mode TEXT,                          -- tampons | points
+  apres TEXT,                         -- recommence | termine
+  taux REAL,                          -- points par euro
+  cadeaux TEXT,                       -- JSON [{"nom":…,"points":…}]
   modifie TEXT NOT NULL
 );
 
@@ -55,3 +62,5 @@ CREATE TABLE IF NOT EXISTS commerces (
   lien_site TEXT,
   modifie TEXT NOT NULL
 );
+
+-- Bases déjà créées : appliquer migrations/0002_points.sql
