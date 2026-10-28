@@ -82,7 +82,7 @@
             "badge": "À votre image",
             "text": "Votre couleur, votre nom, votre logo, placés où vous voulez. Vous la voyez en 3D avant de commander.",
             "price_note": "Paiement unique · dès 100 cartes",
-            "features": "Couleur, texte et logo libres\nRecto et verso\nCouleur de la fenêtre NFC\nPVC ou métal",
+            "features": "Couleur, texte et logo libres\nRecto et verso\nCouleur de la fenêtre NFC\nPVC ou métal\nOption fidélité possible",
             "button_label": "Composer",
             "product": "cartes-sur-mesure"
           }
@@ -90,14 +90,15 @@
         "offre_1": {
           "type": "offre",
           "settings": {
-            "title": "Fidélité",
-            "badge": "Le programme complet",
-            "text": "Vos cartes à votre logo, et le programme qui les fait vivre : tampons, récompenses, suivi.",
-            "price_note": "+ abonnement au programme, 29 € / mois",
-            "features": "Base élégante à votre logo et vos couleurs\nLe client voit ses tampons d'un geste\nVous ajoutez un tampon en scannant sa carte\nRécompenses modifiables à tout moment",
-            "button_label": "Choisir Fidélité",
-            "highlight": true,
-            "product": "carte-fidelite"
+            "title": "Option fidélité",
+            "badge": "S’ajoute au sur mesure",
+            "text": "Vos cartes sur mesure deviennent un programme de fidélité : le client scanne, vous validez son passage.",
+            "price_text": "+ 29 € / mois",
+            "price_note": "Sans engagement · résiliable à tout moment",
+            "features": "Le client voit ses tampons d’un geste\nVous ajoutez un tampon en scannant sa carte\nRécompense modifiable à tout moment\nPage à votre logo et vos couleurs",
+            "button_label": "Ajouter à ma carte",
+            "link": "/products/cartes-sur-mesure?fidelite=1",
+            "highlight": true
           }
         }
       },
@@ -393,7 +394,7 @@
     "croissance": {
       "type": "ecru-croissance",
       "settings": {
-        "button_link": "shopify://products/carte-fidelite"
+        "button_link": "/products/cartes-sur-mesure?fidelite=1"
       },
       "blocks": {
         "e1": {

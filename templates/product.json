@@ -3,7 +3,8 @@
     "main": {
       "type": "ecru-produit",
       "settings": {
-        "abonnement": "abonnement-fidelite"
+        "abonnement": "abonnement-fidelite",
+        "option_lien": "option-lien"
       },
       "blocks": {},
       "block_order": []

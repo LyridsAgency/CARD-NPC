@@ -8,6 +8,7 @@
 {%- liquid
   assign current = product.selected_or_first_available_variant
   assign uid = 'ecru-produit-' | append: section.id
+  assign option_lien = all_products[section.settings.option_lien]
   assign contact = settings.ecru_contact_link | default: '/pages/demande-particuliere'
   assign moq_texte = settings.ecru_moq_texte | default: '[À définir]'
   assign lignes_moq = settings.ecru_moq | newline_to_br | split: '<br />'
@@ -31,10 +32,6 @@
   assign est_sur_mesure = false
   if product.tags contains 'sur-mesure'
     assign est_sur_mesure = true
-  endif
-  assign est_fidelite = false
-  if product.tags contains 'fidelite'
-    assign est_fidelite = true
   endif
   comment
     MOQ propre au produit : ligne « Fidélité: 100 » (accents ignorés) pour les produits taggés fidelite
@@ -85,10 +82,12 @@
       <p class="ecru-produit__format">Format carte bancaire · 85,6 × 54 mm</p>
 
       <div class="ecru-produit__prix">
-        {%- render 'price', product: product, use_variant: true -%}
-        {%- unless settings.ecru_prix_a_definir -%}
+        {%- if settings.ecru_prix_a_definir -%}
+          {%- render 'price', product: product, use_variant: true -%}
+        {%- else -%}
+          <span class="ecru-produit__montant" data-ecru-prix>{{ current.price | money }}</span>
           <span class="ecru-produit__unite">la carte</span>
-        {%- endunless -%}
+        {%- endif -%}
       </div>
 
       {%- form 'product', product, id: 'form-produit', class: 'ecru-produit__form', novalidate: 'novalidate', data-ecru-form: '' -%}
@@ -169,7 +168,7 @@
 
               {%- endif -%}
 
-              {%- if forloop.last and est_fidelite == false and est_sur_mesure == false -%}
+              {%- if forloop.last and est_sur_mesure == false -%}
                 <p class="ecru-option__aide">
                   Minimum de commande :
                   <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
@@ -248,7 +247,6 @@
                   </div>
 
                   <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
-              <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
                   <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
                   <input type="hidden" name="properties[Marquage]" value="#e9e4d8" data-ecru-champ="relief">
                   <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
@@ -261,94 +259,7 @@
           </fieldset>
         {%- endif -%}
 
-        {%- if est_fidelite -%}
-          {%- assign etape = etape | plus: 1 -%}
-          <fieldset class="ecru-option ecru-option--fidelite">
-            <legend>
-              <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
-              Votre carte
-            </legend>
-            <p class="ecru-perso__note">La même base élégante pour tous : vous choisissez la couleur, nous y posons votre logo.</p>
-            <div class="ecru-panneau ecru-createur" data-ecru-panneau="fidelite">
-              <div class="ecru-editeur is-fixe" data-ecru-editeur aria-label="Aperçu de votre carte de fidélité" role="img">
-                <div class="ecru-editeur__symbole" aria-hidden="true"></div>
-                <div class="ecru-editeur__nfc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg></div>
-              </div>
-              <p class="ecru-champ__aide">Le logo ECRU s’affiche en attendant le vôtre.</p>
-              <div class="ecru-createur__ligne ecru-createur__ligne--modeles">
-                <span class="ecru-createur__label">Suggestions</span>
-                <div class="ecru-assortiments" role="group" aria-label="Jeux de couleurs suggérés">
-                  {%- assign jeux = 'Noir et graphite:#0d0d0c:#3a3936|Noir et or:#0d0d0c:#b8975a|Crème et noir:#e9e4d8:#121211|Bordeaux et or:#5a1a22:#b8975a|Vert anglais et crème:#1f3a2e:#e9e4d8|Bleu nuit et argent:#1b2440:#c9c8c4' | split: '|' -%}
-                  {%- for j in jeux -%}
-                    {%- assign jj = j | split: ':' -%}
-                    <button type="button" class="ecru-assortiment" data-fond="{{ jj[1] }}" data-fenetre="{{ jj[2] }}" aria-pressed="false" title="{{ jj[0] }}" style="--fond: {{ jj[1] }}; --fenetre: {{ jj[2] }}; --marquage: {{ jj[2] }}">
-                      <span class="ecru-assortiment__carte ecru-assortiment__carte--fenetre" aria-hidden="true"><i></i></span>
-                      <span class="visually-hidden">{{ jj[0] }}</span>
-                    </button>
-                  {%- endfor -%}
-                </div>
-              </div>
-              <div class="ecru-createur__ligne">
-                <span class="ecru-createur__label">Couleur</span>
-                {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
-              </div>
-              <div class="ecru-createur__ligne">
-                <span class="ecru-createur__label">Fenêtre</span>
-                {%- render 'ecru-palette', cible: 'fenetre', teintes: palette_fenetre, libre: '#3a3936', label: 'Couleur de la fenêtre NFC' -%}
-              </div>
-              <div class="ecru-createur__ligne">
-                <span class="ecru-createur__label">Logo *</span>
-                <input
-                  id="{{ uid }}-logo"
-                  class="ecru-outil__fichier"
-                  type="file"
-                  name="properties[Logo]"
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  required
-                  aria-required="true"
-                  data-ecru-fichier
-                >
-                <label for="{{ uid }}-logo" class="ecru-outil">Ajouter</label>
-                <span class="ecru-fichier__nom" data-ecru-fichier-nom></span>
-                <button type="button" class="ecru-outil ecru-outil--discret" data-ecru-logo-retirer hidden>Retirer</button>
-              </div>
-              <p class="ecru-champ__aide">Obligatoire pour commander. PNG ou SVG sur fond transparent de préférence.</p>
-              <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
-              <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
-              <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
-              <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json>
-            </div>
-            <details class="ecru-page-infos">
-              <summary>Votre page (ouverte par la carte)</summary>
-              <p class="ecru-champ__aide">Vous pourrez la compléter ou la modifier plus tard en nous écrivant.</p>
-              <div class="ecru-champ">
-                <label for="{{ uid }}-recompense">Récompense</label>
-                <input id="{{ uid }}-recompense" type="text" name="properties[Récompense]" maxlength="80" placeholder="10 visites : le dessert offert">
-              </div>
-              {%- assign liens = 'Menu:https://…/menu|Avis:https://g.page/…|Réseaux:https://instagram.com/…|Site:https://votre-site.fr' | split: '|' -%}
-              {%- for l in liens -%}
-                {%- assign ll = l | split: ':' -%}
-                <div class="ecru-champ">
-                  <label for="{{ uid }}-lien-{{ forloop.index }}">Lien : {{ ll[0] | downcase }}</label>
-                  <input id="{{ uid }}-lien-{{ forloop.index }}" type="url" inputmode="url" name="properties[Lien {{ ll[0] | downcase }}]" placeholder="{{ l | remove_first: ll[0] | remove_first: ':' }}">
-                </div>
-              {%- endfor -%}
-            </details>
-            {%- if section.settings.abonnement != blank -%}
-              {%- assign abo = section.settings.abonnement -%}
-              <p class="ecru-abonnement">
-                <span>Programme de fidélité</span>
-                <strong>{{ abo.price | money }} / mois</strong>
-              </p>
-            {%- endif -%}
-            <p class="ecru-option__aide">
-              Minimum de commande :
-              <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
-            </p>
-          </fieldset>
-        {%- endif -%}
-
-        {%- if section.settings.show_perso and est_fidelite == false -%}
+        {%- if section.settings.show_perso -%}
           {%- assign etape = etape | plus: 1 -%}
           <fieldset class="ecru-option ecru-perso" data-ecru-liens>
             <legend>
@@ -366,7 +277,37 @@
               </div>
             {%- endfor -%}
             <button type="button" class="ecru-outil" data-ecru-lien-ajout>+ Ajouter un lien</button>
-            <p class="ecru-champ__aide">Un seul lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à vos couleurs qui les réunit. Modifiable plus tard sur simple demande.</p>
+            <p class="ecru-champ__aide">
+              {%- if option_lien != blank -%}+ {{ option_lien.price | money }} par carte et par lien. {% endif -%}
+              Sans lien, la carte reste vierge. Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à vos couleurs qui les réunit.
+            </p>
+          </fieldset>
+        {%- endif -%}
+
+        {%- if est_sur_mesure and section.settings.abonnement != blank -%}
+          {%- assign etape = etape | plus: 1 -%}
+          {%- assign abo = section.settings.abonnement -%}
+          <fieldset class="ecru-option ecru-option--fidelite">
+            <legend>
+              <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
+              Option
+            </legend>
+            <label class="ecru-interrupteur">
+              <input type="checkbox" name="properties[Option fidélité]" value="Oui" data-ecru-fidelite>
+              <span class="ecru-interrupteur__piste" aria-hidden="true"></span>
+              <span class="ecru-interrupteur__texte">
+                <strong>Programme de fidélité</strong>
+                <span>Tampons et récompenses : le client scanne, vous validez. Résiliable à tout moment.</span>
+              </span>
+              <span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>
+            </label>
+            <div class="ecru-fidelite-details" data-ecru-fidelite-details hidden>
+              <div class="ecru-champ">
+                <label for="{{ uid }}-recompense">Récompense</label>
+                <input id="{{ uid }}-recompense" type="text" name="properties[Récompense]" maxlength="80" placeholder="10 visites : le dessert offert" disabled>
+              </div>
+              <p class="ecru-champ__aide">Votre logo est nécessaire : il s’affiche sur la page de fidélité de vos clients. Les liens ci-dessus y apparaissent aussi.</p>
+            </div>
           </fieldset>
         {%- endif -%}
 
@@ -419,6 +360,9 @@
               endif
             endfor
           -%}
+          {%- if moq_produit > 0 -%}
+            {%- assign moq_min = moq_produit -%}
+          {%- endif -%}
           {%- if moq_min > 0 -%}<li>Dès {{ moq_min }} cartes</li>{%- endif -%}
           <li>Sans application pour vos clients</li>
         </ul>
@@ -473,9 +417,13 @@
       "moqTexte": {{ moq_texte | json }},
       "moqProduit": {{ moq_produit }},
       "devise": {{ cart.currency.iso_code | json }},
-      "fidelite": {{ est_fidelite }},
+      "mois": {% if section.settings.abonnement != blank %}{{ section.settings.abonnement.price }}{% else %}0{% endif %},
       "surMesure": {{ est_sur_mesure }},
-      {%- if est_fidelite and section.settings.abonnement != blank -%}
+      "titre": {{ product.title | json }},
+      {%- if option_lien != blank -%}
+        "lien": { "id": {{ option_lien.selected_or_first_available_variant.id }}, "prix": {{ option_lien.price }} },
+      {%- endif -%}
+      {%- if est_sur_mesure and section.settings.abonnement != blank -%}
         {%- assign abo = section.settings.abonnement -%}
         {%- assign plan = abo.selling_plan_groups.first.selling_plans.first -%}
         "abonnement": { "id": {{ abo.selected_or_first_available_variant.id }}, "plan": {{ plan.id | default: 'null' }} },
@@ -494,7 +442,8 @@
   "class": "section-ecru-produit",
   "settings": [
     { "type": "header", "content": "Commande" },
-    { "type": "product", "id": "abonnement", "label": "Produit d'abonnement (offre Fidélité)", "info": "Ajouté au panier avec les cartes Fidélité, avec sa formule mensuelle (Shopify Subscriptions)." },
+    { "type": "product", "id": "abonnement", "label": "Produit d'abonnement (option Fidélité)", "info": "Proposé en option sur les cartes sur mesure, ajouté au panier avec sa formule mensuelle (Shopify Subscriptions)." },
+    { "type": "text", "id": "option_lien", "label": "Option lien (identifiant du produit)", "default": "option-lien", "info": "Ajoutée au panier une fois par carte et par lien rempli. Vide : les liens sont gratuits." },
     { "type": "checkbox", "id": "show_perso", "label": "Demander le lien (produits avec le tag « simple »)", "default": true },
     { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
     { "type": "text", "id": "contact_label", "label": "Demande particulière", "default": "Demande particulière" },

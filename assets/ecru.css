@@ -2935,8 +2935,100 @@ body::after {
   stroke-width: 1.4;
   stroke-linecap: round;
 }
-.ecru-option--fidelite .ecru-perso__note {
-  margin: 0 0 1.6rem;
+.ecru-produit__montant {
+  font-family: var(--font-heading-family);
+  font-size: 2.4rem;
+  color: var(--ecru-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Option fidélité : un interrupteur, le détail s'ouvre dessous */
+.ecru-interrupteur,
+.ecru-option label.ecru-interrupteur {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1.6rem;
+  width: 100%;
+  min-height: 0;
+  padding: 1.8rem 2rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  font-size: inherit;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: border-color 0.5s var(--ecru-ease);
+}
+.ecru-interrupteur:hover,
+.ecru-interrupteur:has(input:checked) {
+  border-color: var(--ecru-muted);
+}
+.ecru-interrupteur input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ecru-interrupteur__piste {
+  position: relative;
+  width: 4rem;
+  height: 2.2rem;
+  border: 1px solid var(--ecru-muted);
+  border-radius: 999px;
+  transition: background 0.4s var(--ecru-ease);
+}
+.ecru-interrupteur__piste::after {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--ecru-muted);
+  transition: transform 0.4s var(--ecru-ease), background 0.4s;
+}
+.ecru-interrupteur input:checked + .ecru-interrupteur__piste {
+  background: var(--ecru-text);
+  border-color: var(--ecru-text);
+}
+.ecru-interrupteur input:checked + .ecru-interrupteur__piste::after {
+  transform: translateX(1.8rem);
+  background: var(--ecru-bg);
+}
+.ecru-interrupteur input:focus-visible + .ecru-interrupteur__piste {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 3px;
+}
+.ecru-interrupteur__texte {
+  display: grid;
+  gap: 0.4rem;
+}
+.ecru-interrupteur__texte strong {
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--ecru-text);
+}
+.ecru-interrupteur__texte span {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--ecru-muted);
+}
+.ecru-interrupteur__prix {
+  font-size: 1.3rem;
+  white-space: nowrap;
+  color: var(--ecru-text);
+}
+@media (max-width: 480px) {
+  .ecru-interrupteur,
+  .ecru-option label.ecru-interrupteur {
+    grid-template-columns: auto 1fr;
+  }
+  .ecru-interrupteur__prix {
+    grid-column: 2;
+  }
+}
+.ecru-fidelite-details {
+  margin-top: 1.6rem;
 }
 .ecru-abonnement {
   display: flex;
@@ -3307,4 +3399,33 @@ body::after {
   line-height: 1;
   text-transform: uppercase;
   color: var(--ecru-text);
+}
+.ecru-devis__detail {
+  margin: 2rem 0 0;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--ecru-border);
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+.ecru-devis__detail div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.6rem;
+  padding: 0.5rem 0;
+}
+.ecru-devis__detail dt {
+  color: var(--ecru-muted);
+}
+.ecru-devis__detail dd {
+  margin: 0;
+  color: var(--ecru-text);
+  white-space: nowrap;
+}
+.ecru-devis__groupe input:disabled + label {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.ecru-interrupteur:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

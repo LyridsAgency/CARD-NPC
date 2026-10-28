@@ -55,26 +55,27 @@
       <input type="hidden" name="contact[Estimation affichée]" value="" data-ecru-estimation-champ>
 
       {%- liquid
-        assign offres = 'cartes-simples:Cartes simples|cartes-sur-mesure:Sur mesure|carte-fidelite:Fidélité' | split: '|'
-        assign quantites = '50|100|250|500|1000' | split: '|'
+        assign simple = all_products['cartes-simples']
+        assign mesure = all_products['cartes-sur-mesure']
+        assign lien = all_products['option-lien']
+        assign abo = all_products['abonnement-fidelite']
+        assign quantites = '10|50|100|250|500|1000' | split: '|'
       -%}
       <fieldset class="ecru-option ecru-devis__groupe">
-        <legend><span class="ecru-option__etape" aria-hidden="true">01</span>Votre projet</legend>
+        <legend><span class="ecru-option__etape" aria-hidden="true">01</span>La carte</legend>
         <div class="ecru-option__choix">
-          {%- for o in offres -%}
-            {%- assign oo = o | split: ':' -%}
-            <input type="radio" id="devis-type-{{ forloop.index }}" name="contact[Type de carte]" value="{{ oo[1] }}" data-ecru-devis="type" {% if forloop.index == 2 %}checked{% endif %}>
-            <label for="devis-type-{{ forloop.index }}">{{ oo[1] }}</label>
-          {%- endfor -%}
-          <input type="radio" id="devis-type-4" name="contact[Type de carte]" value="Je ne sais pas" data-ecru-devis="type">
-          <label for="devis-type-4">Je ne sais pas</label>
+          <input type="radio" id="devis-type-1" name="contact[Carte]" value="Vierge (noire ou blanche)" data-ecru-devis="type" data-cle="simple">
+          <label for="devis-type-1">Vierge</label>
+          <input type="radio" id="devis-type-2" name="contact[Carte]" value="Sur mesure" data-ecru-devis="type" data-cle="mesure" checked>
+          <label for="devis-type-2">Sur mesure</label>
         </div>
+        <p class="ecru-champ__aide" data-ecru-devis-aide="type"></p>
       </fieldset>
 
       <fieldset class="ecru-option ecru-devis__groupe">
         <legend><span class="ecru-option__etape" aria-hidden="true">02</span>Matière</legend>
         <div class="ecru-option__choix">
-          {%- assign matieres = 'PVC|Métal|À conseiller' | split: '|' -%}
+          {%- assign matieres = 'PVC|Métal' | split: '|' -%}
           {%- for m in matieres -%}
             <input type="radio" id="devis-mat-{{ forloop.index }}" name="contact[Matière]" value="{{ m }}" data-ecru-devis="matiere" {% if forloop.first %}checked{% endif %}>
             <label for="devis-mat-{{ forloop.index }}">{{ m }}</label>
@@ -83,7 +84,31 @@
       </fieldset>
 
       <fieldset class="ecru-option ecru-devis__groupe">
-        <legend><span class="ecru-option__etape" aria-hidden="true">03</span>Quantité</legend>
+        <legend><span class="ecru-option__etape" aria-hidden="true">03</span>Liens sur la puce</legend>
+        <div class="ecru-option__choix">
+          {%- for n in (0..4) -%}
+            <input type="radio" id="devis-liens-{{ n }}" name="contact[Liens]" value="{{ n }}" data-ecru-devis="liens" {% if n == 1 %}checked{% endif %}>
+            <label for="devis-liens-{{ n }}">{% if n == 0 %}Aucun{% else %}{{ n }}{% endif %}</label>
+          {%- endfor -%}
+        </div>
+        <p class="ecru-champ__aide">Menu, avis Google, Instagram, site… {% if lien != blank %}+ {{ lien.price | money }} par carte et par lien.{% endif %}</p>
+      </fieldset>
+
+      <fieldset class="ecru-option ecru-devis__groupe" data-ecru-devis-fidelite>
+        <legend><span class="ecru-option__etape" aria-hidden="true">04</span>Option</legend>
+        <label class="ecru-interrupteur">
+          <input type="checkbox" name="contact[Option fidélité]" value="Oui" data-ecru-devis="fidelite">
+          <span class="ecru-interrupteur__piste" aria-hidden="true"></span>
+          <span class="ecru-interrupteur__texte">
+            <strong>Programme de fidélité</strong>
+            <span data-ecru-devis-aide="fidelite">Tampons et récompenses, sur les cartes sur mesure.</span>
+          </span>
+          {%- if abo != blank -%}<span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>{%- endif -%}
+        </label>
+      </fieldset>
+
+      <fieldset class="ecru-option ecru-devis__groupe">
+        <legend><span class="ecru-option__etape" aria-hidden="true">05</span>Quantité</legend>
         <div class="ecru-option__choix">
           {%- for q in quantites -%}
             <input type="radio" id="devis-q-{{ q }}" name="contact[Quantité]" value="{% if forloop.last %}1000 et plus{% else %}{{ q }}{% endif %}" data-ecru-devis="quantite" data-q="{{ q }}" {% if q == '100' %}checked{% endif %}>
@@ -95,11 +120,11 @@
       <div class="ecru-devis__estimation" aria-live="polite">
         <p class="ecru-devis__label">Estimation</p>
         <p class="ecru-devis__montant" data-ecru-estimation>—</p>
-        <p class="ecru-champ__aide" data-ecru-estimation-detail></p>
+        <dl class="ecru-devis__detail" data-ecru-estimation-detail></dl>
       </div>
 
       <fieldset class="ecru-option ecru-devis__groupe">
-        <legend><span class="ecru-option__etape" aria-hidden="true">04</span>Vos coordonnées</legend>
+        <legend><span class="ecru-option__etape" aria-hidden="true">06</span>Vos coordonnées</legend>
         <div class="ecru-demande__ligne">
           <div class="ecru-champ">
             <label for="demande-nom">Nom <span aria-hidden="true">*</span></label>
@@ -133,20 +158,18 @@
   </div>
 </section>
 
+{%- comment -%} Prix en centimes, lus dans la boutique : modifier un prix dans Shopify met le devis à jour {%- endcomment -%}
 <script type="application/json" id="ecru-devis-prix">
   {
-    {%- for o in offres -%}
-      {%- assign oo = o | split: ':' -%}
-      {%- assign p = all_products[oo[0]] -%}
-      {{ oo[1] | json }}: {
-        {%- assign premier = true -%}
-        {%- for v in p.variants -%}
-          {%- if premier == false -%},{%- endif -%}
-          {{ v.option1 | json }}: {{ v.price }}
-          {%- assign premier = false -%}
-        {%- endfor -%}
-      }{%- unless forloop.last -%},{%- endunless -%}
-    {%- endfor -%}
+    "simple": {
+      {%- for v in simple.variants -%}{{ v.option1 | json }}: {{ v.price }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}
+    },
+    "mesure": {
+      {%- for v in mesure.variants -%}{{ v.option1 | json }}: {{ v.price }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}
+    },
+    "moq": { "simple": 10, "mesure": 100 },
+    "lien": {{ lien.price | default: 0 }},
+    "mois": {{ abo.price | default: 0 }}
   }
 </script>
 <script>
@@ -155,45 +178,69 @@
     if (!form) return;
     var prix = {};
     try { prix = JSON.parse(document.getElementById('ecru-devis-prix').textContent); } catch (e) {}
-    var argent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: {{ cart.currency.iso_code | json }}, maximumFractionDigits: 0 });
-    var argentPrecis = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: {{ cart.currency.iso_code | json }} });
+    var devise = {{ cart.currency.iso_code | json }};
+    var argent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: devise, maximumFractionDigits: 0 });
+    var argentPrecis = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: devise });
     var montant = form.querySelector('[data-ecru-estimation]');
     var detail = form.querySelector('[data-ecru-estimation-detail]');
     var champ = form.querySelector('[data-ecru-estimation-champ]');
-    function val(nom) {
-      var r = form.querySelector('[data-ecru-devis="' + nom + '"]:checked');
-      return r ? r : null;
+    var caseFid = form.querySelector('[data-ecru-devis="fidelite"]');
+    var aideFid = form.querySelector('[data-ecru-devis-aide="fidelite"]');
+    var aideType = form.querySelector('[data-ecru-devis-aide="type"]');
+    function choisi(nom) {
+      return form.querySelector('[data-ecru-devis="' + nom + '"]:checked');
+    }
+    function ligne(dt, dd) {
+      return '<div><dt>' + dt + '</dt><dd>' + dd + '</dd></div>';
     }
     function maj() {
-      var type = val('type') && val('type').value;
-      var matiere = val('matiere') && val('matiere').value;
-      var q = val('quantite') ? parseInt(val('quantite').dataset.q, 10) : 0;
-      var grille = prix[type];
-      var texte = '';
-      var aide = '';
-      if (!grille || matiere === 'À conseiller') {
-        texte = 'Sur devis';
-        aide = 'Nous vous conseillons la meilleure option.';
-      } else if (q >= 1000) {
-        texte = 'Sur devis';
-        aide = 'Au-delà de 1 000 cartes, un prix dégressif vous est proposé.';
-      } else {
-        var unit = (grille[matiere] || grille.PVC) / 100;
-        texte = 'environ ' + argent.format(unit * q);
-        aide = q + ' cartes × ' + argentPrecis.format(unit) + ' · hors livraison' + (type === 'Fidélité' ? ' · + abonnement au programme' : '');
+      var cle = choisi('type').dataset.cle;
+      var matiere = choisi('matiere').value;
+      var liens = parseInt(choisi('liens').value, 10) || 0;
+      var moq = prix.moq[cle];
+      // Quantités sous le minimum : grisées
+      form.querySelectorAll('[data-ecru-devis="quantite"]').forEach(function (r) {
+        r.disabled = parseInt(r.dataset.q, 10) < moq;
+      });
+      if (choisi('quantite') === null || choisi('quantite').disabled) {
+        form.querySelector('[data-ecru-devis="quantite"][data-q="' + moq + '"]').checked = true;
       }
+      var q = parseInt(choisi('quantite').dataset.q, 10);
+      // La fidélité s'ajoute au sur mesure
+      caseFid.disabled = cle !== 'mesure';
+      if (caseFid.disabled) caseFid.checked = false;
+      aideFid.textContent = caseFid.disabled ? 'Disponible avec les cartes sur mesure.' : 'Tampons et récompenses : le client scanne, vous validez.';
+      aideType.textContent = cle === 'mesure' ? 'Votre couleur, votre texte, votre logo. Dès ' + moq + ' cartes.' : 'Noire ou blanche, sans marquage. Dès ' + moq + ' cartes.';
+
+      var unite = (prix[cle] && (prix[cle][matiere] || Object.values(prix[cle])[0])) || 0;
+      var html = ligne(q + ' cartes ' + matiere + ' × ' + argentPrecis.format(unite / 100), argent.format((q * unite) / 100));
+      var total = q * unite;
+      if (liens) {
+        html += ligne(liens + (liens > 1 ? ' liens' : ' lien') + ' × ' + q + ' cartes × ' + argentPrecis.format(prix.lien / 100), argent.format((q * liens * prix.lien) / 100));
+        total += q * liens * prix.lien;
+      }
+      var texte;
+      if (q >= 1000) {
+        texte = 'Sur devis';
+        html += ligne('Au-delà de 1 000 cartes', 'prix dégressif');
+      } else {
+        texte = argent.format(total / 100);
+        html += ligne('Livraison', 'en sus');
+      }
+      if (caseFid.checked) html += ligne('Option fidélité', argentPrecis.format(prix.mois / 100) + ' / mois');
       montant.textContent = texte;
-      detail.textContent = aide;
-      champ.value = texte + (aide ? ' (' + aide + ')' : '');
+      detail.innerHTML = html;
+      champ.value = texte + ' — ' + detail.innerText.replace(/\n+/g, ' · ');
     }
     form.addEventListener('change', maj);
     var produit = new URLSearchParams(window.location.search).get('produit');
     var source = form.querySelector('[data-ecru-produit-source]');
     if (produit && source) source.value = produit;
     if (produit) {
-      var t = /fid/i.test(produit) ? 'Fidélité' : /simple/i.test(produit) ? 'Cartes simples' : /mesure/i.test(produit) ? 'Sur mesure' : '';
-      var r = t && form.querySelector('[data-ecru-devis="type"][value="' + t + '"]');
+      var fid = /fid/i.test(produit);
+      var r = form.querySelector('[data-ecru-devis="type"][data-cle="' + (/simple/i.test(produit) ? 'simple' : 'mesure') + '"]');
       if (r) r.checked = true;
+      if (fid) caseFid.checked = true;
     }
     maj();
   })();
@@ -206,7 +253,7 @@
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Sur mesure" },
     { "type": "text", "id": "heading", "label": "Titre", "default": "Votre devis." },
-    { "type": "textarea", "id": "text", "label": "Texte", "default": "Trois choix, une estimation tout de suite, un devis précis par e-mail." },
+    { "type": "textarea", "id": "text", "label": "Texte", "default": "Cinq choix, le prix tout de suite, un devis précis par e-mail." },
     { "type": "textarea", "id": "points", "label": "Exemples (un par ligne)", "default": "Festivals et soirées\nGrandes quantités\nCouleurs et designs sur mesure\nFinitions spéciales" },
     { "type": "text", "id": "button_label", "label": "Bouton", "default": "Recevoir mon devis" },
     { "type": "text", "id": "success", "label": "Message après envoi", "default": "Votre demande est bien partie. Nous revenons vers vous par e-mail." },

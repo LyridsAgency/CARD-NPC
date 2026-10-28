@@ -1,9 +1,9 @@
 {%- comment -%}
   ECRU — Aperçu de la page de fidélité : ce que voit le client quand il scanne sa carte,
   et ce que voit le commerçant quand il scanne la même carte avec son téléphone.
-  Ne s'affiche que sur les produits taggés « fidelite » (ou partout si l'option est cochée).
+  Ne s'affiche que sur les produits taggés « sur-mesure » (option fidélité) (ou partout si l'option est cochée).
 {%- endcomment -%}
-{%- if section.settings.partout or product == blank or product.tags contains 'fidelite' -%}
+{%- if section.settings.partout or product == blank or product.tags contains 'sur-mesure' -%}
 <section
   class="ecru-section ecru-apercu"
   style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
@@ -69,7 +69,7 @@
   "name": "Aperçu fidélité ECRU",
   "tag": "div",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "La page de fidélité" },
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Option fidélité" },
     { "type": "text", "id": "heading", "label": "Titre", "default": "Une carte, deux regards." },
     { "type": "text", "id": "text", "label": "Texte", "default": "Le même scan affiche la progression au client, et le tableau de bord à vous." },
     { "type": "text", "id": "note", "label": "Note", "default": "Exemple d’affichage. Votre page reprend votre logo et vos couleurs." },
