@@ -235,6 +235,13 @@
           </fieldset>
         {%- endif -%}
 
+        {%- comment -%} Blocs d'applications (ex. choix d'abonnement de Shopify Subscriptions) {%- endcomment -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == '@app' -%}
+            <div class="ecru-produit__app">{% render block %}</div>
+          {%- endif -%}
+        {%- endfor -%}
+
         <div class="ecru-produit__achat">
           <div class="ecru-produit__quantite">
             <button type="button" data-ecru-qte="-1" aria-label="Retirer une carte">−</button>
@@ -283,9 +290,10 @@
         <div class="ecru-produit__description rte">{{ product.description }}</div>
       {%- endif -%}
 
-      {%- if section.blocks.size > 0 -%}
+      {%- assign details = section.blocks | where: 'type', 'details' -%}
+      {%- if details.size > 0 -%}
         <div class="ecru-produit__details ecru-faq">
-          {%- for block in section.blocks -%}
+          {%- for block in details -%}
             <details {{ block.shopify_attributes }}>
               <summary>{{ block.settings.title | escape }}</summary>
               <div class="ecru-faq__reponse">{{ block.settings.content }}</div>
@@ -346,6 +354,7 @@
     { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
   ],
   "blocks": [
+    { "type": "@app" },
     {
       "type": "details",
       "name": "Détail repliable",

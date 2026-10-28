@@ -2907,3 +2907,12 @@ body::after {
     transform: translate(-50%, -2%) rotate(-8deg);
   }
 }
+
+/* Blocs d'applications dans la fiche produit (abonnement…) */
+.ecru-produit__app {
+  margin: 0 0 2.4rem;
+  color: var(--ecru-text);
+}
+.ecru-produit__app:empty {
+  display: none;
+}
