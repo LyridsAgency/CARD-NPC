@@ -23,6 +23,7 @@ import {
   BoxGeometry,
   BackSide,
   DoubleSide,
+  Vector3,
 } from 'three';
 
 // Dimensions réelles (cm) : 85,6 × 54 mm, rayon ISO 3,18 mm. Épaisseur légèrement accentuée pour la lire.
@@ -661,6 +662,17 @@ export async function mount(el) {
   };
   let sw = 1;
   let sh = 1;
+  let dist0 = 1;
+  let rapproche = 1;
+  // En édition, la carte se rapproche : plus sur téléphone, où la scène est petite
+  function placerCamera(z) {
+    if (Math.abs(z - rapproche) < 0.0005 && dist0 === placerCamera.d) return;
+    rapproche = z;
+    placerCamera.d = dist0;
+    const d = dist0 / z;
+    camera.position.set(0, Math.sin(ELEV) * d, Math.cos(ELEV) * d);
+    camera.lookAt(0, 0, 0);
+  }
   function resize() {
     const r = stage.getBoundingClientRect();
     sw = Math.max(1, r.width);
@@ -669,9 +681,9 @@ export async function mount(el) {
     camera.aspect = sw / sh;
     const fracW = Math.min(FIT, ((FIT_H * sh) / sw) * (W / H));
     const visibleW = W / fracW;
-    const dist = visibleW / (2 * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect) / pose.zoom;
-    camera.position.set(0, Math.sin(ELEV) * dist, Math.cos(ELEV) * dist);
-    camera.lookAt(0, 0, 0);
+    dist0 = visibleW / (2 * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect) / pose.zoom;
+    placerCamera.d = null;
+    placerCamera(rapproche);
     camera.updateProjectionMatrix();
     el.style.setProperty('--ecru-card-w', `${fracW * 100}%`);
   }
@@ -695,6 +707,10 @@ export async function mount(el) {
     drag: null,
     vel: 0,
     libreApres: 0,
+    // Édition : la carte se pose de face, immobile, et sert de surface au créateur
+    edition: null,
+    ed: 0,
+    pitch0: -0.05,
   };
   el.__ecruEtat = state; // lecture seule, pour les tests
   const SPIN = 0.2; // rad/s : un tour en ~31 s
@@ -717,7 +733,7 @@ export async function mount(el) {
 
   // Glisser pour tourner la carte (souris ou doigt, à l'horizontale ; le défilement vertical reste libre)
   stage.addEventListener('pointerdown', (e) => {
-    if (pose.fixe || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    if (pose.fixe || state.edition || (e.pointerType === 'mouse' && e.button !== 0)) return;
     state.drag = { x: e.clientX, yaw: state.yaw, lx: e.clientX, lt: performance.now() };
     state.view = null;
     state.vel = 0;
@@ -780,6 +796,17 @@ export async function mount(el) {
     if (detail.present) state.presentUntil = t + 4;
     applyLook({ ...current, ...detail });
   });
+  // Édition : { face: 'recto' | 'verso' } pour poser la carte de face, { face: null } pour la libérer
+  el.addEventListener('ecru:edition', (e) => {
+    const f = e.detail && e.detail.face;
+    state.edition = f === 'recto' || f === 'verso' ? f : null;
+    state.view = null;
+    state.drag = null;
+    state.vel = 0;
+    el.classList.toggle('is-edition', !!state.edition);
+    if (!state.edition) el.classList.remove('is-calee');
+    start();
+  });
   el.addEventListener('ecru:avantages', (e) => (state.lecture = !!e.detail));
   // Points de vue : recto, verso, profil ; 'auto' relance la rotation
   const VUES = { recto: 0, verso: Math.PI, profil: 1.25 };
@@ -787,6 +814,36 @@ export async function mount(el) {
     const v = e.detail && e.detail.view;
     state.view = v in VUES ? VUES[v] : null;
   });
+
+  // Édition : quand la carte est posée de face, on publie sa place à l'écran (px, dans la scène)
+  // pour que le créateur y superpose ses poignées, exactement sur la carte.
+  const coin = new Vector3();
+  let calage = '';
+  function caler(cible) {
+    const posee = state.edition && state.ed > 0.995 && Math.abs(state.yaw - cible) < 0.002 && Math.abs(state.pitch0 - (state.edition === 'verso' ? ELEV : -ELEV)) < 0.002;
+    if (!posee) {
+      if (el.classList.contains('is-calee')) el.classList.remove('is-calee');
+      return;
+    }
+    pivot.updateMatrixWorld(true);
+    const z = state.edition === 'verso' ? -zFace : zFace;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [x, y] of [[-W / 2, H / 2], [W / 2, H / 2], [W / 2, -H / 2], [-W / 2, -H / 2]]) {
+      coin.set(x, y, z).applyMatrix4(card.matrixWorld).project(camera);
+      const px = ((coin.x + 1) / 2) * sw;
+      const py = ((1 - coin.y) / 2) * sh;
+      x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+    }
+    const c = [x0, y0, x1 - x0, y1 - y0].map((v) => v.toFixed(1)).join(',');
+    if (c !== calage) {
+      calage = c;
+      el.style.setProperty('--ed-x', `${x0}px`);
+      el.style.setProperty('--ed-y', `${y0}px`);
+      el.style.setProperty('--ed-w', `${x1 - x0}px`);
+      el.style.setProperty('--ed-h', `${y1 - y0}px`);
+    }
+    if (!el.classList.contains('is-calee')) el.classList.add('is-calee');
+  }
 
   let visible = true;
   let last = performance.now();
@@ -804,7 +861,17 @@ export async function mount(el) {
     state.px += (state.tx - state.px) * k;
     state.py += (state.ty - state.py) * k;
 
-    if (state.drag) {
+    // Inclinaison de face : la carte regarde la caméra (placée un peu au-dessus)
+    const pitchFace = state.edition === 'verso' ? ELEV : -ELEV;
+    state.ed += ((state.edition ? 1 : 0) - state.ed) * (1 - Math.exp(-dt * 6));
+    state.pitch0 += ((state.edition ? pitchFace : -0.05) - state.pitch0) * (1 - Math.exp(-dt * 6));
+    let cibleEdition = 0;
+    if (state.edition) {
+      const tour = Math.PI * 2;
+      const face = state.edition === 'verso' ? Math.PI : 0;
+      cibleEdition = face + Math.round((state.yaw - face) / tour) * tour;
+      state.yaw += (cibleEdition - state.yaw) * (1 - Math.exp(-dt * 6));
+    } else if (state.drag) {
       // La main tient la carte
     } else if (Math.abs(state.vel) > 0.02) {
       // Élan après le geste
@@ -832,10 +899,13 @@ export async function mount(el) {
       state.px = state.py = 0;
     }
     const sway = still || pose.fixe ? 0 : Math.sin(t * 0.45) * 0.05;
+    const libre = 1 - state.ed;
+    placerCamera(1 + ((sw < 600 ? 1.42 : 1.12) - 1) * state.ed);
     pivot.rotation.order = 'YXZ';
-    pivot.rotation.y = state.yaw + state.px * 0.55;
-    pivot.rotation.x = -0.05 + (pose.fixe ? pose.pitch : 0) + state.py * 0.32 + sway;
-    pivot.position.y = still || pose.fixe ? 0 : Math.sin(t * 0.7) * 0.07;
+    pivot.rotation.y = state.yaw + state.px * 0.55 * libre;
+    pivot.rotation.x = state.pitch0 + (pose.fixe ? pose.pitch : 0) + (state.py * 0.32 + sway) * libre;
+    pivot.position.y = still || pose.fixe ? 0 : Math.sin(t * 0.7) * 0.07 * libre;
+    caler(cibleEdition);
 
     // L'ombre est la projection de la tranche au sol : elle tourne avec la carte
     const lift = pivot.position.y;

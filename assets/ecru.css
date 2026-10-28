@@ -3795,3 +3795,74 @@ body::after {
 .ecru-fidelite-reglages .ecru-createur__ligne {
   margin-top: 1.6rem;
 }
+
+/* ----- Sur mesure : on compose directement sur la grande carte --------------------------
+   La 3D pose la carte de face et publie sa place (--ed-*) ; le calque d'édition s'y superpose.
+   Le dessin vient de la 3D : le calque ne garde que les cadres, la sélection et la poignée. */
+.ecru-editeur.ecru-editeur--surcarte {
+  position: absolute;
+  left: var(--ed-x, 0);
+  top: var(--ed-y, 0);
+  width: var(--ed-w, 0);
+  height: var(--ed-h, 0);
+  aspect-ratio: auto;
+  margin: 0;
+  z-index: 3;
+  background: none;
+  box-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ecru-ease);
+}
+.ecru-carte.is-calee .ecru-editeur--surcarte {
+  opacity: 1;
+  pointer-events: auto;
+}
+.ecru-editeur--surcarte .ecru-editeur__nfc,
+.ecru-editeur--surcarte.is-verso .ecru-editeur__symbole {
+  visibility: hidden;
+}
+.ecru-editeur--surcarte .ecru-editeur__el {
+  color: transparent;
+  outline-color: color-mix(in srgb, var(--marquage) 28%, transparent);
+}
+.ecru-editeur--surcarte .ecru-editeur__el--logo .ecru-editeur__contenu {
+  background: transparent;
+}
+.ecru-editeur--surcarte .ecru-editeur__el.is-selection,
+.ecru-editeur--surcarte .ecru-editeur__el:focus-visible {
+  outline: 1px dashed var(--marquage);
+}
+.ecru-carte.is-edition .ecru-carte__vue {
+  cursor: default;
+}
+.ecru-mention-edition,
+.ecru-produit.is-edition .ecru-mention-3d {
+  display: none;
+}
+.ecru-produit.is-edition .ecru-mention-edition {
+  display: inline;
+}
+.ecru-retourner[data-ecru-mode-3d][hidden] {
+  display: none;
+}
+.ecru-produit__sous-carte {
+  flex-wrap: wrap;
+}
+
+/* Mobile : la carte reste en haut de l'écran pendant qu'on règle le design */
+@media (max-width: 989px) {
+  .ecru-produit.is-edition .ecru-produit__visuel {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: var(--ecru-bg);
+    box-shadow: 0 18px 24px -18px rgba(0, 0, 0, 0.95);
+  }
+  .ecru-produit.is-edition .ecru-carte--compact .ecru-carte__vue {
+    height: clamp(230px, 66vw, 420px);
+  }
+  .ecru-produit.is-edition .ecru-produit__sous-carte {
+    padding-bottom: 0.8rem;
+  }
+}

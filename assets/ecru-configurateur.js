@@ -159,9 +159,10 @@
     // Pendant un glissement, la carte 3D suit sans saturer le navigateur
     function rendreBientot() {
       clearTimeout(attente);
+      // Sur la grande carte, le dessin suit le doigt ; sinon on attend la fin du geste
       attente = setTimeout(function () {
         rendre(false);
-      }, 220);
+      }, surCarte ? 40 : 220);
     }
 
     function element(id) {
@@ -698,7 +699,57 @@
         champNom.placeholder = f === 'verso' ? 'Un texte au verso (facultatif)' : 'Votre marque';
       }
       dessinerEditeur();
-      if (!sansVue && carte) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: f } }));
+      if (surCarte && modeEdition) edition(true);
+      else if (!sansVue && carte) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: f } }));
+    }
+
+    // ---------- Édition sur la grande carte ----------
+    // Dès que la 3D est prête, l'éditeur quitte le panneau et se pose sur la grande carte :
+    // la carte se met de face, le calque d'édition (poignées, cadres) suit exactement sa place.
+    // Sans 3D (WebGL indisponible), l'éditeur reste dans le panneau.
+    var surCarte = false;
+    var modeEdition = false;
+    var bouton3d = root.querySelector('[data-ecru-mode-3d]');
+    function edition(on) {
+      modeEdition = on;
+      root.classList.toggle('is-edition', on && surCarte);
+      if (carte) carte.dispatchEvent(new CustomEvent('ecru:edition', { detail: { face: on ? face : null } }));
+      if (bouton3d) {
+        bouton3d.setAttribute('aria-pressed', on ? 'false' : 'true');
+        bouton3d.querySelector('span').textContent = on ? 'Voir en 3D' : 'Modifier';
+      }
+    }
+    function installerSurCarte() {
+      if (surCarte || !editeur || !carte || !data.surMesure || carte.classList.contains('is-fallback')) return;
+      var scene = carte.querySelector('[data-ecru-stage]');
+      if (!scene) return;
+      scene.appendChild(editeur);
+      editeur.classList.add('ecru-editeur--surcarte');
+      surCarte = true;
+      if (bouton3d) bouton3d.hidden = false;
+      edition(true);
+      dessinerEditeur();
+    }
+    if (data.surMesure && carte && editeur) {
+      if (carte.classList.contains('is-ready')) installerSurCarte();
+      else
+        new MutationObserver(function (m, o) {
+          if (!carte.classList.contains('is-ready')) return;
+          o.disconnect();
+          installerSurCarte();
+        }).observe(carte, { attributes: true, attributeFilter: ['class'] });
+      if (bouton3d)
+        bouton3d.addEventListener('click', function () {
+          edition(!modeEdition);
+        });
+      // Toucher un réglage du design repose la carte de face
+      var panneauDesign = form.querySelector('[data-ecru-panneau="design"]');
+      if (panneauDesign)
+        ['pointerdown', 'focusin'].forEach(function (t) {
+          panneauDesign.addEventListener(t, function () {
+            if (surCarte && !modeEdition) edition(true);
+          });
+        });
     }
     boutonsFace.forEach(function (b) {
       b.addEventListener('click', function () {
@@ -851,6 +902,11 @@
     var retourner = root.querySelector('[data-ecru-retourner]');
     if (retourner && carte) {
       retourner.addEventListener('click', function () {
+        if (surCarte && modeEdition) {
+          changerFace(face === 'recto' ? 'verso' : 'recto');
+          retourner.setAttribute('aria-pressed', face === 'verso' ? 'true' : 'false');
+          return;
+        }
         var verso = retourner.getAttribute('aria-pressed') !== 'true';
         retourner.setAttribute('aria-pressed', verso ? 'true' : 'false');
         carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: verso ? 'verso' : 'recto' } }));
