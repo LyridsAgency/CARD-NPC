@@ -283,56 +283,6 @@
         "usage_6"
       ]
     },
-    "vues": {
-      "type": "ecru-vues",
-      "settings": {
-        "surface": false
-      },
-      "blocks": {
-        "vue_1": {
-          "type": "vue",
-          "settings": {
-            "rendu": "recto",
-            "title": "Recto",
-            "text": "La fenêtre NFC, par où passe le signal.",
-            "alt": "Recto de la carte ECRU en métal noir, avec sa fenêtre NFC"
-          }
-        },
-        "vue_2": {
-          "type": "vue",
-          "settings": {
-            "rendu": "verso",
-            "title": "Verso",
-            "text": "Le symbole sans contact.",
-            "alt": "Verso de la carte ECRU en métal noir, avec le symbole sans contact"
-          }
-        },
-        "vue_3": {
-          "type": "vue",
-          "settings": {
-            "rendu": "profil",
-            "title": "Profil",
-            "text": "Format carte bancaire, 85,6 × 54 mm.",
-            "alt": "Carte ECRU en métal noir vue de profil"
-          }
-        },
-        "vue_4": {
-          "type": "vue",
-          "settings": {
-            "rendu": "trois-quarts",
-            "title": "Trois-quarts",
-            "text": "La tranche accroche la lumière.",
-            "alt": "Carte ECRU en métal noir, vue de trois-quarts"
-          }
-        }
-      },
-      "block_order": [
-        "vue_1",
-        "vue_2",
-        "vue_3",
-        "vue_4"
-      ]
-    },
     "assortiments": {
       "type": "ecru-assortiments",
       "settings": {
@@ -462,7 +412,6 @@
     "usages",
     "demo",
     "assortiments",
-    "vues",
     "matieres",
     "fidelite",
     "offres",

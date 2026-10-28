@@ -524,6 +524,7 @@ export async function mount(el) {
   const texW = small ? 1280 : 2048;
   const texH = Math.round((texW * H) / W);
   let current = {};
+  let aRedessiner = true; // une nouvelle apparence demande un dessin, même carte immobile
 
   let lookId = 0;
   // Une promesse par police : un dessin attend toujours la police qu'il utilise, même déjà en cours de chargement
@@ -589,6 +590,7 @@ export async function mount(el) {
   //   { t: 'text', v: 'Texte', x, y, s: taille (part de la hauteur), f: 'display' | 'body', a: 'left' | 'center' | 'right' }
   //   { t: 'logo', u: url, x, y, s: hauteur (part de la hauteur) }
   function drawLook({ color, ink, finish, elements, verso, inlay, fenetre }, images) {
+    aRedessiner = true;
     elements = Array.isArray(elements) ? elements : [];
     verso = Array.isArray(verso) ? verso : [];
     // finish : 'mat' (PVC) ou 'metal' (métal satiné). 'brosse' reste disponible pour un métal brossé.
@@ -895,6 +897,8 @@ export async function mount(el) {
     if (!el.classList.contains('is-calee')) el.classList.add('is-calee');
   }
 
+  let dernierSigne = '';
+  let impair = false;
   let visible = true;
   let last = performance.now();
   let raf = 0;
@@ -963,7 +967,16 @@ export async function mount(el) {
     shadow.scale.set(W * 1.12, 1.25 + Math.abs(Math.sin(pivot.rotation.x)) * 2.5, 1);
     shadowMat.opacity = 0.75 - lift * 1.2;
 
-    renderer.render(scene, camera);
+    // Économie : rien ne bouge → pas de dessin ; rotation automatique sur téléphone → une image sur deux
+    const signe = [pivot.rotation.x, pivot.rotation.y, pivot.position.y, camera.position.z, sw, sh].map((v) => v.toFixed(4)).join();
+    const auRepos = signe === dernierSigne && !aRedessiner;
+    const automatique = !state.drag && !state.hover && !state.edition && state.view === null && Math.abs(state.vel) < 0.02;
+    impair = !impair;
+    if (!auRepos && !(automatique && small && impair)) {
+      renderer.render(scene, camera);
+      dernierSigne = signe;
+      aRedessiner = false;
+    }
     if (!el.classList.contains('is-ready')) el.classList.add('is-ready');
     if (visible && !document.hidden) raf = requestAnimationFrame(frame);
   }

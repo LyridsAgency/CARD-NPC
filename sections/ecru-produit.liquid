@@ -56,7 +56,7 @@
 -%}
 
 <section
-  class="ecru-section ecru-produit"
+  class="ecru-section ecru-produit{% if est_sur_mesure %} ecru-produit--sur-mesure{% endif %}"
   style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
   data-ecru-produit
 >

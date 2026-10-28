@@ -3859,7 +3859,8 @@ body::after {
     background: var(--ecru-bg);
     box-shadow: 0 18px 24px -18px rgba(0, 0, 0, 0.95);
   }
-  .ecru-produit.is-edition .ecru-carte--compact .ecru-carte__vue {
+  /* Taille finale dès le premier affichage : rien ne saute quand l'éditeur se pose sur la carte */
+  .ecru-produit--sur-mesure .ecru-carte--compact .ecru-carte__vue {
     height: clamp(230px, 66vw, 420px);
   }
   .ecru-produit.is-edition .ecru-produit__sous-carte {
