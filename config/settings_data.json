@@ -197,7 +197,8 @@
       "ecru_nom_marque": "ECRU",
       "ecru_moq": "Noir: 10\nBlanc: 10\nSur mesure: 100\nFidélité: 100",
       "ecru_moq_texte": "[À définir]",
-      "ecru_couleurs": "Noir: #0d0d0c\nBlanc: #e9e4d8"
+      "ecru_couleurs": "Noir: #0d0d0c\nBlanc: #e9e4d8",
+      "ecru_cookies": true
     }
   }
 }

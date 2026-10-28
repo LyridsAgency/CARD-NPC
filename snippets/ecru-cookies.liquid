@@ -1,0 +1,94 @@
+{%- comment -%}
+  ECRU — Bannière de cookies, branchée sur l'API de confidentialité de Shopify (Customer Privacy API).
+  - S'affiche seulement si Shopify estime le consentement nécessaire pour ce visiteur (régions réglées dans
+    Paramètres → Confidentialité des clients), et jamais si la bannière de Shopify est déjà là.
+  - Refuser est aussi simple qu'accepter. Le choix est enregistré par Shopify et s'applique à ses services.
+  - Un lien « Gérer les cookies » (attribut data-ecru-cookies-ouvrir) rouvre les réglages.
+{%- endcomment -%}
+<div class="ecru-cookies" id="ecru-cookies" role="dialog" aria-modal="false" aria-labelledby="ecru-cookies-titre" hidden>
+  <p class="ecru-cookies__titre" id="ecru-cookies-titre">Cookies</p>
+  <p class="ecru-cookies__texte">
+    Certains cookies font fonctionner le site (panier, connexion). Avec votre accord, d’autres mesurent sa fréquentation et nous aident à l’améliorer.
+    <a href="{{ shop.privacy_policy.url | default: '/policies/privacy-policy' }}">Confidentialité</a>
+  </p>
+  <form class="ecru-cookies__choix" data-ecru-cookies-detail hidden>
+    <label><input type="checkbox" checked disabled> <span><b>Nécessaires</b> Panier, connexion, sécurité. Toujours actifs.</span></label>
+    <label><input type="checkbox" name="analytics"> <span><b>Mesure d’audience</b> Comprendre comment le site est utilisé.</span></label>
+    <label><input type="checkbox" name="preferences"> <span><b>Préférences</b> Se souvenir de vos choix.</span></label>
+    <label><input type="checkbox" name="marketing"> <span><b>Publicité</b> Mesurer nos campagnes.</span></label>
+  </form>
+  <div class="ecru-cookies__actions">
+    <button type="button" class="ecru-bouton ecru-bouton--ligne" data-ecru-cookies="refuser">Tout refuser</button>
+    <button type="button" class="ecru-bouton ecru-bouton--ligne" data-ecru-cookies="personnaliser">Personnaliser</button>
+    <button type="button" class="ecru-bouton" data-ecru-cookies="accepter">Tout accepter</button>
+  </div>
+</div>
+<script>
+  (function () {
+    var boite = document.getElementById('ecru-cookies');
+    if (!boite || !window.Shopify || typeof window.Shopify.loadFeatures !== 'function') return;
+    var detail = boite.querySelector('[data-ecru-cookies-detail]');
+    var boutonPerso = boite.querySelector('[data-ecru-cookies="personnaliser"]');
+    var api = null;
+
+    function bannereShopify() {
+      return document.getElementById('shopify-pc__banner') || document.querySelector('[id^="shopify-pc__"]');
+    }
+    function ouvrir(avecDetail) {
+      if (!api || bannereShopify()) return;
+      var c = api.currentVisitorConsent ? api.currentVisitorConsent() : {};
+      ['analytics', 'preferences', 'marketing'].forEach(function (k) {
+        var champ = detail.querySelector('[name="' + k + '"]');
+        if (champ) champ.checked = c[k] === 'yes';
+      });
+      detail.hidden = !avecDetail;
+      boutonPerso.textContent = avecDetail ? 'Enregistrer' : 'Personnaliser';
+      boite.hidden = false;
+      requestAnimationFrame(function () {
+        boite.classList.add('is-ouverte');
+      });
+    }
+    function fermer() {
+      boite.classList.remove('is-ouverte');
+      setTimeout(function () {
+        boite.hidden = true;
+      }, 400);
+    }
+    function enregistrer(choix) {
+      if (!api) return;
+      api.setTrackingConsent(
+        { analytics: choix.analytics, marketing: choix.marketing, preferences: choix.preferences, sale_of_data: choix.marketing, headlessStorefront: false },
+        fermer
+      );
+    }
+    boite.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-ecru-cookies]');
+      if (!b) return;
+      var action = b.dataset.ecruCookies;
+      if (action === 'accepter') enregistrer({ analytics: true, marketing: true, preferences: true });
+      else if (action === 'refuser') enregistrer({ analytics: false, marketing: false, preferences: false });
+      else if (detail.hidden) ouvrir(true);
+      else
+        enregistrer({
+          analytics: detail.querySelector('[name="analytics"]').checked,
+          marketing: detail.querySelector('[name="marketing"]').checked,
+          preferences: detail.querySelector('[name="preferences"]').checked,
+        });
+    });
+    document.addEventListener('click', function (e) {
+      var lien = e.target.closest('[data-ecru-cookies-ouvrir], a[href="#cookies"]');
+      if (!lien) return;
+      e.preventDefault();
+      ouvrir(true);
+    });
+
+    window.Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.1' }], function (erreur) {
+      if (erreur || !window.Shopify.customerPrivacy) return;
+      api = window.Shopify.customerPrivacy;
+      // La bannière de Shopify s'insère parfois un peu après : on lui laisse la priorité
+      setTimeout(function () {
+        if (api.shouldShowBanner && api.shouldShowBanner()) ouvrir(false);
+      }, 900);
+    });
+  })();
+</script>

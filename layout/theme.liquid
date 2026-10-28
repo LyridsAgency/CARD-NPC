@@ -403,5 +403,7 @@
     {%- if settings.cart_type == 'drawer' -%}
       <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+    {%- comment -%} Cookies : bannière ECRU (snippets/ecru-cookies.liquid) {%- endcomment -%}
+    {%- unless settings.ecru_cookies == false -%}{%- render 'ecru-cookies' -%}{%- endunless -%}
   </body>
 </html>

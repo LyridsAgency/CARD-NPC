@@ -314,7 +314,12 @@
                 </li>
               {%- endif -%}
             {%- endfor -%}
+            {%- unless settings.ecru_cookies == false -%}
+              <li><small class="copyright__content"><a href="#cookies" data-ecru-cookies-ouvrir>Gérer les cookies</a></small></li>
+            {%- endunless -%}
           </ul>
+        {%- elsif settings.ecru_cookies != false -%}
+          <small class="copyright__content"><a href="#cookies" data-ecru-cookies-ouvrir>Gérer les cookies</a></small>
         {%- endif -%}
       </div>
     </div>

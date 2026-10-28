@@ -1529,6 +1529,17 @@
         "label": "Couleur de chaque option",
         "default": "Noir: #0d0d0c\nBlanc: #e9e4d8",
         "info": "Une couleur par ligne, au format « Nom de l'option: #code ». La pastille et la carte 3D prennent cette teinte."
+      },
+      {
+        "type": "header",
+        "content": "Cookies"
+      },
+      {
+        "type": "checkbox",
+        "id": "ecru_cookies",
+        "label": "Bannière de cookies ECRU",
+        "default": true,
+        "info": "Utilise l'API de confidentialité de Shopify. Ne s'affiche que là où le consentement est requis (Paramètres → Confidentialité des clients), et jamais en même temps que celle de Shopify."
       }
     ]
   }
