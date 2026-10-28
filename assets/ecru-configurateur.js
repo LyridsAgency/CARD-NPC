@@ -78,7 +78,7 @@
     var legende = root.querySelector('[data-ecru-legende]');
     var carte = root.querySelector('[data-ecru-carte]');
     var minimum = 1;
-    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto' };
+    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto', accent: '#e9e4d8' };
 
     // ---------- Éditeur : un nom et un logo, à placer librement ----------
     var editeur = form.querySelector('[data-ecru-editeur]');
@@ -463,7 +463,11 @@
       editeur.addEventListener('pointerdown', function (ev) {
         if (ev.target === editeur) selectionner(null);
       });
-      if (logoRetirer) logoRetirer.addEventListener('click', retirerLogo);
+      if (logoRetirer)
+        logoRetirer.addEventListener('click', function () {
+          retirerLogo();
+          logoPageFidelite(null);
+        });
       fichier.addEventListener('change', function () {
         var f = fichier.files && fichier.files[0];
         faces.recto = sansLogo(liste('recto'));
@@ -471,8 +475,10 @@
         elements = faces[face];
         if (!f || !/^image\//.test(f.type)) {
           retirerLogo();
+          logoPageFidelite(null);
           return;
         }
+        logoPageFidelite(f);
         form.querySelector('[data-ecru-fichier-nom]').textContent = f.name;
         if (logoRetirer) logoRetirer.hidden = false;
         masquerLogo(URL.createObjectURL(f)).then(function (m) {
@@ -567,6 +573,7 @@
       majTotal();
     }
     if (caseFidelite) {
+      majPageFidelite();
       caseFidelite.addEventListener('change', majFidelite);
       if (new URLSearchParams(window.location.search).get('fidelite') === '1') {
         caseFidelite.checked = true;
@@ -616,13 +623,52 @@
       window.history.replaceState({}, '', url.toString());
     }
 
-    function choisirTeinte(cible, teinte) {
-      teintes[cible] = teinte;
+    function marquerTeinte(cible, teinte) {
       var champ = form.querySelector('[data-ecru-champ="' + cible + '"]');
       if (champ) champ.value = teinte === 'auto' ? '' : teinte;
       form.querySelectorAll('[data-cible="' + cible + '"]').forEach(function (b) {
         b.setAttribute('aria-checked', b.dataset.teinte === teinte ? 'true' : 'false');
       });
+    }
+    // Aperçu de la page de fidélité : fond noir ECRU, logo et couleur du commerçant.
+    // Comme sur la vraie page, une couleur trop sombre pour se voir sur le noir est remplacée par le crème.
+    var ecranFid = form.querySelector('[data-ecru-fid-ecran]');
+    function majPageFidelite() {
+      var accent = teintes.accent || '#e9e4d8';
+      marquerTeinte('accent', accent);
+      if (!ecranFid) return;
+      var visible = clarte(accent) > 70;
+      ecranFid.style.setProperty('--accent', visible ? accent : '#e9e4d8');
+      var note = form.querySelector('[data-ecru-fid-note]');
+      if (note) note.textContent = visible ? 'Votre couleur colore les tampons et la progression.' : 'Cette couleur se verrait mal sur le fond noir : le crème la remplace.';
+    }
+    function logoPageFidelite(f) {
+      var zone = form.querySelector('[data-ecru-fid-logo]');
+      var nom = form.querySelector('[data-ecru-fid-logo-nom]');
+      if (!zone) return;
+      zone.textContent = '';
+      if (f) {
+        var img = new Image();
+        img.alt = '';
+        img.src = URL.createObjectURL(f);
+        zone.appendChild(img);
+        zone.classList.add('a-logo');
+        if (nom) nom.textContent = f.name;
+      } else {
+        zone.textContent = 'Votre logo';
+        zone.classList.remove('a-logo');
+        if (nom) nom.textContent = 'De préférence sur fond transparent.';
+      }
+    }
+    function choisirTeinte(cible, teinte) {
+      teintes[cible] = teinte;
+      if (cible === 'accent') {
+        majPageFidelite();
+        return;
+      }
+      var champ = form.querySelector('[data-ecru-champ="' + cible + '"]');
+      if (champ) champ.value = teinte === 'auto' ? '' : teinte;
+      marquerTeinte(cible, teinte);
       if (typeof majAssortiments === 'function') majAssortiments();
       dessinerEditeur();
       rendre(true);

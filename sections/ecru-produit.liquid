@@ -302,7 +302,38 @@
               <span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>
             </label>
             <div class="ecru-fidelite-details" data-ecru-fidelite-details hidden>
-              <p class="ecru-champ__aide">Tampons ou points, récompenses et cadeaux : vous réglez tout vous-même depuis votre espace, et vous changez quand vous voulez. Votre logo est nécessaire : il s’affiche sur la page de vos clients, avec les liens ci-dessus.</p>
+              <div class="ecru-fidelite-apercu">
+                <div class="ecru-apercu__tel" aria-hidden="true">
+                  <div class="ecru-apercu__ecran ecru-apercu__ecran--client" data-ecru-fid-ecran>
+                    <span class="ecru-apercu__logo" data-ecru-fid-logo>Votre logo</span>
+                    <span class="ecru-apercu__petit">Bon retour parmi nous.</span>
+                    <span class="ecru-apercu__compte"><b>7</b> / 10</span>
+                    <span class="ecru-apercu__tampons">
+                      {%- for i in (1..10) -%}<i{% if i <= 7 %} class="is-plein"{% endif %}></i>{%- endfor -%}
+                    </span>
+                    <span class="ecru-apercu__offre">Plus que 3 visites : votre récompense.</span>
+                    <span class="ecru-apercu__lien">Prendre rendez-vous</span>
+                    <span class="ecru-apercu__lien">Laisser un avis</span>
+                  </div>
+                </div>
+                <div class="ecru-fidelite-reglages">
+                  <p class="ecru-fidelite-reglages__titre">La page de vos clients</p>
+                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte. Fond noir ECRU, à votre logo et à votre couleur.</p>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Logo *</span>
+                    <label for="{{ uid }}-logo" class="ecru-outil">PNG</label>
+                    <span class="ecru-fichier__nom" data-ecru-fid-logo-nom>De préférence sur fond transparent.</span>
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Couleur</span>
+                    {%- assign palette_accent = 'Crème:#e9e4d8|Or:#c2a165|Argent:#c9c8c4|Sable:#cbb89a|Terre cuite:#c46a4a|Sauge:#8fa58a|Ciel:#8fb3cf|Poudre:#d9a5a0' | split: '|' -%}
+                    {%- render 'ecru-palette', cible: 'accent', teintes: palette_accent, libre: '#c2a165', label: 'Couleur de votre page de fidélité' -%}
+                  </div>
+                  <p class="ecru-champ__aide" data-ecru-fid-note>Votre couleur colore les tampons et la progression.</p>
+                  <input type="hidden" name="properties[Couleur page fidélité]" value="#e9e4d8" data-ecru-champ="accent" disabled>
+                </div>
+              </div>
+              <p class="ecru-champ__aide">Tampons ou points, récompenses et cadeaux : vous réglez tout vous-même depuis votre espace, et vous changez quand vous voulez. Les liens ci-dessus s’affichent aussi sur cette page.</p>
             </div>
           </fieldset>
         {%- endif -%}

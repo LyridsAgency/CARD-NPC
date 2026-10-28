@@ -3747,3 +3747,51 @@ body::after {
     fill: #555;
   }
 }
+
+/* Option fidélité : aperçu de la page du client, en direct */
+.ecru-fidelite-apercu {
+  display: grid;
+  gap: 2.4rem;
+  align-items: center;
+  margin: 0.8rem 0 1.6rem;
+}
+@media (min-width: 560px) {
+  .ecru-fidelite-apercu {
+    grid-template-columns: 19rem 1fr;
+    gap: 3.2rem;
+  }
+}
+.ecru-fidelite-apercu .ecru-apercu__tel {
+  width: min(19rem, 56vw);
+  border-radius: 30px;
+  padding: 8px;
+  box-shadow: 0 30px 50px -24px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(233, 228, 216, 0.14);
+}
+.ecru-fidelite-apercu .ecru-apercu__ecran {
+  border-radius: 23px;
+  --accent: #e9e4d8;
+}
+.ecru-fidelite-apercu .ecru-apercu__tampons i.is-plein {
+  background: var(--accent);
+  border-color: var(--accent);
+  transition: background-color 0.5s var(--ecru-ease), border-color 0.5s var(--ecru-ease);
+}
+.ecru-fidelite-apercu .ecru-apercu__logo.a-logo {
+  display: block;
+  height: 14cqi;
+}
+.ecru-fidelite-apercu .ecru-apercu__logo img {
+  display: block;
+  max-width: 70%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+.ecru-fidelite-reglages__titre {
+  margin: 0 0 0.6rem;
+  font-size: 1.5rem;
+  color: var(--ecru-text);
+}
+.ecru-fidelite-reglages .ecru-createur__ligne {
+  margin-top: 1.6rem;
+}
