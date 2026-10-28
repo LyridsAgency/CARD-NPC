@@ -864,6 +864,14 @@
       ecranFid.style.setProperty('--fid-fond', fond);
       ecranFid.style.setProperty('--fid-rgb', clarte(fond) > 150 ? '18, 18, 17' : '233, 228, 216');
     }
+    // Taille du logo sur la page de fidélité : de 60 à 170 %, comme dans l'espace du commerçant
+    var tailleFid = form.querySelector('[data-ecru-fid-taille]');
+    function majTailleLogoFid() {
+      if (!tailleFid || !ecranFid) return;
+      ecranFid.style.setProperty('--fid-logo', tailleFid.value / 100);
+      tailleFid.setAttribute('aria-valuetext', tailleFid.value + ' %');
+    }
+    if (tailleFid) tailleFid.addEventListener('input', majTailleLogoFid);
     function logoPageFidelite(f) {
       var zone = form.querySelector('[data-ecru-fid-logo]');
       var nom = form.querySelector('[data-ecru-fid-logo-nom]');
@@ -1310,6 +1318,11 @@
       var hexTampons = String(p['Couleur des tampons'] || '').split('·').pop().trim();
       if (teinte(hexTampons)) teintes.tampons = hexTampons.toLowerCase();
       if (teinte(hexPage) || teinte(hexTampons)) majPageFidelite();
+      var tailleFidReprise = parseInt(p['Taille du logo fidélité'], 10);
+      if (tailleFid && tailleFidReprise >= 60 && tailleFidReprise <= 170) {
+        tailleFid.value = tailleFidReprise;
+        majTailleLogoFid();
+      }
       if (caseFidelite && (dejaAbonne || avaitFidelite)) {
         if (dejaAbonne) caseFidelite.value = 'Incluse dans mon abonnement' + (p._commande ? ' (recommande de ' + p._commande + ')' : '');
         caseFidelite.checked = true;

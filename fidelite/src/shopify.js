@@ -30,7 +30,7 @@ export function normaliser(r) {
     handle: r.handle,
     nom: r.nom || 'Votre commerce',
     actif: !!r.actif,
-    couleur: /^#[0-9a-f]{6}(;#[0-9a-f]{6})?$/i.test(r.couleur || '') ? r.couleur : '#0d0d0c', // « fond » ou « fond;accent »
+    couleur: /^#[0-9a-f]{6}(;(#[0-9a-f]{6})?(;\d{2,3})?)?$/i.test(r.couleur || '') ? r.couleur : '#0d0d0c', // « fond;accent;taille du logo »
     accroche: r.accroche || '',
     recompense: r.recompense || '',
     seuil: Math.min(30, Math.max(3, parseInt(r.seuil, 10) || 10)),

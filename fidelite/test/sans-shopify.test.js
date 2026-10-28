@@ -142,6 +142,16 @@ test('le patron choisit la couleur de sa page depuis son espace', async () => {
   page = await (await appel(`/c/${code}`)).text();
   assert.match(page, /background:#1f3a2e/);
   assert.match(page, /\.tampons li\.plein\{background:#c2a165/);
+  // Taille du logo : 150 %, plafonnée à 170 %, gardée quand on change seulement les couleurs
+  await reglages({ couleur: '#1f3a2e', accent: '#c2a165', taille_logo: 150 });
+  assert.match(await (await appel(`/c/${code}`)).text(), /\.logo\{display:block;max-width:min\(300px,100%\);max-height:165px/);
+  await reglages({ couleur: '#1f3a2e', accent: '#c2a165', taille_logo: 400 });
+  assert.match(await (await appel(`/c/${code}`)).text(), /max-width:min\(340px,100%\);max-height:187px/);
+  await reglages({ couleur: '#1f3a2e', accent: '#c2a165' });
+  assert.match(await (await appel(`/c/${code}`)).text(), /max-width:min\(340px,100%\)/);
+  await enregistrer({ commerce: 'cafe', nom: 'Café', couleur: '#1f3a2e', actif: 1 });
+  assert.match(await (await appel(`/c/${code}`)).text(), /max-width:min\(340px,100%\)/);
+  assert.match(await (await appel('/pro', { headers: { cookie } })).text(), /Taille de votre logo/);
   // « Automatique » : retour à la couleur du texte
   await reglages({ couleur: '#1f3a2e', accent: 'auto' });
   assert.match(await (await appel(`/c/${code}`)).text(), /\.tampons li\.plein\{background:#e9e4d8/);

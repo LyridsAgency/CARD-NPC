@@ -35,25 +35,33 @@ export const ACCENTS = [
 export function couleurValide(v) {
   return /^#[0-9a-f]{6}$/i.test(v || '') ? v.toLowerCase() : null;
 }
-// Une fiche commerce garde ses deux couleurs dans un seul champ : « fond » ou « fond;accent »
-export function lireCouleurs(v) {
-  const [f, a] = String(v || '').split(';');
-  return { fond: couleurValide(f) || '#0d0d0c', accent: couleurValide(a) };
+// Une fiche commerce garde l'apparence de sa page dans un seul champ (« couleur ») :
+// « fond », « fond;accent » ou « fond;accent;taille » (taille du logo en %, de 60 à 170, 100 par défaut)
+export const TAILLE_LOGO = { min: 60, max: 170, defaut: 100 };
+export function tailleValide(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? Math.min(TAILLE_LOGO.max, Math.max(TAILLE_LOGO.min, Math.round(n / 10) * 10)) : null;
 }
-export function ecrireCouleurs(fond, accent) {
+export function lireCouleurs(v) {
+  const [f, a, t] = String(v || '').split(';');
+  return { fond: couleurValide(f) || '#0d0d0c', accent: couleurValide(a), taille: tailleValide(t) || TAILLE_LOGO.defaut };
+}
+export function ecrireCouleurs(fond, accent, taille) {
   const f = couleurValide(fond) || '#0d0d0c';
-  const a = couleurValide(accent);
+  const a = couleurValide(accent) || '';
+  const t = tailleValide(taille) || TAILLE_LOGO.defaut;
+  if (t !== TAILLE_LOGO.defaut) return `${f};${a};${t}`;
   return a ? `${f};${a}` : f;
 }
 function teintes(valeur) {
-  const { fond, accent } = lireCouleurs(valeur);
+  const { fond, accent, taille } = lireCouleurs(valeur);
   const clair = clarte(fond) > 150;
   const rgb = clair ? '18,18,17' : '233,228,216';
   const encre = clair ? '#121211' : '#e9e4d8';
   // L'accent n'est gardé que s'il se distingue assez du fond ; sinon, la couleur du texte
   const plein = accent && Math.abs(clarte(accent) - clarte(fond)) > 55 ? accent : encre;
   const surPlein = clarte(plein) > 150 ? '#121211' : '#e9e4d8';
-  return { fond, encre, doux: `rgba(${rgb},.64)`, ligne: `rgba(${rgb},.2)`, plein, surPlein };
+  return { fond, encre, doux: `rgba(${rgb},.64)`, ligne: `rgba(${rgb},.2)`, plein, surPlein, logoL: Math.round(2 * taille), logoH: Math.round(1.1 * taille) };
 }
 
 export function page({ titre, accent, corps }) {
@@ -76,7 +84,7 @@ html,body{margin:0;background:${t.fond};color:${t.encre}}
 body{font:16px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 main{min-height:100svh;max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:28px;padding:max(40px,env(safe-area-inset-top)) 24px max(28px,env(safe-area-inset-bottom))}
 h1,.titre{margin:0;font:400 34px/0.95 'Archivo Black',sans-serif;letter-spacing:-.02em;text-transform:uppercase}
-.logo{display:block;max-width:200px;max-height:110px;width:auto;height:auto;object-fit:contain}
+.logo{display:block;max-width:min(${t.logoL}px,100%);max-height:${t.logoH}px;width:auto;height:auto;object-fit:contain}
 .petit{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:${t.doux};margin:0}
 .doux{color:${t.doux};margin:0}
 .compte{display:flex;align-items:baseline;gap:10px;margin:0}
@@ -122,6 +130,7 @@ input{width:100%;padding:14px 16px;border:1px solid ${t.ligne};border-radius:10p
 .pastille input[type=color]::-webkit-color-swatch-wrapper{padding:0}
 .pastille input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 .pastille i{font-style:normal}
+.curseur{width:100%;padding:0;border:0;accent-color:${t.plein}}
 .pastille span.auto{background:linear-gradient(135deg,${t.fond} 50%,${t.encre} 50%)}
 .pastille:has(input:focus-visible){outline:2px solid ${t.encre};outline-offset:2px}
 .cadeau{display:grid;grid-template-columns:1fr 92px;gap:8px}
@@ -160,8 +169,11 @@ function nuancier(nom, legende, liste, choisie, aide) {
           ${aide ? `<p class="doux" style="font-size:13px">${aide}</p>` : ''}
         </fieldset>`;
 }
-function nuanciers({ fond, accent }) {
+function nuanciers({ fond, accent, taille }) {
   return (
+    `<div><label for="taille_logo">Taille de votre logo</label>
+          <input id="taille_logo" class="curseur" type="range" name="taille_logo" min="${TAILLE_LOGO.min}" max="${TAILLE_LOGO.max}" step="10" value="${taille}">
+          <p class="doux" style="font-size:13px;display:flex;justify-content:space-between;margin:4px 0 0"><span>Petit</span><span>Actuellement ${taille} %</span><span>Grand</span></p></div>` +
     nuancier('couleur', 'Fond de votre page', COULEURS, fond, '') +
     nuancier('accent', 'Couleur des tampons', ACCENTS, accent || 'auto', 'Vos clients voient ces deux couleurs en scannant leur carte. Le texte s’adapte pour rester lisible ; une couleur de tampons trop proche du fond est remplacée.')
   );

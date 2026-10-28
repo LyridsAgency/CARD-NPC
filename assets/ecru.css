@@ -4867,3 +4867,10 @@ body::after {
     background: rgba(7, 7, 7, 0.97);
   }
 }
+/* Taille du logo choisie pour la page de fidélité (aperçu) */
+.ecru-fidelite-apercu .ecru-apercu__logo {
+  font-size: calc(8cqi * var(--fid-logo, 1));
+}
+.ecru-fidelite-apercu .ecru-apercu__logo.a-logo {
+  height: calc(14cqi * var(--fid-logo, 1));
+}

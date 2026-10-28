@@ -62,7 +62,7 @@ async function reglageDe(env, c) {
     cadeaux: lireCadeaux(r.cadeaux),
     // Couleurs de la page (« fond » ou « fond;accent ») : celles de la fiche du commerce,
     // que le commerçant change depuis son espace
-    couleur: ecrireCouleurs(lireCouleurs(c.couleur).fond, lireCouleurs(c.couleur).accent),
+    couleur: ((x) => ecrireCouleurs(x.fond, x.accent, x.taille))(lireCouleurs(c.couleur)),
   };
 }
 
@@ -226,7 +226,8 @@ async function routesPro(env, requete, url) {
     // « auto » : pas d'accent ; absent ou invalide : on garde le précédent
     const accentBrut = choix('accent');
     const accent = accentBrut === 'auto' ? null : couleurValide(accentBrut) || (accentBrut == null ? precedentes.accent : precedentes.accent);
-    const couleur = ecrireCouleurs(fond, accent);
+    const taille = f.get('taille_logo') == null ? precedentes.taille : parseInt(f.get('taille_logo'), 10);
+    const couleur = ecrireCouleurs(fond, accent, taille);
     await env.DB.prepare(
       `INSERT INTO reglages (commerce, seuil, recompense, mode, apres, taux, cadeaux, modifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(commerce) DO UPDATE SET seuil = excluded.seuil, recompense = excluded.recompense, mode = excluded.mode, apres = excluded.apres,
@@ -272,7 +273,8 @@ async function routesAdmin(env, requete, url) {
     const t = (k, n = 200) => String(f.get(k) || '').trim().slice(0, n) || null;
     // Le fond vient du formulaire ; la couleur des tampons choisie par le commerçant est gardée
     const existant = await env.DB.prepare('SELECT couleur FROM commerces WHERE handle = ?').bind(commerce).first();
-    const couleur = ecrireCouleurs(couleurValide(t('couleur')) || '#0d0d0c', existant ? lireCouleurs(existant.couleur).accent : null);
+    const garde = existant ? lireCouleurs(existant.couleur) : {};
+    const couleur = ecrireCouleurs(couleurValide(t('couleur')) || '#0d0d0c', garde.accent, garde.taille);
     const seuil = Math.min(30, Math.max(3, parseInt(f.get('seuil'), 10) || 10));
     await env.DB.prepare(
       `INSERT INTO commerces (handle, nom, actif, couleur, logo, accroche, recompense, seuil, lien_menu, lien_avis, lien_reseaux, lien_site, modifie)
