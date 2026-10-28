@@ -1115,3 +1115,8 @@ export async function mount(el) {
   };
   return el.__ecru;
 }
+
+// Chargé par une balise <script type="module"> (ecru-carte-loader.js) : le moteur se signale ici.
+// (Pas d'import() dynamique côté thème : la compression des fichiers de Shopify le transforme en require.)
+window.__ecruCarte3d = { mount, POLICES };
+window.dispatchEvent(new Event('ecru:carte3d-pret'));

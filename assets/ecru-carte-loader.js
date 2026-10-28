@@ -125,7 +125,7 @@
         // La 3D attend la fin du chargement et un moment calme : l'image fixe s'affiche d'abord
         whenIdle(function () {
           var url = el.dataset.module;
-          var p = loaded[url] || (loaded[url] = import(url));
+          var p = loaded[url] || (loaded[url] = chargerMoteur(url));
           p.then(function (m) {
             return m.mount(el);
           }).then(function () {
@@ -143,6 +143,30 @@
       { rootMargin: '300px 0px' }
     );
     io.observe(el);
+  }
+
+  // Le moteur 3D est un module : on l'ajoute par une balise <script type="module"> et il se signale
+  // sur window. (Pas d'import() : la compression des fichiers de Shopify le change en require.)
+  function chargerMoteur(url) {
+    return new Promise(function (resolve, reject) {
+      if (window.__ecruCarte3d) return resolve(window.__ecruCarte3d);
+      var fini = false;
+      function pret() {
+        if (fini || !window.__ecruCarte3d) return;
+        fini = true;
+        resolve(window.__ecruCarte3d);
+      }
+      window.addEventListener('ecru:carte3d-pret', pret);
+      var s = document.createElement('script');
+      s.type = 'module';
+      s.src = url;
+      s.onload = pret;
+      s.onerror = function () {
+        fini = true;
+        reject(new Error('moteur 3D introuvable'));
+      };
+      document.head.appendChild(s);
+    });
   }
 
   function whenIdle(fn) {
