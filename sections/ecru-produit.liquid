@@ -28,6 +28,10 @@
       endif
     endfor
   endfor
+  assign est_sur_mesure = false
+  if product.tags contains 'sur-mesure'
+    assign est_sur_mesure = true
+  endif
   assign est_fidelite = false
   if product.tags contains 'fidelite'
     assign est_fidelite = true
@@ -37,7 +41,7 @@
   endcomment
   assign moq_produit = 0
   for l in lignes_moq
-    assign k = l | split: ':' | first | strip | downcase | replace: 'é', 'e'
+    assign k = l | split: ':' | first | strip | downcase | replace: 'é', 'e' | replace: ' ', '-'
     if k != blank and product.tags contains k
       assign moq_produit = l | split: ':' | last | strip | plus: 0
     endif
@@ -50,6 +54,7 @@
 
   assign palette = 'Noir:#0d0d0c|Graphite:#2a2926|Pierre:#8f8a80|Écru:#d6cfbf|Crème:#e9e4d8|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440' | split: '|'
   assign palette_marquage = 'Crème:#e9e4d8|Noir:#121211|Ton sur ton:#7d7b76|Or:#c2a165|Argent:#c9c8c4' | split: '|'
+  assign palette_fenetre = 'Ton sur ton:auto|Noir:#121211|Graphite:#3a3936|Crème:#e9e4d8|Or:#b8975a|Argent:#c9c8c4|Bordeaux:#5a1a22|Bleu nuit:#1b2440' | split: '|'
   assign modeles = 'editorial:Éditorial|minimal:Minimal|monogramme:Monogramme|signature:Signature|numero:Numéro|pierre:Pierre' | split: '|'
 -%}
 
@@ -162,8 +167,27 @@
               {%- if est_couleur -%}
                 <p class="ecru-perso__note" data-ecru-note="standard">Carte vierge, sans écriture.</p>
 
+              {%- endif -%}
+
+              {%- if forloop.last and est_fidelite == false and est_sur_mesure == false -%}
+                <p class="ecru-option__aide">
+                  Minimum de commande :
+                  <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
+                </p>
+              {%- endif -%}
+            </fieldset>
+          {%- endfor -%}
+        {%- endunless -%}
+
+        {%- if est_sur_mesure -%}
+          {%- assign etape = etape | plus: 1 -%}
+          <fieldset class="ecru-option ecru-option--design">
+            <legend>
+              <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
+              Votre design
+            </legend>
                 {%- comment -%} Sur mesure : éditeur intégré {%- endcomment -%}
-                <div class="ecru-panneau ecru-createur" data-ecru-panneau="design" hidden>
+                <div class="ecru-panneau ecru-createur" data-ecru-panneau="design">
                   <div class="ecru-faces" role="group" aria-label="Face à composer">
                     <button type="button" class="ecru-faces__btn" data-ecru-face="recto" aria-pressed="true">Recto</button>
                     <button type="button" class="ecru-faces__btn" data-ecru-face="verso" aria-pressed="false">Verso</button>
@@ -197,8 +221,12 @@
                     {%- render 'ecru-palette', cible: 'relief', teintes: palette_marquage, libre: '#c2a165', label: 'Couleur du nom et du logo' -%}
                   </div>
                   <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Fenêtre</span>
+                    {%- render 'ecru-palette', cible: 'fenetre', teintes: palette_fenetre, libre: '#3a3936', label: 'Couleur de la fenêtre NFC' -%}
+                  </div>
+                  <div class="ecru-createur__ligne">
                     <label class="ecru-createur__label" for="{{ uid }}-nom">Texte</label>
-                    <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" name="properties[Nom]" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom disabled>
+                    <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" name="properties[Nom]" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom>
                   </div>
                   <div class="ecru-createur__ligne">
                     <span class="ecru-createur__label">Logo</span>
@@ -209,7 +237,6 @@
                       name="properties[Logo]"
                       accept="image/png,image/jpeg,image/svg+xml"
                       data-ecru-fichier
-                      disabled
                     >
                     <label for="{{ uid }}-logo" class="ecru-outil">Ajouter</label>
                     <span class="ecru-fichier__nom" data-ecru-fichier-nom></span>
@@ -220,22 +247,19 @@
                     <input id="{{ uid }}-taille" class="ecru-createur__taille" type="range" min="4" max="40" step="1" value="12" data-ecru-el-taille>
                   </div>
 
-                  <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond" disabled>
-                  <input type="hidden" name="properties[Marquage]" value="#e9e4d8" data-ecru-champ="relief" disabled>
-                  <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette disabled>
-                  <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json disabled>
+                  <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
+              <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
+                  <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
+                  <input type="hidden" name="properties[Marquage]" value="#e9e4d8" data-ecru-champ="relief">
+                  <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
+                  <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json>
                 </div>
-              {%- endif -%}
-
-              {%- if forloop.last and est_fidelite == false -%}
-                <p class="ecru-option__aide">
-                  Minimum de commande :
-                  <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
-                </p>
-              {%- endif -%}
-            </fieldset>
-          {%- endfor -%}
-        {%- endunless -%}
+            <p class="ecru-option__aide">
+              Minimum de commande :
+              <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
+            </p>
+          </fieldset>
+        {%- endif -%}
 
         {%- if est_fidelite -%}
           {%- assign etape = etape | plus: 1 -%}
@@ -250,9 +274,27 @@
                 <div class="ecru-editeur__symbole" aria-hidden="true"></div>
                 <div class="ecru-editeur__nfc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg></div>
               </div>
+              <p class="ecru-champ__aide">Le logo ECRU s’affiche en attendant le vôtre.</p>
+              <div class="ecru-createur__ligne ecru-createur__ligne--modeles">
+                <span class="ecru-createur__label">Suggestions</span>
+                <div class="ecru-assortiments" role="group" aria-label="Jeux de couleurs suggérés">
+                  {%- assign jeux = 'Noir et graphite:#0d0d0c:#3a3936|Noir et or:#0d0d0c:#b8975a|Crème et noir:#e9e4d8:#121211|Bordeaux et or:#5a1a22:#b8975a|Vert anglais et crème:#1f3a2e:#e9e4d8|Bleu nuit et argent:#1b2440:#c9c8c4' | split: '|' -%}
+                  {%- for j in jeux -%}
+                    {%- assign jj = j | split: ':' -%}
+                    <button type="button" class="ecru-assortiment" data-fond="{{ jj[1] }}" data-fenetre="{{ jj[2] }}" aria-pressed="false" title="{{ jj[0] }}" style="--fond: {{ jj[1] }}; --fenetre: {{ jj[2] }}; --marquage: {{ jj[2] }}">
+                      <span class="ecru-assortiment__carte ecru-assortiment__carte--fenetre" aria-hidden="true"><i></i></span>
+                      <span class="visually-hidden">{{ jj[0] }}</span>
+                    </button>
+                  {%- endfor -%}
+                </div>
+              </div>
               <div class="ecru-createur__ligne">
                 <span class="ecru-createur__label">Couleur</span>
                 {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
+              </div>
+              <div class="ecru-createur__ligne">
+                <span class="ecru-createur__label">Fenêtre</span>
+                {%- render 'ecru-palette', cible: 'fenetre', teintes: palette_fenetre, libre: '#3a3936', label: 'Couleur de la fenêtre NFC' -%}
               </div>
               <div class="ecru-createur__ligne">
                 <span class="ecru-createur__label">Logo *</span>
@@ -272,6 +314,7 @@
               </div>
               <p class="ecru-champ__aide">Obligatoire pour commander. PNG ou SVG sur fond transparent de préférence.</p>
               <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
+              <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
               <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
               <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json>
             </div>
@@ -424,6 +467,7 @@
       "moqProduit": {{ moq_produit }},
       "devise": {{ cart.currency.iso_code | json }},
       "fidelite": {{ est_fidelite }},
+      "surMesure": {{ est_sur_mesure }},
       {%- if est_fidelite and section.settings.abonnement != blank -%}
         {%- assign abo = section.settings.abonnement -%}
         {%- assign plan = abo.selling_plan_groups.first.selling_plans.first -%}

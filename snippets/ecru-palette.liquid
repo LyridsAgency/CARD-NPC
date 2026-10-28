@@ -7,7 +7,7 @@
     {%- assign pp = p | split: ':' -%}
     <button
       type="button"
-      class="ecru-palette__teinte"
+      class="ecru-palette__teinte{% if pp[1] == 'auto' %} ecru-palette__teinte--auto{% endif %}"
       role="radio"
       aria-checked="false"
       style="--teinte: {{ pp[1] }}"

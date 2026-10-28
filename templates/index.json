@@ -64,34 +64,47 @@
         "surface": false
       },
       "blocks": {
+        "offre_simple": {
+          "type": "offre",
+          "settings": {
+            "title": "Cartes simples",
+            "text": "Noir ou blanc, vierges. Un geste, un lien : votre site, votre menu, vos avis.",
+            "price_note": "Paiement unique · dès 10 cartes",
+            "features": "Noir ou blanc\nPVC ou métal\nUn lien au choix\nSans application",
+            "button_label": "Choisir",
+            "product": "cartes-simples"
+          }
+        },
+        "offre_mesure": {
+          "type": "offre",
+          "settings": {
+            "title": "Sur mesure",
+            "badge": "À votre image",
+            "text": "Votre couleur, votre nom, votre logo, placés où vous voulez. Vous la voyez en 3D avant de commander.",
+            "price_note": "Paiement unique · dès 100 cartes",
+            "features": "Couleur, texte et logo libres\nRecto et verso\nCouleur de la fenêtre NFC\nPVC ou métal",
+            "button_label": "Composer",
+            "product": "cartes-sur-mesure"
+          }
+        },
         "offre_1": {
           "type": "offre",
           "settings": {
             "title": "Fidélité",
             "badge": "Le programme complet",
-            "text": "La carte et tout ce qui la fait vivre : programme de fidélité, récompenses, suivi.",
+            "text": "Vos cartes à votre logo, et le programme qui les fait vivre : tampons, récompenses, suivi.",
             "price_note": "+ abonnement au programme, 29 € / mois",
-            "features": "Cartes à votre logo et vos couleurs\nProgramme de fidélité clé en main\nRécompenses modifiables à tout moment\nRapport chaque mois\nSans application",
+            "features": "Base élégante à votre logo et vos couleurs\nLe client voit ses tampons d'un geste\nVous ajoutez un tampon en scannant sa carte\nRécompenses modifiables à tout moment",
             "button_label": "Choisir Fidélité",
             "highlight": true,
             "product": "carte-fidelite"
           }
-        },
-        "offre_2": {
-          "type": "offre",
-          "settings": {
-            "title": "Cartes simples",
-            "text": "Une carte noire ou blanche. Un geste, un lien : votre site, votre menu, vos avis, vos réseaux.",
-            "price_note": "Paiement unique",
-            "features": "Noir, blanc ou sur mesure\nUn lien au choix\nPVC ou métal\nSans application",
-            "button_label": "Choisir Cartes simples",
-            "product": "cartes-simples"
-          }
         }
       },
       "block_order": [
-        "offre_1",
-        "offre_2"
+        "offre_simple",
+        "offre_mesure",
+        "offre_1"
       ]
     },
     "faq": {
@@ -306,46 +319,6 @@
         "vue_4"
       ]
     },
-    "chiffres": {
-      "type": "ecru-chiffres",
-      "settings": {},
-      "blocks": {
-        "c1": {
-          "type": "chiffre",
-          "settings": {
-            "valeur": "1",
-            "label": "geste pour ouvrir votre page"
-          }
-        },
-        "c2": {
-          "type": "chiffre",
-          "settings": {
-            "valeur": "0",
-            "label": "application à installer"
-          }
-        },
-        "c3": {
-          "type": "chiffre",
-          "settings": {
-            "valeur": "0",
-            "label": "batterie, ni recharge"
-          }
-        },
-        "c4": {
-          "type": "chiffre",
-          "settings": {
-            "valeur": "10",
-            "label": "cartes pour commencer"
-          }
-        }
-      },
-      "block_order": [
-        "c1",
-        "c2",
-        "c3",
-        "c4"
-      ]
-    },
     "assortiments": {
       "type": "ecru-assortiments",
       "settings": {
@@ -449,7 +422,6 @@
   "order": [
     "hero",
     "defilement",
-    "chiffres",
     "demo",
     "croissance",
     "assortiments",

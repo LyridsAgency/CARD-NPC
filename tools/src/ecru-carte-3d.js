@@ -110,7 +110,7 @@ function fitFontSize(ctx, text, family, maxW, maxH, tracking) {
 // drawEngrave(ctx, w, h), facultatif : gravure fine dans la matière (relief seul, sans couleur).
 // brushed : stries de brossage (aluminium) ; sinon métal poli (acier) ou matière mate (PVC).
 // drawInlay(ctx, w, h), facultatif : fenêtre NFC (zone non métallique, mate, en léger creux).
-function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, relief, metal, brushed, polish = 0.14, metalAmt = 1, inlayShade = 0.38 }) {
+function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, relief, metal, brushed, polish = 0.14, metalAmt = 1, inlayShade = 0.38, inlayColor = null }) {
   const mask = canvas(w, h);
   const mctx = mask.getContext('2d');
   mctx.fillStyle = '#000';
@@ -201,11 +201,20 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
         ? (rand() - 0.5) * 0.12
         : (rand() - 0.5) * 0.6 + coarse[cy + ((x / 3) | 0)];
       const n = nd ? nd[i] / 255 : 0;
-      const gb = (1 + g * (metal ? 0.035 : 0.1)) * (1 - n * (metal ? inlayShade : 0.08));
-      // Couleur : matière grainée (fenêtre NFC un peu plus sombre), encre sur le relief
-      cd[i] = br * gb * (1 - m) + ir * m;
-      cd[i + 1] = bg * gb * (1 - m) + ig * m;
-      cd[i + 2] = bb * gb * (1 - m) + ib * m;
+      const grain = 1 + g * (metal ? 0.035 : 0.1);
+      const gb = grain * (1 - n * (metal ? inlayShade : 0.08));
+      // Couleur : matière grainée, fenêtre NFC un peu plus sombre (ou de la couleur choisie), encre sur le relief
+      let cr = br * gb;
+      let cg = bg * gb;
+      let cb = bb * gb;
+      if (inlayColor && n > 0) {
+        cr = br * grain * (1 - n) + inlayColor[0] * grain * n;
+        cg = bg * grain * (1 - n) + inlayColor[1] * grain * n;
+        cb = bb * grain * (1 - n) + inlayColor[2] * grain * n;
+      }
+      cd[i] = cr * (1 - m) + ir * m;
+      cd[i + 1] = cg * (1 - m) + ig * m;
+      cd[i + 2] = cb * (1 - m) + ib * m;
       cd[i + 3] = 255;
       // G = rugosité, B = métal
       od[i] = 255;
@@ -534,7 +543,7 @@ export async function mount(el) {
   // Éléments posés sur le recto, en coordonnées 0 à 1 (centre de l'élément) :
   //   { t: 'text', v: 'Texte', x, y, s: taille (part de la hauteur), f: 'display' | 'body', a: 'left' | 'center' | 'right' }
   //   { t: 'logo', u: url, x, y, s: hauteur (part de la hauteur) }
-  function drawLook({ color, ink, finish, elements, verso, inlay }, images) {
+  function drawLook({ color, ink, finish, elements, verso, inlay, fenetre }, images) {
     elements = Array.isArray(elements) ? elements : [];
     verso = Array.isArray(verso) ? verso : [];
     // finish : 'mat' (PVC) ou 'metal' (métal satiné). 'brosse' reste disponible pour un métal brossé.
@@ -586,6 +595,7 @@ export async function mount(el) {
       polish,
       metalAmt,
       inlayShade: neutre ? (dark ? 0.38 : 0.1) : 0.7,
+      inlayColor: fenetre && /^#[0-9a-f]{6}$/i.test(fenetre) ? hexToRgb(fenetre) : null,
       drawMask(ctx, w, h) {
         ctx.textBaseline = 'middle';
         // Le symbole sans contact, au centre de la fenêtre
@@ -627,7 +637,7 @@ export async function mount(el) {
     edgeMat.metalness = metal ? 1 : 0.35;
     edgeMat.roughness = brushed ? 0.2 : metal ? 0.18 : 0.42;
     scene.environmentIntensity = metal ? 1.9 : 1.35;
-    current = { color, ink, finish, elements, verso, inlay };
+    current = { color, ink, finish, elements, verso, inlay, fenetre };
   }
 
   const d = el.dataset;

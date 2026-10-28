@@ -1,0 +1,82 @@
+{%- comment -%}
+  ECRU — Aperçu de la page de fidélité : ce que voit le client quand il scanne sa carte,
+  et ce que voit le commerçant quand il scanne la même carte avec son téléphone.
+  Ne s'affiche que sur les produits taggés « fidelite » (ou partout si l'option est cochée).
+{%- endcomment -%}
+{%- if section.settings.partout or product == blank or product.tags contains 'fidelite' -%}
+<section
+  class="ecru-section ecru-apercu"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete ecru-entete--centre">
+      <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+      <p class="ecru-texte ecru-reveal">{{ section.settings.text | escape }}</p>
+    </header>
+
+    <div class="ecru-apercu__duo">
+      <figure class="ecru-apercu__vue ecru-reveal">
+        <div class="ecru-apercu__tel" aria-hidden="true">
+          <div class="ecru-apercu__ecran ecru-apercu__ecran--client">
+            <span class="ecru-apercu__logo">Maison Lune</span>
+            <span class="ecru-apercu__petit">Bonjour, voici votre carte</span>
+            <span class="ecru-apercu__compte"><b>7</b> / 10</span>
+            <span class="ecru-apercu__tampons">
+              {%- for i in (1..10) -%}<i{% if i <= 7 %} class="is-plein"{% endif %}></i>{%- endfor -%}
+            </span>
+            <span class="ecru-apercu__barre"><i style="width: 70%"></i></span>
+            <span class="ecru-apercu__offre">Encore 3 visites : le dessert est offert.</span>
+            <span class="ecru-apercu__lien">Voir le menu</span>
+            <span class="ecru-apercu__lien">Laisser un avis</span>
+          </div>
+        </div>
+        <figcaption>
+          <span class="ecru-apercu__num">01</span>
+          <span><b>Le client scanne sa carte</b> et voit seul où il en est : ses tampons, ce qu’il lui reste avant la récompense.</span>
+        </figcaption>
+      </figure>
+
+      <figure class="ecru-apercu__vue ecru-reveal" style="--d: 1">
+        <div class="ecru-apercu__tel" aria-hidden="true">
+          <div class="ecru-apercu__ecran ecru-apercu__ecran--pro">
+            <span class="ecru-apercu__badge">Mode commerçant</span>
+            <span class="ecru-apercu__logo">Carte n° 0042</span>
+            <span class="ecru-apercu__petit">Dernière visite : il y a 6 jours · 17 visites au total</span>
+            <span class="ecru-apercu__compte"><b>7</b> / 10</span>
+            <span class="ecru-apercu__barre"><i style="width: 70%"></i></span>
+            <span class="ecru-apercu__boutons">
+              <span class="ecru-apercu__btn ecru-apercu__btn--plein">+ 1 tampon</span>
+              <span class="ecru-apercu__btn">− 1</span>
+            </span>
+            <span class="ecru-apercu__btn">Récompense remise</span>
+          </div>
+        </div>
+        <figcaption>
+          <span class="ecru-apercu__num">02</span>
+          <span><b>Vous scannez la même carte</b> avec votre téléphone : vous voyez son niveau et ajoutez un tampon d’un geste.</span>
+        </figcaption>
+      </figure>
+    </div>
+    <p class="ecru-apercu__note">{{ section.settings.note | escape }}</p>
+  </div>
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Aperçu fidélité ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "La page de fidélité" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Une carte, deux regards." },
+    { "type": "text", "id": "text", "label": "Texte", "default": "Le même scan affiche la progression au client, et le tableau de bord à vous." },
+    { "type": "text", "id": "note", "label": "Note", "default": "Exemple d’affichage. Votre page reprend votre logo et vos couleurs." },
+    { "type": "checkbox", "id": "partout", "label": "Afficher sur tous les produits", "default": false },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "presets": [{ "name": "Aperçu fidélité ECRU" }]
+}
+{% endschema %}

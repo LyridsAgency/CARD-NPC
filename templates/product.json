@@ -7,9 +7,14 @@
       },
       "blocks": {},
       "block_order": []
+    },
+    "apercu": {
+      "type": "ecru-fidelite-apercu",
+      "settings": {}
     }
   },
   "order": [
-    "main"
+    "main",
+    "apercu"
   ]
 }

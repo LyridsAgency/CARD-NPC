@@ -78,7 +78,7 @@
     var legende = root.querySelector('[data-ecru-legende]');
     var carte = root.querySelector('[data-ecru-carte]');
     var minimum = 1;
-    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8' };
+    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto' };
 
     // ---------- Éditeur : un nom et un logo, à placer librement ----------
     var editeur = form.querySelector('[data-ecru-editeur]');
@@ -90,7 +90,7 @@
     var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.66, y: 0.62, s: 0.09, f: 'display', a: 'center' }];
     // Fidélité : une base commune, seuls la couleur et le logo changent
     var BASE_FIDELITE = [
-      { id: 'nom', t: 'text', v: 'Votre logo', x: 0.66, y: 0.45, s: 0.075, f: 'display', a: 'center', provisoire: true },
+      { id: 'nom', t: 'text', v: 'ECRU', x: 0.66, y: 0.45, s: 0.13, f: 'display', a: 'center', k: 0.28, provisoire: true },
       { id: 'texte1', t: 'text', v: 'Carte de fidélité', x: 0.95, y: 0.88, s: 0.04, f: 'body', a: 'right' },
     ];
     if (data.fidelite) elements = BASE_FIDELITE.map(function (e) {
@@ -108,6 +108,7 @@
 
     function modeDe(options) {
       if (data.fidelite) return 'fidelite';
+      if (data.surMesure) return 'design';
       var m = 'standard';
       options.forEach(function (o) {
         var v = bas(o);
@@ -158,6 +159,7 @@
         look.verso = [];
       }
       look.color = color;
+      look.fenetre = modeDe(options) !== 'standard' && teintes.fenetre !== 'auto' ? teintes.fenetre : null;
       return look;
     }
 
@@ -187,6 +189,8 @@
     function dessinerEditeur() {
       if (!editeur) return;
       editeur.style.setProperty('--fond', teintes.fond);
+      if (teintes.fenetre !== 'auto') editeur.style.setProperty('--fenetre', teintes.fenetre);
+      else editeur.style.removeProperty('--fenetre');
       editeur.style.setProperty('--marquage', data.fidelite ? inkPour(teintes.fond) : teintes.relief);
       var vis = visibles();
       editeur.querySelectorAll('[data-el]').forEach(function (n) {
@@ -200,30 +204,34 @@
           n.dataset.el = e.id;
           n.tabIndex = 0;
           n.setAttribute('role', 'button');
+          // Contenu (texte ou logo) + poignée pour agrandir / réduire
+          n.innerHTML = '<span class="ecru-editeur__contenu"></span>';
           editeur.appendChild(n);
           brancherGlisser(n);
         }
+        var contenu = n.firstChild;
         n.style.left = e.x * 100 + '%';
         n.style.top = e.y * 100 + '%';
         n.style.setProperty('--s', e.s);
         n.classList.toggle('is-selection', selection === e.id);
         if (e.t === 'logo') {
           n.classList.add('ecru-editeur__el--logo');
-          n.textContent = '';
+          contenu.textContent = '';
           n.style.setProperty('--logo', 'url(' + e.u + ')');
           n.style.setProperty('--ratio', e.ratio || 1);
-          n.setAttribute('aria-label', 'Logo, position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
+          n.setAttribute('aria-label', 'Logo, position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer, + et − pour la taille.');
         } else {
           var titre = e.f !== 'body';
           n.classList.toggle('ecru-editeur__el--titre', titre);
-          n.textContent = titre ? e.v.toUpperCase() : e.v;
+          contenu.textContent = titre ? e.v.toUpperCase() : e.v;
           n.style.letterSpacing = (e.k != null ? e.k : titre ? 0.12 : 0.04) + 'em';
           n.dataset.align = e.a || 'center';
-          n.setAttribute('aria-label', 'Texte « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
+          n.setAttribute('aria-label', 'Texte « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer, + et − pour la taille.');
         }
       });
       majReglages();
       majMaquette();
+      placerPoignee();
     }
 
     function selectionner(id) {
@@ -242,7 +250,7 @@
       reglages.querySelector('label').textContent = 'Taille';
       champTaille.setAttribute('aria-label', estTexte ? 'Taille du nom' : 'Taille du logo');
       champTaille.min = estTexte ? 3 : 10;
-      champTaille.max = estTexte ? 130 : 70;
+      champTaille.max = estTexte ? 130 : 95;
       champTaille.value = Math.round(e.s * 100);
     }
 
@@ -259,13 +267,14 @@
         return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3), f: e.f, a: e.a };
       };
       var verso = visibles('verso');
+      var fen = teintes.fenetre !== 'auto' ? ', fenêtre NFC ' + teintes.fenetre.toUpperCase() : '';
       lisible.value = data.fidelite
-        ? 'Base Fidélité, couleur ' + teintes.fond.toUpperCase() + (liste('recto').some(function (e) {
+        ? 'Base Fidélité, couleur ' + teintes.fond.toUpperCase() + fen + (liste('recto').some(function (e) {
             return e.t === 'logo';
           })
             ? ', logo joint'
             : ', logo à fournir')
-        : 'Recto : ' + (visibles('recto').map(resume).join(' ; ') || 'vierge') + (verso.length ? ' | Verso : ' + verso.map(resume).join(' ; ') : '');
+        : 'Fond ' + teintes.fond.toUpperCase() + fen + ' | Recto : ' + (visibles('recto').map(resume).join(' ; ') || 'vierge') + (verso.length ? ' | Verso : ' + verso.map(resume).join(' ; ') : '');
       brut.value = JSON.stringify({ recto: visibles('recto').map(brutDe), verso: verso.map(brutDe) });
     }
 
@@ -274,11 +283,85 @@
       editeur.classList.toggle('is-centre-h', Math.abs(y - 0.5) < 0.012);
     }
 
+    // Taille : bornes selon le type d'élément
+    function borner(e, s) {
+      return e.t === 'logo' ? Math.max(0.06, Math.min(0.95, s)) : Math.max(0.025, Math.min(1.4, s));
+    }
+    function redimensionner(e, s) {
+      e.s = borner(e, s);
+      var n = editeur.querySelector('[data-el="' + e.id + '"]');
+      if (n) n.style.setProperty('--s', e.s);
+      if (champTaille && selection === e.id) champTaille.value = Math.round(e.s * 100);
+      rendreBientot();
+    }
+
+    // Poignée unique : posée au coin de l'élément sélectionné, toujours dans la carte
+    var poignee = null;
+    var etire = null;
+    function placerPoignee() {
+      if (!poignee) return;
+      var n = selection && editeur.querySelector('[data-el="' + selection + '"]');
+      if (!n) {
+        poignee.hidden = true;
+        return;
+      }
+      var re = editeur.getBoundingClientRect();
+      var rn = n.getBoundingClientRect();
+      poignee.hidden = false;
+      poignee.style.left = Math.min(rn.right, re.right - 10) - re.left + 'px';
+      poignee.style.top = Math.min(rn.bottom, re.bottom - 10) - re.top + 'px';
+    }
+    if (editeur) {
+      poignee = document.createElement('span');
+      poignee.className = 'ecru-editeur__poignee';
+      poignee.setAttribute('aria-hidden', 'true');
+      poignee.hidden = true;
+      editeur.appendChild(poignee);
+      poignee.addEventListener('pointerdown', function (ev) {
+        var e = element(selection);
+        var n = e && editeur.querySelector('[data-el="' + e.id + '"]');
+        if (!n) return;
+        ev.stopPropagation();
+        ev.preventDefault();
+        poignee.setPointerCapture(ev.pointerId);
+        var r = n.getBoundingClientRect();
+        var c = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        etire = { c: c, d: Math.max(8, Math.hypot(ev.clientX - c.x, ev.clientY - c.y)), s: e.s, e: e };
+      });
+      poignee.addEventListener('pointermove', function (ev) {
+        if (!etire) return;
+        var d = Math.hypot(ev.clientX - etire.c.x, ev.clientY - etire.c.y);
+        redimensionner(etire.e, (etire.s * d) / etire.d);
+        placerPoignee();
+      });
+      var finEtire = function () {
+        if (!etire) return;
+        etire = null;
+        dessinerEditeur();
+        rendre(false);
+      };
+      poignee.addEventListener('pointerup', finEtire);
+      poignee.addEventListener('pointercancel', finEtire);
+      window.addEventListener('resize', placerPoignee);
+    }
+
     function brancherGlisser(n) {
       var depart = null;
+      var doigts = {};
+      var pince = null;
       n.addEventListener('pointerdown', function (ev) {
         var e = element(n.dataset.el);
         if (!e) return;
+        doigts[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+        var ids = Object.keys(doigts);
+        if (ids.length === 2) {
+          // Deux doigts : pincer pour réduire, écarter pour agrandir
+          var a = doigts[ids[0]];
+          var b = doigts[ids[1]];
+          pince = { d: Math.max(8, Math.hypot(a.x - b.x, a.y - b.y)), s: e.s };
+          depart = null;
+          return;
+        }
         selectionner(e.id);
         n.setPointerCapture(ev.pointerId);
         var r = editeur.getBoundingClientRect();
@@ -286,6 +369,15 @@
         ev.preventDefault();
       });
       n.addEventListener('pointermove', function (ev) {
+        if (doigts[ev.pointerId]) doigts[ev.pointerId] = { x: ev.clientX, y: ev.clientY };
+        if (pince) {
+          var ids = Object.keys(doigts);
+          if (ids.length < 2) return;
+          var a = doigts[ids[0]];
+          var b = doigts[ids[1]];
+          redimensionner(element(n.dataset.el), (pince.s * Math.hypot(a.x - b.x, a.y - b.y)) / pince.d);
+          return;
+        }
         if (!depart) return;
         var e = element(n.dataset.el);
         var x = depart.x + (ev.clientX - depart.px) / depart.w;
@@ -298,9 +390,19 @@
         guides(e.x, e.y);
         n.style.left = e.x * 100 + '%';
         n.style.top = e.y * 100 + '%';
+        placerPoignee();
         rendreBientot();
       });
-      function fin() {
+      function fin(ev) {
+        if (ev) delete doigts[ev.pointerId];
+        if (pince) {
+          if (Object.keys(doigts).length < 2) {
+            pince = null;
+            dessinerEditeur();
+            rendre(false);
+          }
+          return;
+        }
         if (!depart) return;
         depart = null;
         editeur.classList.remove('is-centre-v', 'is-centre-h');
@@ -317,6 +419,12 @@
         if (!e) return;
         var pas = ev.shiftKey ? 0.05 : 0.01;
         var bouge = { ArrowLeft: [-pas, 0], ArrowRight: [pas, 0], ArrowUp: [0, -pas], ArrowDown: [0, pas] }[ev.key];
+        if (ev.key === '+' || ev.key === '=' || ev.key === '-' || ev.key === '−') {
+          ev.preventDefault();
+          redimensionner(e, e.s * (ev.key === '-' || ev.key === '−' ? 0.92 : 1.08));
+          rendre(false);
+          return;
+        }
         if (bouge) {
           ev.preventDefault();
           e.x = Math.max(0.03, Math.min(0.97, e.x + bouge[0]));
@@ -505,7 +613,7 @@
     function choisirTeinte(cible, teinte) {
       teintes[cible] = teinte;
       var champ = form.querySelector('[data-ecru-champ="' + cible + '"]');
-      if (champ) champ.value = teinte;
+      if (champ) champ.value = teinte === 'auto' ? '' : teinte;
       form.querySelectorAll('[data-cible="' + cible + '"]').forEach(function (b) {
         b.setAttribute('aria-checked', b.dataset.teinte === teinte ? 'true' : 'false');
       });
@@ -579,22 +687,27 @@
       });
     });
 
-    // Assortiments : couleur de carte et de marquage choisies ensemble
+    // Assortiments : jeux de couleurs (carte + marquage et/ou fenêtre NFC) choisis ensemble
     var assortiments = form.querySelectorAll('.ecru-assortiment');
+    function poser(cible, teinte) {
+      teintes[cible] = teinte;
+      var champ = form.querySelector('[data-ecru-champ="' + cible + '"]');
+      if (champ) champ.value = teinte === 'auto' ? '' : teinte;
+      form.querySelectorAll('[data-cible="' + cible + '"]').forEach(function (x) {
+        x.setAttribute('aria-checked', x.dataset.teinte === teinte ? 'true' : 'false');
+      });
+    }
     function majAssortiments() {
       if (!assortiments) return;
       assortiments.forEach(function (b) {
-        b.setAttribute('aria-pressed', b.dataset.fond === teintes.fond && b.dataset.relief === teintes.relief ? 'true' : 'false');
+        var ok = b.dataset.fond === teintes.fond && (!b.dataset.relief || b.dataset.relief === teintes.relief) && (!b.dataset.fenetre || b.dataset.fenetre === teintes.fenetre);
+        b.setAttribute('aria-pressed', ok ? 'true' : 'false');
       });
     }
     assortiments.forEach(function (b) {
       b.addEventListener('click', function () {
-        teintes.relief = b.dataset.relief;
-        var champ = form.querySelector('[data-ecru-champ="relief"]');
-        if (champ) champ.value = b.dataset.relief;
-        form.querySelectorAll('[data-cible="relief"]').forEach(function (x) {
-          x.setAttribute('aria-checked', x.dataset.teinte === b.dataset.relief ? 'true' : 'false');
-        });
+        if (b.dataset.relief) poser('relief', b.dataset.relief);
+        if (b.dataset.fenetre) poser('fenetre', b.dataset.fenetre);
         choisirTeinte('fond', b.dataset.fond);
       });
     });
@@ -673,7 +786,7 @@
       });
     }
 
-    form.querySelectorAll('[data-cible="fond"][data-teinte="#0d0d0c"], [data-cible="relief"][data-teinte="#e9e4d8"]').forEach(function (b) {
+    form.querySelectorAll('[data-cible="fond"][data-teinte="#0d0d0c"], [data-cible="relief"][data-teinte="#e9e4d8"], [data-cible="fenetre"][data-teinte="auto"]').forEach(function (b) {
       b.setAttribute('aria-checked', 'true');
     });
     maj();

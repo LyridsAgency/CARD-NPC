@@ -737,8 +737,8 @@ body::after {
 }
 @media (min-width: 990px) {
   .ecru-offres__grille {
-    grid-template-columns: 1fr 1fr;
-    gap: 2.4rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.6rem;
   }
 }
 .ecru-offre {
@@ -1599,6 +1599,11 @@ body::after {
   width: calc(var(--s) * 100cqh * var(--ratio, 1));
   height: calc(var(--s) * 100cqh);
   padding: 0;
+}
+.ecru-editeur__el--logo .ecru-editeur__contenu {
+  display: block;
+  width: 100%;
+  height: 100%;
   background: var(--marquage);
   -webkit-mask: var(--logo) center / contain no-repeat;
   mask: var(--logo) center / contain no-repeat;
@@ -3087,4 +3092,192 @@ body::after {
 }
 .ecru-pro__liste li span:first-child {
   color: var(--ecru-muted);
+}
+
+/* Poignée de taille : une seule, au coin de l'élément sélectionné, toujours dans la carte */
+.ecru-editeur .ecru-editeur__poignee {
+  position: absolute;
+  z-index: 3;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  display: block;
+  border-radius: 50%;
+  background: var(--ecru-text);
+  box-shadow: 0 0 0 2px #070707, 0 0 0 6px rgba(233, 228, 216, 0.25);
+  cursor: nwse-resize;
+  touch-action: none;
+}
+.ecru-editeur .ecru-editeur__poignee[hidden] {
+  display: none;
+}
+.ecru-editeur .ecru-editeur__poignee::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+.ecru-editeur.is-fixe .ecru-editeur__el.is-selection {
+  outline: 1px dashed var(--marquage);
+}
+/* Fenêtre NFC : couleur choisie */
+.ecru-editeur .ecru-editeur__nfc {
+  background: var(--fenetre, rgba(0, 0, 0, 0.14));
+}
+.ecru-palette__teinte--auto {
+  background: linear-gradient(135deg, #0d0d0c 50%, #3a3936 50%);
+}
+.ecru-assortiment__carte--fenetre i {
+  background: var(--fenetre);
+  box-shadow: none;
+}
+
+/* ----- Aperçu de la page de fidélité (client / commerçant) -------------- */
+.ecru-apercu__duo {
+  display: grid;
+  gap: 4.8rem;
+  justify-content: center;
+}
+@media (min-width: 750px) {
+  .ecru-apercu__duo {
+    grid-template-columns: repeat(2, minmax(0, 340px));
+    gap: 6.4rem;
+  }
+}
+.ecru-apercu__vue {
+  margin: 0;
+}
+.ecru-apercu__tel {
+  container-type: inline-size;
+  width: min(280px, 78vw);
+  margin: 0 auto;
+  aspect-ratio: 9 / 19;
+  padding: 10px;
+  border-radius: 40px;
+  background: linear-gradient(145deg, #2c2b28, #121211 60%);
+  box-shadow: 0 50px 80px -30px rgba(0, 0, 0, 0.95), inset 0 0 0 1px rgba(233, 228, 216, 0.14);
+}
+.ecru-apercu__ecran {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4cqi;
+  padding: 16% 7cqi 8cqi;
+  border-radius: 31px;
+  overflow: hidden;
+  background: #5a1a22;
+  color: #e9e4d8;
+}
+.ecru-apercu__ecran--pro {
+  background: #0d0d0c;
+}
+.ecru-apercu__logo {
+  font-family: var(--font-heading-family);
+  font-size: 8cqi;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ecru-apercu__petit {
+  font-size: 4.4cqi;
+  color: rgba(233, 228, 216, 0.65);
+}
+.ecru-apercu__compte {
+  margin-top: 4cqi;
+  font-size: 7cqi;
+  color: rgba(233, 228, 216, 0.65);
+}
+.ecru-apercu__compte b {
+  font-family: var(--font-heading-family);
+  font-weight: 400;
+  font-size: 22cqi;
+  line-height: 0.9;
+  color: #e9e4d8;
+}
+.ecru-apercu__tampons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2.6cqi;
+}
+.ecru-apercu__tampons i {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(233, 228, 216, 0.4);
+}
+.ecru-apercu__tampons i.is-plein {
+  background: #e9e4d8;
+  border-color: #e9e4d8;
+}
+.ecru-apercu__barre {
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(233, 228, 216, 0.16);
+  overflow: hidden;
+}
+.ecru-apercu__barre i {
+  display: block;
+  height: 100%;
+  background: #e9e4d8;
+}
+.ecru-apercu__offre {
+  font-size: 4.4cqi;
+  line-height: 1.4;
+}
+.ecru-apercu__lien {
+  padding: 3.4cqi 0;
+  border-bottom: 1px solid rgba(233, 228, 216, 0.2);
+  font-size: 4.6cqi;
+}
+.ecru-apercu__badge {
+  align-self: flex-start;
+  padding: 1.4cqi 3cqi;
+  border: 1px solid rgba(233, 228, 216, 0.3);
+  border-radius: 99px;
+  font-size: 3.6cqi;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(233, 228, 216, 0.8);
+}
+.ecru-apercu__boutons {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 2.4cqi;
+  margin-top: auto;
+}
+.ecru-apercu__btn {
+  display: grid;
+  place-items: center;
+  min-height: 13cqi;
+  border: 1px solid rgba(233, 228, 216, 0.3);
+  border-radius: 99px;
+  font-size: 4.6cqi;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ecru-apercu__btn--plein {
+  background: #e9e4d8;
+  border-color: #e9e4d8;
+  color: #121211;
+}
+.ecru-apercu__vue figcaption {
+  display: flex;
+  gap: 1.4rem;
+  max-width: 34rem;
+  margin: 3.2rem auto 0;
+  font-size: 1.45rem;
+  line-height: 1.6;
+  color: var(--ecru-muted);
+}
+.ecru-apercu__vue figcaption b {
+  font-weight: 500;
+  color: var(--ecru-text);
+}
+.ecru-apercu__num {
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  padding-top: 0.3rem;
+}
+.ecru-apercu__note {
+  margin: 4.8rem 0 0;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #85817a;
 }
