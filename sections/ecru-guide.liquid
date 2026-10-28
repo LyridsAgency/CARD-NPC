@@ -22,14 +22,18 @@
     <div class="ecru-guide__grille">
       <nav class="ecru-guide__sommaire" aria-label="Sommaire du guide">
         <ol role="list">
-          {%- for block in section.blocks -%}
-            {%- if block.type == 'partie' -%}
-              {%- unless forloop.first -%}</ol></li>{%- endunless -%}
-              <li class="ecru-guide__partie"><span>{{ block.settings.title | escape }}</span><ol role="list">
-            {%- else -%}
-              <li><a href="#{{ block.settings.ancre | handleize }}" data-ecru-guide-lien>{{ block.settings.title | escape }}</a></li>
+          {%- for partie in section.blocks -%}
+            {%- if partie.type == 'partie' -%}
+              <li class="ecru-guide__partie">
+                <span>{{ partie.settings.title | escape }}</span>
+                <ol role="list">
+                  {%- for block in section.blocks offset: forloop.index -%}
+                    {%- if block.type == 'partie' -%}{%- break -%}{%- endif -%}
+                    <li><a href="#{{ block.settings.ancre | handleize }}" data-ecru-guide-lien>{{ block.settings.title | escape }}</a></li>
+                  {%- endfor -%}
+                </ol>
+              </li>
             {%- endif -%}
-            {%- if forloop.last -%}</ol></li>{%- endif -%}
           {%- endfor -%}
         </ol>
       </nav>
