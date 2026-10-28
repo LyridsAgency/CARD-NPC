@@ -500,7 +500,7 @@ export async function mount(el) {
     const id = ++lookId;
     // Les logos se chargent avant de redessiner ; seule la dernière demande est appliquée
     const images = new Map();
-    const urls = (look.elements || []).filter((e) => e.t === 'logo' && e.u).map((e) => e.u);
+    const urls = [...(look.elements || []), ...(look.verso || [])].filter((e) => e.t === 'logo' && e.u).map((e) => e.u);
     for (const u of urls) {
       const img = await loadLogo(u);
       if (img) images.set(u, img);
@@ -509,11 +509,34 @@ export async function mount(el) {
     drawLook(look, images);
   }
 
+  // Textes et logos d'une face (recto ou verso)
+  function drawElements(ctx, w, h, els, images) {
+    ctx.textBaseline = 'middle';
+    els.forEach((el) => {
+      const x = (el.x ?? 0.5) * w;
+      const y = (el.y ?? 0.5) * h;
+      const size = Math.max(0.02, el.s || 0.08) * h;
+      if (el.t === 'logo') {
+        const img = images.get(el.u);
+        if (!img) return;
+        const lm = logoMask(img, w * 0.9, size);
+        ctx.drawImage(lm, x - lm.width / 2, y - lm.height / 2);
+      } else if (el.v) {
+        const txt = String(el.v).slice(0, 40);
+        const display = el.f !== 'body';
+        ctx.font = display ? `${size}px "${family}", sans-serif` : `500 ${size}px "${bodyFamily}", sans-serif`;
+        const align = el.a || 'center';
+        drawSpaced(ctx, display ? txt.toUpperCase() : txt, x, y, size, el.k ?? (display ? 0.12 : 0.04), align);
+      }
+    });
+  }
+
   // Éléments posés sur le recto, en coordonnées 0 à 1 (centre de l'élément) :
   //   { t: 'text', v: 'Texte', x, y, s: taille (part de la hauteur), f: 'display' | 'body', a: 'left' | 'center' | 'right' }
   //   { t: 'logo', u: url, x, y, s: hauteur (part de la hauteur) }
-  function drawLook({ color, ink, finish, elements, inlay }, images) {
+  function drawLook({ color, ink, finish, elements, verso, inlay }, images) {
     elements = Array.isArray(elements) ? elements : [];
+    verso = Array.isArray(verso) ? verso : [];
     // finish : 'mat' (PVC) ou 'metal' (métal satiné). 'brosse' reste disponible pour un métal brossé.
     const metal = finish !== 'mat';
     const brushed = finish === 'brosse';
@@ -567,23 +590,7 @@ export async function mount(el) {
         ctx.textBaseline = 'middle';
         // Le symbole sans contact, au centre de la fenêtre
         if (inlay !== 'aucune') drawNfc(ctx, w * (NFC.x + NFC.w / 2), h * 0.5, h * 0.026, 0.75);
-        elements.forEach((el) => {
-          const x = (el.x ?? 0.5) * w;
-          const y = (el.y ?? 0.5) * h;
-          const size = Math.max(0.02, el.s || 0.08) * h;
-          if (el.t === 'logo') {
-            const img = images.get(el.u);
-            if (!img) return;
-            const lm = logoMask(img, w * 0.9, size);
-            ctx.drawImage(lm, x - lm.width / 2, y - lm.height / 2);
-          } else if (el.v) {
-            const txt = String(el.v).slice(0, 40);
-            const display = el.f !== 'body';
-            ctx.font = display ? `${size}px "${family}", sans-serif` : `500 ${size}px "${bodyFamily}", sans-serif`;
-            const align = el.a || 'center';
-            drawSpaced(ctx, display ? txt.toUpperCase() : txt, x, y, size, el.k ?? (display ? 0.12 : 0.04), align);
-          }
-        });
+        drawElements(ctx, w, h, elements, images);
       },
       // Fenêtre NFC : une longue bande sur toute la hauteur, à gauche, comme sur les cartes métal réelles
       drawInlay:
@@ -609,6 +616,7 @@ export async function mount(el) {
       drawMask(ctx, w, h) {
         // Verso : le symbole sans contact, discret, en haut à droite
         drawNfc(ctx, w - w * 0.1, h * 0.19, h * 0.019, 0.85);
+        drawElements(ctx, w, h, verso, images);
       },
     });
     front.material = faceMaterial(frontTex, anisotropy, metal, brushed);
@@ -619,7 +627,7 @@ export async function mount(el) {
     edgeMat.metalness = metal ? 1 : 0.35;
     edgeMat.roughness = brushed ? 0.2 : metal ? 0.18 : 0.42;
     scene.environmentIntensity = metal ? 1.9 : 1.35;
-    current = { color, ink, finish, elements, inlay };
+    current = { color, ink, finish, elements, verso, inlay };
   }
 
   const d = el.dataset;
@@ -673,6 +681,9 @@ export async function mount(el) {
     presentUntil: 0,
     view: null,
     gyro: false,
+    drag: null,
+    vel: 0,
+    libreApres: 0,
   };
   const SPIN = 0.2; // rad/s : un tour en ~31 s
 
@@ -691,6 +702,35 @@ export async function mount(el) {
     state.ty = 0;
   };
   stage.addEventListener('pointermove', onMove, { passive: true });
+
+  // Glisser pour tourner la carte (souris ou doigt, à l'horizontale ; le défilement vertical reste libre)
+  stage.addEventListener('pointerdown', (e) => {
+    if (pose.fixe || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    state.drag = { x: e.clientX, yaw: state.yaw, lx: e.clientX, lt: performance.now() };
+    state.view = null;
+    state.vel = 0;
+    el.classList.add('is-grabbing');
+  });
+  window.addEventListener('pointermove', (e) => {
+    const d = state.drag;
+    if (!d) return;
+    state.yaw = d.yaw + (e.clientX - d.x) * 0.011;
+    const now = performance.now();
+    const dt = Math.max(1, now - d.lt) / 1000;
+    state.vel = ((e.clientX - d.lx) * 0.011) / dt;
+    d.lx = e.clientX;
+    d.lt = now;
+  }, { passive: true });
+  const finDrag = () => {
+    if (!state.drag) return;
+    state.drag = null;
+    state.vel = Math.max(-8, Math.min(8, state.vel));
+    state.libreApres = t + 2.5;
+    el.classList.remove('is-grabbing');
+    el.dispatchEvent(new CustomEvent('ecru:tournee'));
+  };
+  window.addEventListener('pointerup', finDrag);
+  window.addEventListener('pointercancel', finDrag);
   stage.addEventListener('pointerenter', onEnter);
   stage.addEventListener('pointerleave', onLeave);
 
@@ -750,7 +790,15 @@ export async function mount(el) {
     state.px += (state.tx - state.px) * k;
     state.py += (state.ty - state.py) * k;
 
-    if (state.view !== null) {
+    if (state.drag) {
+      // La main tient la carte
+    } else if (Math.abs(state.vel) > 0.02) {
+      // Élan après le geste
+      state.yaw += state.vel * dt;
+      state.vel *= Math.exp(-dt * 3.2);
+    } else if (t < state.libreApres) {
+      // Courte pause avant de reprendre la rotation
+    } else if (state.view !== null) {
       // Vue choisie : on rejoint l'angle le plus proche équivalent
       const tour = Math.PI * 2;
       const target = state.view + Math.round((state.yaw - state.view) / tour) * tour;

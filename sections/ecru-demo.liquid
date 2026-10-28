@@ -1,0 +1,67 @@
+{%- comment -%} ECRU — Démonstration animée : la carte touche le téléphone, la page du commerce s'ouvre. {%- endcomment -%}
+<section
+  class="ecru-section ecru-demo"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur ecru-demo__grille">
+    <div class="ecru-demo__texte">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+      <ol class="ecru-demo__etapes" role="list">
+        <li class="ecru-reveal" style="--d: 1"><span>01</span>{{ section.settings.etape_1 | escape }}</li>
+        <li class="ecru-reveal" style="--d: 2"><span>02</span>{{ section.settings.etape_2 | escape }}</li>
+        <li class="ecru-reveal" style="--d: 3"><span>03</span>{{ section.settings.etape_3 | escape }}</li>
+      </ol>
+    </div>
+
+    <div class="ecru-demo__scene" aria-hidden="true">
+      <div class="ecru-demo__telephone">
+        <div class="ecru-demo__ecran">
+          <div class="ecru-demo__verrou">
+            <span class="ecru-demo__heure">20:41</span>
+            <span class="ecru-demo__notif"><b>{{ section.settings.marque | escape }}</b>Touchez pour ouvrir</span>
+          </div>
+          <div class="ecru-demo__page">
+            <span class="ecru-demo__logo">{{ section.settings.marque | escape }}</span>
+            <span class="ecru-demo__bonjour">Bon retour parmi nous.</span>
+            <span class="ecru-demo__fidelite">
+              <span class="ecru-demo__fidelite-titre">Votre carte <em>7 / 10</em></span>
+              <span class="ecru-demo__tampons">
+                {%- for i in (1..10) -%}<i{% if i <= 7 %} class="is-plein"{% endif %}{% if i == 7 %} data-dernier{% endif %}></i>{%- endfor -%}
+              </span>
+              <span class="ecru-demo__offre">Encore 3 visites : le dessert est offert.</span>
+            </span>
+            <span class="ecru-demo__lien">Voir le menu</span>
+            <span class="ecru-demo__lien">Laisser un avis</span>
+          </div>
+        </div>
+      </div>
+      <div class="ecru-demo__ondes"><i></i><i></i><i></i></div>
+      <div class="ecru-demo__carte">
+        <span class="ecru-demo__fenetre"><svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg></span>
+        <span class="ecru-demo__nom">{{ section.settings.marque | escape }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Démonstration ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "En situation" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Approchez. C’est ouvert." },
+    { "type": "text", "id": "etape_1", "label": "Étape 1", "default": "Le client approche la carte de son téléphone." },
+    { "type": "text", "id": "etape_2", "label": "Étape 2", "default": "Votre page s’ouvre : menu, avis, carte de fidélité." },
+    { "type": "text", "id": "etape_3", "label": "Étape 3", "default": "Un tampon de plus. Une raison de revenir." },
+    { "type": "text", "id": "marque", "label": "Nom affiché (exemple)", "default": "Maison Lune" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "presets": [{ "name": "Démonstration ECRU" }]
+}
+{% endschema %}

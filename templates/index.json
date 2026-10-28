@@ -58,40 +58,6 @@
         "avantage_5"
       ]
     },
-    "etapes": {
-      "type": "ecru-etapes",
-      "settings": {
-        "surface": false
-      },
-      "blocks": {
-        "etape_1": {
-          "type": "etape",
-          "settings": {
-            "title": "On crée votre carte",
-            "text": "Votre nom, votre logo, votre matière. Nous la dessinons et la programmons pour vous."
-          }
-        },
-        "etape_2": {
-          "type": "etape",
-          "settings": {
-            "title": "Ils la scannent",
-            "text": "Un geste contre le téléphone. Pas d'application, pas de compte à créer."
-          }
-        },
-        "etape_3": {
-          "type": "etape",
-          "settings": {
-            "title": "Ils reviennent",
-            "text": "Ils cumulent, vous récompensez. Et chaque mois, vous voyez ce qui marche."
-          }
-        }
-      },
-      "block_order": [
-        "etape_1",
-        "etape_2",
-        "etape_3"
-      ]
-    },
     "offres": {
       "type": "ecru-offres",
       "settings": {
@@ -126,38 +92,6 @@
       "block_order": [
         "offre_1",
         "offre_2"
-      ]
-    },
-    "matieres": {
-      "type": "ecru-matieres",
-      "settings": {
-        "eyebrow": "Matières",
-        "heading": "Le poids des choses.",
-        "surface": false
-      },
-      "blocks": {
-        "matiere_1": {
-          "type": "matiere",
-          "settings": {
-            "title": "PVC",
-            "text": "Léger, résistant, au toucher mat. L'essentiel, bien fait.",
-            "details": "",
-            "visual": "pvc"
-          }
-        },
-        "matiere_2": {
-          "type": "matiere",
-          "settings": {
-            "title": "Métal",
-            "text": "Plus de poids, plus de présence. Elle se remarque dès qu'on la tient.",
-            "details": "",
-            "visual": "metal"
-          }
-        }
-      },
-      "block_order": [
-        "matiere_1",
-        "matiere_2"
       ]
     },
     "faq": {
@@ -470,18 +404,50 @@
         "m5",
         "m6"
       ]
+    },
+    "demo": {
+      "type": "ecru-demo",
+      "settings": {}
+    },
+    "croissance": {
+      "type": "ecru-croissance",
+      "settings": {
+        "button_link": "shopify://products/carte-fidelite"
+      },
+      "blocks": {
+        "e1": {
+          "type": "etude",
+          "settings": {
+            "chiffre": "+25 à 95 %",
+            "texte": "de bénéfices quand la fidélisation des clients augmente de 5 %.",
+            "source": "Frederick F. Reichheld, Bain & Company"
+          }
+        },
+        "e2": {
+          "type": "etude",
+          "settings": {
+            "chiffre": "60 à 70 %",
+            "texte": "de chances de vendre à un client déjà venu, contre 5 à 20 % pour un nouveau.",
+            "source": "Farris, Bendle, Pfeifer, Reibstein, « Marketing Metrics »"
+          }
+        }
+      },
+      "block_order": [
+        "e1",
+        "e2"
+      ]
     }
   },
   "order": [
     "hero",
     "defilement",
     "chiffres",
+    "demo",
+    "croissance",
+    "assortiments",
     "vues",
     "usages",
-    "assortiments",
-    "etapes",
     "offres",
-    "matieres",
     "faq",
     "appel"
   ]

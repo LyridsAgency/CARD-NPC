@@ -88,6 +88,13 @@
     var fichier = form.querySelector('[data-ecru-fichier]');
     var logoRetirer = form.querySelector('[data-ecru-logo-retirer]');
     var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.66, y: 0.62, s: 0.09, f: 'display', a: 'center' }];
+    // Deux faces : « elements » est toujours la face en cours d'édition
+    var face = 'recto';
+    var faces = { recto: elements, verso: [] };
+    function liste(f) {
+      if (f === face) return elements;
+      return faces[f];
+    }
     var selection = null;
     var modeleApplique = false;
 
@@ -106,8 +113,8 @@
       });
       return sel;
     }
-    function visibles() {
-      return elements.filter(function (e) {
+    function visibles(f) {
+      return (f ? liste(f) : elements).filter(function (e) {
         return e.t === 'logo' ? !!e.u : !!(e.v && e.v.trim());
       });
     }
@@ -125,11 +132,14 @@
       if (modeDe(options) === 'design') {
         color = teintes.fond;
         look.ink = teintes.relief;
-        look.elements = visibles().map(function (e) {
+        var pourLa3d = function (e) {
           return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: e.a || 'center', k: e.k };
-        });
+        };
+        look.elements = visibles('recto').map(pourLa3d);
+        look.verso = visibles('verso').map(pourLa3d);
       } else {
         look.ink = inkPour(color);
+        look.verso = [];
       }
       look.color = color;
       return look;
@@ -225,18 +235,16 @@
       var lisible = form.querySelector('[data-ecru-maquette]');
       var brut = form.querySelector('[data-ecru-maquette-json]');
       if (!lisible) return;
-      var vis = visibles();
-      lisible.value = vis
-        .map(function (e) {
-          var pos = 'position ' + pct(e.x) + ' / ' + pct(e.y) + ', taille ' + Math.round(e.s * 100);
-          return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Texte « ' + e.v + ' » (' + pos + ')';
-        })
-        .join(' ; ');
-      brut.value = JSON.stringify(
-        vis.map(function (e) {
-          return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3) };
-        })
-      );
+      var resume = function (e) {
+        var pos = 'position ' + pct(e.x) + ' / ' + pct(e.y) + ', taille ' + Math.round(e.s * 100);
+        return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Texte « ' + e.v + ' » (' + pos + ')';
+      };
+      var brutDe = function (e) {
+        return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3), f: e.f, a: e.a };
+      };
+      var verso = visibles('verso');
+      lisible.value = 'Recto : ' + (visibles('recto').map(resume).join(' ; ') || 'vierge') + (verso.length ? ' | Verso : ' + verso.map(resume).join(' ; ') : '');
+      brut.value = JSON.stringify({ recto: visibles('recto').map(brutDe), verso: verso.map(brutDe) });
     }
 
     function guides(x, y) {
@@ -298,10 +306,16 @@
       });
     }
 
-    function retirerLogo() {
-      elements = elements.filter(function (e) {
+    function sansLogo(l) {
+      return l.filter(function (e) {
         return e.t !== 'logo';
       });
+    }
+    function retirerLogo() {
+      elements = sansLogo(elements);
+      faces.recto = sansLogo(liste('recto'));
+      faces.verso = sansLogo(liste('verso'));
+      elements = faces[face];
       if (fichier) fichier.value = '';
       form.querySelector('[data-ecru-fichier-nom]').textContent = '';
       if (logoRetirer) logoRetirer.hidden = true;
@@ -313,7 +327,15 @@
     if (editeur) {
       champNom.addEventListener('input', function () {
         var e = element(selection);
-        if (!e || e.t !== 'text') e = element('nom');
+        if (!e || e.t !== 'text') {
+          e = elements.find(function (x) {
+            return x.t === 'text';
+          });
+        }
+        if (!e) {
+          e = { id: face + '-texte', t: 'text', v: '', x: 0.5, y: 0.55, s: 0.06, f: 'body', a: 'center' };
+          elements.push(e);
+        }
         e.v = champNom.value;
         selection = e.id;
         dessinerEditeur();
@@ -332,9 +354,9 @@
       if (logoRetirer) logoRetirer.addEventListener('click', retirerLogo);
       fichier.addEventListener('change', function () {
         var f = fichier.files && fichier.files[0];
-        elements = elements.filter(function (e) {
-          return e.t !== 'logo';
-        });
+        faces.recto = sansLogo(liste('recto'));
+        faces.verso = sansLogo(liste('verso'));
+        elements = faces[face];
         if (!f || !/^image\//.test(f.type)) {
           retirerLogo();
           return;
@@ -441,11 +463,40 @@
         choisirTeinte(b.dataset.cible, b.dataset.teinte);
       });
     });
+    // Recto / verso : on édite une face, la carte 3D se retourne pour la montrer
+    var boutonsFace = form.querySelectorAll('[data-ecru-face]');
+    function changerFace(f, sansVue) {
+      if (f === face) return;
+      faces[face] = elements;
+      face = f;
+      elements = faces[f];
+      selection = null;
+      if (editeur) editeur.classList.toggle('is-verso', f === 'verso');
+      (boutonsFace || []).forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.ecruFace === f ? 'true' : 'false');
+      });
+      var premier = elements.find(function (x) {
+        return x.t === 'text';
+      });
+      if (champNom) {
+        champNom.value = premier ? premier.v : '';
+        champNom.placeholder = f === 'verso' ? 'Un texte au verso (facultatif)' : 'Votre marque';
+      }
+      dessinerEditeur();
+      if (!sansVue && carte) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: f } }));
+    }
+    boutonsFace.forEach(function (b) {
+      b.addEventListener('click', function () {
+        changerFace(b.dataset.ecruFace);
+      });
+    });
+
     // Modèles : couleurs et mise en page d'un coup, tout reste modifiable
     function appliquerModele(nom) {
       var m = MODELES[nom];
       if (!m) return;
       modeleApplique = true;
+      changerFace('recto', true);
       var logo = elements.filter(function (e) {
         return e.t === 'logo';
       });
