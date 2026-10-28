@@ -20,7 +20,34 @@ const REQUETE = `query Commerce($h: MetaobjectHandleInput!) {
   }
 }`;
 
+// Fiche gérée dans la base (page /admin) : utilisée quand aucun jeton Shopify n'est configuré
+function lien(u) {
+  return /^https?:\/\//.test(u || '') ? u : null;
+}
+export function normaliser(r) {
+  if (!r) return null;
+  return {
+    handle: r.handle,
+    nom: r.nom || 'Votre commerce',
+    actif: !!r.actif,
+    couleur: /^#[0-9a-f]{6}$/i.test(r.couleur || '') ? r.couleur : '#0d0d0c',
+    accroche: r.accroche || '',
+    recompense: r.recompense || '',
+    seuil: Math.min(30, Math.max(3, parseInt(r.seuil, 10) || 10)),
+    liens: [
+      ['Voir le menu', lien(r.lien_menu)],
+      ['Laisser un avis', lien(r.lien_avis)],
+      ['Nous suivre', lien(r.lien_reseaux)],
+      ['Notre site', lien(r.lien_site)],
+    ].filter((l) => l[1]),
+    logo: lien(r.logo) || '',
+  };
+}
+
 export async function lireCommerce(env, handle, maintenant = Date.now()) {
+  if (!env.SHOPIFY_STOREFRONT_TOKEN) {
+    return normaliser(await env.DB.prepare('SELECT * FROM commerces WHERE handle = ?').bind(handle).first());
+  }
   const memo = CACHE.get(handle);
   if (memo && maintenant - memo.t < DUREE) return memo.v;
   // SHOPIFY_API_URL : uniquement pour les essais en local (fausse boutique)

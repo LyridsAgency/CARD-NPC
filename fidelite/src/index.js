@@ -106,6 +106,13 @@ async function scanCarte(env, requete, url, code) {
   return html(pageClient(c, k, reglage));
 }
 
+async function listeCommerces(env) {
+  const r = await env.DB.prepare(
+    'SELECT c.handle, c.nom, c.actif, (SELECT COUNT(*) FROM cartes k WHERE k.commerce = c.handle) AS cartes FROM commerces c ORDER BY c.nom'
+  ).bind().all();
+  return r.results || [];
+}
+
 function debutMois(decalage = 0) {
   const d = new Date();
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + decalage, 1)).toISOString();
@@ -170,11 +177,38 @@ async function routesPro(env, requete, url) {
 }
 
 async function routesAdmin(env, requete, url) {
-  if (requete.method !== 'POST') return html(pageAdmin());
+  // Statut d'abonnement depuis une automatisation (ex. Shopify Flow, « Send HTTP request ») :
+  // POST /admin/statut  Authorization: Bearer <ADMIN_TOKEN>  {"commerce":"client-123","actif":false}
+  if (url.pathname === '/admin/statut' && requete.method === 'POST' && (requete.headers.get('Content-Type') || '').includes('json')) {
+    const auth = requete.headers.get('Authorization') || '';
+    if (!env.ADMIN_TOKEN || !egal(auth, `Bearer ${env.ADMIN_TOKEN}`)) return new Response('Non autorisé', { status: 401 });
+    const corps = await requete.json().catch(() => ({}));
+    const commerce = String(corps.commerce || '');
+    if (!/^[a-z0-9-]{1,80}$/.test(commerce)) return new Response('Commerce invalide', { status: 400 });
+    const r = await env.DB.prepare('UPDATE commerces SET actif = ?, modifie = ? WHERE handle = ?').bind(corps.actif ? 1 : 0, maintenantIso(), commerce).run();
+    return new Response(JSON.stringify({ ok: r.meta.changes > 0 }), { status: r.meta.changes > 0 ? 200 : 404, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (requete.method !== 'POST') return html(pageAdmin('', await listeCommerces(env)));
   const f = await requete.formData();
-  if (!env.ADMIN_TOKEN || !egal(String(f.get('jeton') || ''), env.ADMIN_TOKEN)) return html(pageAdmin('<p class="flash">Clé d’administration incorrecte.</p>'), 403);
+  const liste = await listeCommerces(env);
+  if (!env.ADMIN_TOKEN || !egal(String(f.get('jeton') || ''), env.ADMIN_TOKEN)) return html(pageAdmin('<p class="flash">Clé d’administration incorrecte.</p>', liste), 403);
   const commerce = String(f.get('commerce') || '').trim();
-  if (!/^[a-z0-9-]{1,80}$/.test(commerce)) return html(pageAdmin('<p class="flash">Handle de commerce invalide.</p>'), 400);
+  if (!/^[a-z0-9-]{1,80}$/.test(commerce)) return html(pageAdmin('<p class="flash">Identifiant de commerce invalide (minuscules, chiffres, tirets).</p>', liste), 400);
+
+  if (url.pathname === '/admin/commerce') {
+    const t = (k, n = 200) => String(f.get(k) || '').trim().slice(0, n) || null;
+    const couleur = /^#[0-9a-f]{6}$/i.test(t('couleur') || '') ? t('couleur') : '#0d0d0c';
+    const seuil = Math.min(30, Math.max(3, parseInt(f.get('seuil'), 10) || 10));
+    await env.DB.prepare(
+      `INSERT INTO commerces (handle, nom, actif, couleur, logo, accroche, recompense, seuil, lien_menu, lien_avis, lien_reseaux, lien_site, modifie)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(handle) DO UPDATE SET nom = excluded.nom, actif = excluded.actif, couleur = excluded.couleur, logo = excluded.logo,
+         accroche = excluded.accroche, recompense = excluded.recompense, seuil = excluded.seuil, lien_menu = excluded.lien_menu,
+         lien_avis = excluded.lien_avis, lien_reseaux = excluded.lien_reseaux, lien_site = excluded.lien_site, modifie = excluded.modifie`
+    ).bind(commerce, t('nom', 60) || commerce, f.get('actif') ? 1 : 0, couleur, t('logo', 500), t('accroche', 120), t('recompense', 80), seuil,
+      t('lien_menu', 500), t('lien_avis', 500), t('lien_reseaux', 500), t('lien_site', 500), maintenantIso()).run();
+    return html(pageAdmin(`<p class="flash">Commerce « ${echapper(commerce)} » enregistré${f.get('actif') ? '' : ' (arrêté : ses cartes affichent le message de fin)'}.</p>`, await listeCommerces(env)));
+  }
 
   if (url.pathname === '/admin/cartes') {
     const nombre = Math.min(1000, Math.max(1, parseInt(f.get('nombre'), 10) || 1));
@@ -199,7 +233,7 @@ async function routesAdmin(env, requete, url) {
       'INSERT INTO acces_pro (commerce, cle_hash, creee) VALUES (?, ?, ?) ON CONFLICT(commerce) DO UPDATE SET cle_hash = excluded.cle_hash, creee = excluded.creee'
     ).bind(commerce, await hacher(cle), maintenantIso()).run();
     const lien = `${env.PUBLIC_URL}/pro/connexion?commerce=${encodeURIComponent(commerce)}&cle=${cle}`;
-    return html(pageAdmin(`<div class="bloc"><p class="petit">Lien de connexion (l’ancien ne marche plus)</p><p style="word-break:break-all;margin-top:8px">${echapper(lien)}</p></div>`));
+    return html(pageAdmin(`<div class="bloc"><p class="petit">Lien de connexion (l’ancien ne marche plus)</p><p style="word-break:break-all;margin-top:8px">${echapper(lien)}</p></div>`, liste));
   }
   return html(pageInconnue(), 404);
 }

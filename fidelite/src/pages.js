@@ -194,22 +194,44 @@ export function pageMessage(titre, texte, fond = '#0d0d0c') {
   return page({ titre, fond, corps: `<div style="margin:auto 0"><h1>${echapper(titre)}</h1><p class="doux" style="margin-top:14px">${echapper(texte)}</p></div>${pied}` });
 }
 
-export function pageAdmin(resultat = '') {
+export function pageAdmin(resultat = '', commerces = []) {
+  const liste = commerces.length
+    ? `<div class="bloc"><p class="petit">Commerces</p>${commerces
+        .map((c) => `<p style="margin-top:10px">${echapper(c.nom)} <span class="doux">· ${echapper(c.handle)} · ${c.cartes} carte${c.cartes > 1 ? 's' : ''} · ${c.actif ? 'actif' : 'arrêté'}</span></p>`)
+        .join('')}</div>`
+    : '';
+  const cle = (id) => `<div><label for="${id}">Clé d’administration</label><input id="${id}" name="jeton" type="password" required autocomplete="current-password"></div>`;
+  const commerce = (id) => `<div><label for="${id}">Identifiant du commerce (ex. maison-lune)</label><input id="${id}" name="commerce" required pattern="[a-z0-9-]+"></div>`;
   return page({
     titre: 'ECRU · administration',
     corps: `<span class="badge">Administration ECRU</span>
     ${resultat}
+    ${liste}
+    <form method="post" action="/admin/commerce" class="champs bloc">
+      <p class="petit">1. Fiche du commerce (créer ou modifier)</p>
+      ${cle('t0')}${commerce('c0')}
+      <div><label for="nom">Nom affiché</label><input id="nom" name="nom" maxlength="60" required></div>
+      <div><label for="couleur">Couleur (#rrggbb)</label><input id="couleur" name="couleur" value="#0d0d0c" pattern="#[0-9a-fA-F]{6}"></div>
+      <div><label for="logo">Adresse du logo (image en ligne, facultatif)</label><input id="logo" name="logo" type="url"></div>
+      <div><label for="accroche">Message d’accueil</label><input id="accroche" name="accroche" maxlength="120" placeholder="Bon retour parmi nous."></div>
+      <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" placeholder="Le dessert offert"></div>
+      <div><label for="seuil">Tampons pour la récompense</label><input id="seuil" name="seuil" type="number" min="3" max="30" value="10"></div>
+      <div><label for="lm">Lien menu</label><input id="lm" name="lien_menu" type="url"></div>
+      <div><label for="la">Lien avis</label><input id="la" name="lien_avis" type="url"></div>
+      <div><label for="lr">Lien réseaux</label><input id="lr" name="lien_reseaux" type="url"></div>
+      <div><label for="ls">Lien site</label><input id="ls" name="lien_site" type="url"></div>
+      <label style="display:flex;gap:10px;align-items:center;font-size:15px"><input type="checkbox" name="actif" value="1" checked style="width:auto"> Abonnement actif (décocher pour arrêter ses cartes)</label>
+      <button class="plein" type="submit">Enregistrer le commerce</button>
+    </form>
     <form method="post" action="/admin/cartes" class="champs bloc">
-      <p class="petit">Créer des cartes</p>
-      <div><label for="t1">Clé d’administration</label><input id="t1" name="jeton" type="password" required autocomplete="current-password"></div>
-      <div><label for="c1">Commerce (handle Shopify, ex. client-123456)</label><input id="c1" name="commerce" required pattern="[a-z0-9-]+"></div>
+      <p class="petit">2. Créer des cartes</p>
+      ${cle('t1')}${commerce('c1')}
       <div><label for="n1">Nombre de cartes</label><input id="n1" name="nombre" type="number" min="1" max="1000" value="100"></div>
       <button class="plein" type="submit">Télécharger les adresses (CSV)</button>
     </form>
     <form method="post" action="/admin/acces" class="champs bloc">
-      <p class="petit">Accès commerçant</p>
-      <div><label for="t2">Clé d’administration</label><input id="t2" name="jeton" type="password" required autocomplete="current-password"></div>
-      <div><label for="c2">Commerce (handle Shopify)</label><input id="c2" name="commerce" required pattern="[a-z0-9-]+"></div>
+      <p class="petit">3. Accès commerçant</p>
+      ${cle('t2')}${commerce('c2')}
       <button type="submit">Créer le lien de connexion</button>
     </form>`,
   });

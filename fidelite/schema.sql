@@ -37,3 +37,21 @@ CREATE TABLE IF NOT EXISTS reglages (
   recompense TEXT,
   modifie TEXT NOT NULL
 );
+
+-- Fiches des commerces gérées directement ici (page /admin), sans dépendre d'un jeton Shopify.
+-- Si un jeton Storefront Shopify est configuré, la fiche Shopify « Commerce ECRU » est utilisée à la place.
+CREATE TABLE IF NOT EXISTS commerces (
+  handle TEXT PRIMARY KEY,
+  nom TEXT NOT NULL,
+  actif INTEGER NOT NULL DEFAULT 1,
+  couleur TEXT NOT NULL DEFAULT '#0d0d0c',
+  logo TEXT,
+  accroche TEXT,
+  recompense TEXT,
+  seuil INTEGER NOT NULL DEFAULT 10,
+  lien_menu TEXT,
+  lien_avis TEXT,
+  lien_reseaux TEXT,
+  lien_site TEXT,
+  modifie TEXT NOT NULL
+);
