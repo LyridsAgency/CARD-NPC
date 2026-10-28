@@ -167,7 +167,7 @@
     "appel": {
       "type": "ecru-appel",
       "settings": {
-        "eyebrow": "Option fidélité",
+        "eyebrow": "Le niveau supérieur",
         "heading": "Faites-les revenir.",
         "button_label": "Composer ma carte avec l’option",
         "button_link": "/products/cartes-sur-mesure?fidelite=1",

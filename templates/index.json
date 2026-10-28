@@ -5,7 +5,7 @@
       "settings": {
         "show_text": true,
         "heading_h1": true,
-        "eyebrow": "Cartes NFC pour commerçants",
+        "eyebrow": "Pour les commerces qui passent au niveau supérieur",
         "heading": "Un geste. Tout s’ouvre.",
         "button_label": "Composer ma carte",
         "button_link": "/products/cartes-sur-mesure",
@@ -211,7 +211,8 @@
         "button_link": "/products/cartes-sur-mesure",
         "button_label": "Composer ma carte",
         "button_2_label": "Demander un devis",
-        "button_2_link": "/pages/demande-particuliere"
+        "button_2_link": "/pages/demande-particuliere",
+        "eyebrow": "Votre prochain niveau commence ici"
       }
     },
     "defilement": {
@@ -406,11 +407,52 @@
         "pvc",
         "metal"
       ]
+    },
+    "niveau": {
+      "type": "ecru-avantages",
+      "settings": {
+        "eyebrow": "Votre prochain niveau",
+        "heading": "Passez au niveau supérieur.",
+        "text": "Une carte ECRU n’est pas un accessoire de plus. C’est ce qui sépare le commerce qu’on oublie de celui dont on parle : plus d’image, plus d’avis, plus de clients qui reviennent.",
+        "publics": "Restaurants, Cafés, Salons, Barbiers, Boutiques, Clubs, Festivals"
+      },
+      "blocks": {
+        "a1": {
+          "type": "avantage",
+          "settings": {
+            "title": "Une image qui marque",
+            "text": "Une carte en métal à votre nom, posée sur le comptoir. Le détail qui fait passer un bon commerce pour une grande maison.",
+            "pour": "Le premier regard"
+          }
+        },
+        "a2": {
+          "type": "avantage",
+          "settings": {
+            "title": "Plus d’avis, plus de visibilité",
+            "text": "Un geste et le client laisse son avis ou vous suit. Ce qui demandait trois écrans ne demande plus qu’une seconde.",
+            "pour": "Être choisi en ligne"
+          }
+        },
+        "a3": {
+          "type": "avantage",
+          "settings": {
+            "title": "Des clients qui reviennent",
+            "text": "Avec l’option fidélité, chaque passage compte et vous voyez enfin qui revient. Vous pilotez au lieu d’espérer.",
+            "pour": "Faire durer"
+          }
+        }
+      },
+      "block_order": [
+        "a1",
+        "a2",
+        "a3"
+      ]
     }
   },
   "order": [
     "hero",
     "defilement",
+    "niveau",
     "usages",
     "demo",
     "assortiments",
