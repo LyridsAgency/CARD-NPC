@@ -16,15 +16,14 @@
     {%- endunless -%}
 
     <title>
-      {{ page_title }}
+      {%- if request.page_type == 'index' -%}{{ settings.ecru_nom_marque | default: shop.name }}{%- else -%}{{ page_title }}{%- endif -%}
       {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
       {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
-      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+      {%- assign nom_site = settings.ecru_nom_marque | default: shop.name -%}
+      {%- if request.page_type == 'index' %} &ndash; Cartes NFC pour commerçants{% elsif page_title contains shop.name %}{% else %} &ndash; {{ nom_site }}{% endif -%}
     </title>
 
-    {% if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
-    {% endif %}
+    <meta name="description" content="{{ page_description | default: shop.description | default: 'Cartes NFC pour commerçants : menu, avis, réseaux et fidélité, d’un geste. Sur mesure, en PVC ou en métal, vues en 3D avant de commander.' | escape }}">
 
     {% render 'meta-tags' %}
 

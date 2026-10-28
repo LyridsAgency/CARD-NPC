@@ -4027,8 +4027,13 @@ body::after {
     align-items: start;
   }
 }
-.ecru-fid-prix .ecru-bouton {
-  white-space: nowrap;
+@media (min-width: 990px) {
+  .ecru-fid-prix .ecru-bouton {
+    white-space: nowrap;
+  }
+}
+.ecru-fid-prix > * {
+  min-width: 0;
 }
 .ecru-fid-prix__note {
   margin: 1.2rem 0 0;
@@ -4104,8 +4109,13 @@ body::after {
   color: var(--ecru-text);
 }
 
-/* Points de vue sous la grande carte */
+/* Points de vue sous la grande carte (la rangée défile, elle n'élargit pas la page) */
+.ecru-produit__visuel,
+.ecru-produit__infos {
+  min-width: 0;
+}
 .ecru-produit__vues {
+  max-width: 100%;
   display: flex;
   justify-content: center;
   gap: 0.8rem;
