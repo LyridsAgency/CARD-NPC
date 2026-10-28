@@ -1,0 +1,67 @@
+{%- comment -%}
+  ECRU — Page « Votre compte » : deux portes, le client (commandes, comptes clients Shopify) et le commerçant
+  (espace pro de l'option fidélité). La connexion client se fait par un code reçu par e-mail : pas de mot de passe.
+{%- endcomment -%}
+{%- assign pro = settings.ecru_fidelite_url | append: '/pro' -%}
+<section
+  class="ecru-section ecru-compte"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-compte__tete">
+      <h1 id="titre-{{ section.id }}" class="ecru-titre">
+        {%- if customer -%}Bonjour{% if customer.first_name != blank %} {{ customer.first_name | escape }}{% endif %}.{%- else -%}{{ section.settings.heading | escape }}{%- endif -%}
+      </h1>
+      <p class="ecru-texte">{{ section.settings.text | escape }}</p>
+    </header>
+
+    <div class="ecru-compte__portes">
+      <article class="ecru-compte__porte">
+        <svg class="ecru-compte__icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.4"/><circle cx="12" cy="9.6" r="3.3"/><path d="M5.6 19.1c1.3-2.6 3.6-4 6.4-4s5.1 1.4 6.4 4"/></svg>
+        <h2 class="ecru-titre ecru-titre--s">Client</h2>
+        <p class="ecru-texte">Suivez vos commandes, retrouvez vos factures et commandez à nouveau vos cartes.</p>
+        <ul class="ecru-offre__liste" role="list">
+          <li>Pas de mot de passe : un code à 6 chiffres arrive par e-mail</li>
+          <li>Le compte se crée à la première connexion</li>
+        </ul>
+        <div class="ecru-actions">
+          {%- if customer -%}
+            <a class="ecru-bouton" href="{{ routes.account_url }}">Mes commandes</a>
+            <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.account_logout_url }}">Se déconnecter</a>
+          {%- else -%}
+            <a class="ecru-bouton" href="{{ routes.account_login_url }}">Se connecter ou créer un compte</a>
+          {%- endif -%}
+        </div>
+      </article>
+
+      <article class="ecru-compte__porte">
+        <svg class="ecru-compte__icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="1.8"/><rect x="4.2" y="7.7" width="5" height="8.6" rx=".8"/><path d="M6.1 10.6a2 2 0 0 1 0 2.8M7.4 9.6a3.5 3.5 0 0 1 0 4.8"/></svg>
+        <h2 class="ecru-titre ecru-titre--s">Commerçant</h2>
+        <p class="ecru-texte">Avec l’option fidélité : votre tableau de bord, vos récompenses, et la validation des passages en caisse.</p>
+        <ul class="ecru-offre__liste" role="list">
+          <li>Ouvrez une fois le lien reçu par e-mail, sur le téléphone du comptoir</li>
+          <li>Il reste connecté un an</li>
+        </ul>
+        <div class="ecru-actions">
+          <a class="ecru-bouton ecru-bouton--ligne" href="{{ pro }}" rel="noopener">Ouvrir mon espace pro</a>
+          <a class="ecru-lien" href="/pages/mode-emploi#connexion">Comment ça marche</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Compte ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Votre compte." },
+    { "type": "text", "id": "text", "label": "Texte", "default": "Client ou commerçant : choisissez votre entrée." },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 128 }
+  ],
+  "presets": [{ "name": "Compte ECRU" }]
+}
+{% endschema %}

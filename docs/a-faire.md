@@ -43,6 +43,13 @@
 18. **Avis clients** (Judge.me) quand les premiers vrais avis arrivent.
 19. Remplacer les noms d'exemple des modèles (Maison Lune, Club Marceau…) par de vrais clients, avec leur accord.
 
+## Logo et page de connexion
+19. **Logo** : fichiers dans `docs/logo/` (SVG, PNG crème, PNG noir, icône) et déjà dans Contenu → Fichiers.
+20. **Page de connexion / création de compte** (hébergée par Shopify) : Paramètres → Paiement (Checkout)
+    → Personnaliser → Image de marque : logo « ecru-logo-noir.png » (ou crème sur fond noir), couleurs noir #0d0d0c
+    et crème #e9e4d8, coins arrondis, police proche (Inter). Cela habille aussi le paiement et les comptes clients.
+    (Non modifiable par l'API avec les droits actuels.)
+
 ## Avis clients
 18. **Avis réels uniquement** : section « Avis clients ECRU » sur l'accueil, cachée tant qu'elle est vide.
     Ajouter chaque avis reçu (Personnaliser → Accueil → Avis → Ajouter un bloc « Avis »), ou installer une

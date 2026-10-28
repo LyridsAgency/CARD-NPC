@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "ecru-compte", "settings": {} }
+  },
+  "order": ["main"]
+}

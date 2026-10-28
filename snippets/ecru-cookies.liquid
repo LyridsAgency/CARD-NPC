@@ -30,6 +30,23 @@
     var detail = boite.querySelector('[data-ecru-cookies-detail]');
     var boutonPerso = boite.querySelector('[data-ecru-cookies="personnaliser"]');
     var api = null;
+    // Le choix est aussi gardé 6 mois sur l'appareil (durée recommandée par la CNIL) :
+    // la bannière ne revient pas à chaque page, même si l'enregistrement de Shopify échoue.
+    var MEMOIRE = 'ecru-cookies-choix';
+    var SIX_MOIS = 182 * 86400000;
+    function choixRecent() {
+      try {
+        var m = JSON.parse(localStorage.getItem(MEMOIRE) || 'null');
+        return !!(m && Date.now() - m.date < SIX_MOIS);
+      } catch (e) {
+        return false;
+      }
+    }
+    function memoriser(choix) {
+      try {
+        localStorage.setItem(MEMOIRE, JSON.stringify({ date: Date.now(), choix: choix }));
+      } catch (e) {}
+    }
 
     function bannereShopify() {
       return document.getElementById('shopify-pc__banner') || document.querySelector('[id^="shopify-pc__"]');
@@ -55,11 +72,12 @@
       }, 400);
     }
     function enregistrer(choix) {
+      memoriser(choix);
+      fermer();
       if (!api) return;
-      api.setTrackingConsent(
-        { analytics: choix.analytics, marketing: choix.marketing, preferences: choix.preferences, sale_of_data: choix.marketing, headlessStorefront: false },
-        fermer
-      );
+      try {
+        api.setTrackingConsent({ analytics: choix.analytics, marketing: choix.marketing, preferences: choix.preferences, sale_of_data: choix.marketing }, function () {});
+      } catch (e) {}
     }
     boite.addEventListener('click', function (e) {
       var b = e.target.closest('[data-ecru-cookies]');
@@ -87,8 +105,21 @@
       api = window.Shopify.customerPrivacy;
       // La bannière de Shopify s'insère parfois un peu après : on lui laisse la priorité
       setTimeout(function () {
-        if (api.shouldShowBanner && api.shouldShowBanner()) ouvrir(false);
+        if (!choixRecent() && api.shouldShowBanner && api.shouldShowBanner()) ouvrir(false);
       }, 900);
+      // Si elle arrive après la nôtre, la nôtre s'efface : jamais deux bannières
+      if ('MutationObserver' in window) {
+        var veille = new MutationObserver(function () {
+          if (!bannereShopify()) return;
+          veille.disconnect();
+          if (!boite.hidden) fermer();
+        });
+        veille.observe(document.body, { childList: true, subtree: true });
+        // Surveillance courte : la bannière de Shopify arrive dans les premières secondes
+        setTimeout(function () {
+          veille.disconnect();
+        }, 15000);
+      }
     });
   })();
 </script>

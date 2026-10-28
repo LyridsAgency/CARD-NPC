@@ -4352,3 +4352,74 @@ body::after {
   text-transform: uppercase;
   color: var(--ecru-muted);
 }
+
+/* Logo ECRU (assets/ecru-logo.svg) : trait géométrique, couleur du texte */
+.ecru-logo {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ecru-text);
+}
+.ecru-logo svg {
+  display: block;
+  width: 8.4rem;
+  height: auto;
+}
+@media (max-width: 749px) {
+  .ecru-logo svg {
+    width: 7.2rem;
+  }
+}
+
+/* ----- Votre compte : deux entrées, client et commerçant ------------------ */
+.ecru-compte__tete {
+  max-width: 64rem;
+  margin-bottom: clamp(4.8rem, 6vw, 8rem);
+}
+.ecru-compte__portes {
+  display: grid;
+  gap: 1.6rem;
+}
+@media (min-width: 750px) {
+  .ecru-compte__portes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.ecru-compte__porte {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(3.2rem, 4vw, 5.6rem);
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  background: var(--ecru-surface);
+  transition: border-color 0.6s var(--ecru-ease);
+}
+.ecru-compte__porte:hover {
+  border-color: var(--ecru-muted);
+}
+.ecru-compte__icone {
+  width: 3.6rem;
+  height: 3.6rem;
+  margin-bottom: 3.2rem;
+  fill: none;
+  stroke: var(--ecru-text);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+.ecru-compte__porte .ecru-texte {
+  margin-top: 1.2rem;
+}
+.ecru-compte__porte .ecru-offre__liste {
+  flex-grow: 1;
+}
+.ecru-compte__porte .ecru-actions {
+  align-items: center;
+  margin-top: 3.2rem;
+}
+.ecru-lien {
+  font-size: 1.3rem;
+  color: var(--ecru-muted);
+  text-underline-offset: 0.3em;
+}
+.ecru-lien:hover {
+  color: var(--ecru-text);
+}
