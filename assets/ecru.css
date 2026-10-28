@@ -2445,7 +2445,7 @@ body::after {
 .ecru-etude__chiffre {
   margin: 0;
   font-family: var(--font-heading-family);
-  font-size: clamp(4rem, 5vw, 7.2rem);
+  font-size: clamp(3.4rem, 5vw, 7.2rem);
   white-space: nowrap;
   line-height: 0.9;
   letter-spacing: -0.04em;
