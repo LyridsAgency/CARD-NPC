@@ -187,7 +187,7 @@
               </div>
 
               {%- if est_matiere -%}
-                {%- comment -%} Métal : finition satinée ou brossée (même prix), visible seulement si Métal est choisi {%- endcomment -%}
+                {%- comment -%} Métal : finition satinée, brossée ou chromée miroir (même prix), visible seulement si Métal est choisi {%- endcomment -%}
                 <div class="ecru-finition" data-ecru-finition hidden>
                   <span class="ecru-finition__label">Finition du métal</span>
                   <div class="ecru-option__choix">
@@ -195,6 +195,8 @@
                     <label for="{{ uid }}-fin-satine">Satiné</label>
                     <input type="radio" id="{{ uid }}-fin-brosse" name="properties[Finition métal]" value="Brossé" data-ecru-finition-choix="brosse" disabled>
                     <label for="{{ uid }}-fin-brosse">Brossé</label>
+                    <input type="radio" id="{{ uid }}-fin-chrome" name="properties[Finition métal]" value="Chromé" data-ecru-finition-choix="chrome" disabled>
+                    <label for="{{ uid }}-fin-chrome" class="ecru-chrome-label">Chromé</label>
                   </div>
                 </div>
               {%- endif -%}

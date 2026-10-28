@@ -123,7 +123,7 @@ function fitFontSize(ctx, text, family, maxW, maxH, tracking) {
 // drawEngrave(ctx, w, h), facultatif : gravure fine dans la matière (relief seul, sans couleur).
 // brushed : stries de brossage (aluminium) ; sinon métal poli (acier) ou matière mate (PVC).
 // drawInlay(ctx, w, h), facultatif : fenêtre NFC (zone non métallique, mate, en léger creux).
-function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, relief, metal, brushed, polish = 0.14, metalAmt = 1, inlayShade = 0.38, inlayColor = null }) {
+function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, relief, metal, brushed, polish = 0.14, metalAmt = 1, inlayShade = 0.38, inlayColor = null, inkRough = 0.3, inkMetal = 0.75 }) {
   const mask = canvas(w, h);
   const mctx = mask.getContext('2d');
   mctx.fillStyle = '#000';
@@ -233,8 +233,8 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
       od[i] = 255;
       let rough = (brushed ? 0.3 : metal ? polish : 0.82) + g * (metal ? 0.035 : 0.1) - (ed ? (ed[i] / 255) * 0.12 : 0);
       rough = rough * (1 - n) + 0.62 * n;
-      od[i + 1] = rough * 255 * (1 - m) + (metal ? 0.3 : 0.4) * 255 * m;
-      od[i + 2] = metal ? 255 * metalAmt * (1 - m) * (1 - n) + 0.75 * 255 * m : 255 * m * 0.55;
+      od[i + 1] = rough * 255 * (1 - m) + (metal ? inkRough : 0.4) * 255 * m;
+      od[i + 2] = metal ? 255 * metalAmt * (1 - m) * (1 - n) + inkMetal * 255 * m : 255 * m * 0.55;
       od[i + 3] = 255;
       // Relief : grain + texte surélevé (ou gravé si relief < 0)
       const e = ed ? ed[i] / 255 : 0;
@@ -257,7 +257,7 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
   return { map, orm: ormTex, bump: bumpTex };
 }
 
-function faceMaterial(tex, anisotropy, metal, brushed) {
+function faceMaterial(tex, anisotropy, metal, brushed, chrome = false) {
   [tex.map, tex.orm, tex.bump].forEach((t) => (t.anisotropy = anisotropy));
   return new MeshPhysicalMaterial({
     anisotropy: brushed ? 0.75 : 0,
@@ -270,8 +270,8 @@ function faceMaterial(tex, anisotropy, metal, brushed) {
     metalnessMap: tex.orm,
     bumpMap: tex.bump,
     bumpScale: 1.4,
-    clearcoat: brushed ? 0.35 : metal ? 0.08 : 0.1,
-    clearcoatRoughness: brushed ? 0.3 : 0.5,
+    clearcoat: chrome ? 1 : brushed ? 0.35 : metal ? 0.08 : 0.1,
+    clearcoatRoughness: chrome ? 0.04 : brushed ? 0.3 : 0.5,
   });
 }
 
@@ -340,6 +340,29 @@ function studioScene() {
     panel(1.3, 15, Math.sin(a) * 18.5, 1, Math.cos(a) * 18.5, a + Math.PI, 0, pw);
   });
   panel(30, 1.6, 0, 11.5, 4, 0, Math.PI / 2, 3); // bande au plafond (tranche haute)
+  return s;
+}
+
+// Studio du chrome : un miroir ne montre que ce qu'il reflète. Plafond lumineux, anneau de lumière à
+// hauteur d'horizon et sol sombre : les dégradés nets qui font lire le chrome.
+function studioChrome() {
+  const s = new Scene();
+  s.add(new Mesh(new BoxGeometry(40, 24, 40), new MeshBasicMaterial({ color: 0x141413, side: BackSide })));
+  const panel = (w, h, x, y, z, ry, rx, power) => {
+    const m = new Mesh(new PlaneGeometry(w, h), new MeshBasicMaterial({ color: new Color(power, power, power * 0.98), side: DoubleSide }));
+    m.position.set(x, y, z);
+    m.rotation.set(rx, ry, 0);
+    s.add(m);
+  };
+  panel(36, 36, 0, 11.8, 0, 0, Math.PI / 2, 1.6); // plafond
+  for (let k = 0; k < 16; k++) {
+    const a = (k * Math.PI) / 8;
+    panel(7.6, 2.2, Math.sin(a) * 19, 2.4, Math.cos(a) * 19, a + Math.PI, 0, k % 2 ? 3.2 : 5); // anneau d'horizon
+    panel(7.6, 5, Math.sin(a) * 19, 7.5, Math.cos(a) * 19, a + Math.PI, 0, 0.55); // ciel plus doux
+  }
+  // Derrière la caméra : un grand dégradé (clair en haut, sombre en bas) que la face reflète de face
+  [[10.5, 4.6], [7, 2.6], [3.5, 1.1], [0, 0.35]].forEach(([y, pw]) => panel(34, 3.6, 0, y, 19.5, Math.PI, 0, pw));
+  panel(6, 20, -9, 4, 19.4, Math.PI, 0, 5.5); // bande verticale franche : le reflet qui traverse la carte
   return s;
 }
 
@@ -440,9 +463,11 @@ export async function mount(el) {
 
   const scene = new Scene();
   const pmrem = new PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(studioScene(), 0.03).texture;
+  const envStudio = pmrem.fromScene(studioScene(), 0.03).texture;
+  let envChrome = null; // préparé à la première carte chromée
+  const preparerChrome = () => envChrome || (envChrome = pmrem.fromScene(studioChrome(), 0.01).texture);
+  scene.environment = envStudio;
   scene.environmentIntensity = 0.62;
-  pmrem.dispose();
 
   const key = new DirectionalLight(0xffffff, 1.7);
   key.position.set(4, 6, 8);
@@ -594,8 +619,10 @@ export async function mount(el) {
     elements = Array.isArray(elements) ? elements : [];
     verso = Array.isArray(verso) ? verso : [];
     // finish : 'mat' (PVC) ou 'metal' (métal satiné). 'brosse' reste disponible pour un métal brossé.
+    // 'chrome' : métal poli miroir, marquage poli lui aussi
     const metal = finish !== 'mat';
     const brushed = finish === 'brosse';
+    const chrome = finish === 'chrome';
     const cardColor = new Color(color || '#0d0d0c');
     // Teinte lue en sRGB, comme le nuancier : les réglages suivent ce que le client voit
     const hsl = cardColor.getHSL({}, SRGBColorSpace);
@@ -604,11 +631,11 @@ export async function mount(el) {
     const srgb = cardColor.getRGB({}, SRGBColorSpace);
     const neutre = Math.max(srgb.r, srgb.g, srgb.b) - Math.min(srgb.r, srgb.g, srgb.b) < 0.1;
     // Métal satiné, comme les cartes réelles : ni miroir, ni brossé
-    const polish = dark ? 0.4 : 0.44;
+    const polish = chrome ? 0.05 : dark ? 0.4 : 0.44;
     let metalBase;
     // Métal sombre : revêtement anodisé/laqué satiné (réagit à la lumière comme une peinture)
     const revetu = neutre && dark;
-    const metalAmt = revetu ? 0.18 : 1;
+    const metalAmt = revetu && !chrome ? 0.18 : 1;
     if (neutre) {
       metalBase = cardColor.clone().lerp(new Color(dark ? '#3a3936' : '#d2d1cd'), dark ? 0.38 : 0.55);
     } else {
@@ -641,6 +668,9 @@ export async function mount(el) {
       brushed,
       polish,
       metalAmt,
+      // Chrome : le marquage est dépoli (satiné sur miroir), comme une gravure, pour rester lisible
+      inkRough: chrome ? 0.55 : 0.3,
+      inkMetal: chrome ? 1 : 0.75,
       inlayShade: neutre ? (dark ? 0.38 : 0.1) : 0.7,
       inlayColor: fenetre && /^#[0-9a-f]{6}$/i.test(fenetre) ? hexToRgb(fenetre) : null,
       drawMask(ctx, w, h) {
@@ -670,20 +700,23 @@ export async function mount(el) {
       brushed,
       polish,
       metalAmt,
+      inkRough: chrome ? 0.55 : 0.3,
+      inkMetal: chrome ? 1 : 0.75,
       drawMask(ctx, w, h) {
         // Verso : le symbole sans contact, discret, en haut à droite
         drawNfc(ctx, w - w * 0.1, h * 0.19, h * 0.019, 0.85);
         drawElements(ctx, w, h, verso, images);
       },
     });
-    front.material = faceMaterial(frontTex, anisotropy, metal, brushed);
-    back.material = faceMaterial(backTex, anisotropy, metal, brushed);
+    front.material = faceMaterial(frontTex, anisotropy, metal, brushed, chrome);
+    back.material = faceMaterial(backTex, anisotropy, metal, brushed, chrome);
     // Tranche : métal poli plus clair, qui accroche la lumière
     const edge = cardColor.clone().lerp(new Color('#b5b2aa'), metal ? (dark ? 0.7 : 0.3) : 0.16);
     edgeMat.color.copy(edge);
     edgeMat.metalness = metal ? 1 : 0.35;
-    edgeMat.roughness = brushed ? 0.2 : metal ? 0.18 : 0.42;
-    scene.environmentIntensity = metal ? 1.9 : 1.35;
+    edgeMat.roughness = chrome ? 0.05 : brushed ? 0.2 : metal ? 0.18 : 0.42;
+    scene.environment = chrome ? preparerChrome() : envStudio;
+    scene.environmentIntensity = chrome ? 1.15 : metal ? 1.9 : 1.35;
     current = { color, ink, finish, elements, verso, inlay, fenetre };
   }
 
@@ -753,6 +786,9 @@ export async function mount(el) {
     drag: null,
     vel: 0,
     libreApres: 0,
+    // Défilement (accueil) : la carte s'incline et tourne doucement quand on descend
+    defile: 0,
+    defileCible: 0,
     // Édition : la carte se pose de face, immobile, et sert de surface au créateur
     edition: null,
     ed: 0,
@@ -853,6 +889,15 @@ export async function mount(el) {
     if (!state.edition) el.classList.remove('is-calee');
     start();
   });
+  if ('defilement' in el.dataset && !reduceMotion()) {
+    const suivre = () => {
+      const r = el.getBoundingClientRect();
+      state.defileCible = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height)));
+      start();
+    };
+    window.addEventListener('scroll', suivre, { passive: true });
+    requestAnimationFrame(suivre); // après l'initialisation complète (start est défini plus bas)
+  }
   el.addEventListener('ecru:avantages', (e) => (state.lecture = !!e.detail));
   // Points de vue : recto, verso, profil ; 'auto' relance la rotation
   const VUES = { recto: 0, verso: Math.PI, profil: 1.25, 'trois-quarts': -0.6 };
@@ -970,10 +1015,11 @@ export async function mount(el) {
     }
     const sway = still || pose.fixe ? 0 : Math.sin(t * 0.45) * 0.05;
     const libre = 1 - state.ed;
+    state.defile += (state.defileCible - state.defile) * (1 - Math.exp(-dt * 7));
     placerCamera(1 + ((sw < 600 ? 1.42 : 1.12) - 1) * state.ed);
     pivot.rotation.order = 'YXZ';
-    pivot.rotation.y = state.yaw + state.px * 0.55 * libre;
-    pivot.rotation.x = state.pitch0 + (pose.fixe ? pose.pitch : 0) + (state.py * 0.32 + sway) * libre;
+    pivot.rotation.y = state.yaw + state.px * 0.55 * libre + state.defile * 0.9;
+    pivot.rotation.x = state.pitch0 + (pose.fixe ? pose.pitch : 0) + (state.py * 0.32 + sway) * libre - state.defile * 0.55;
     pivot.position.y = still || pose.fixe ? 0 : Math.sin(t * 0.7) * 0.07 * libre;
     caler(cibleEdition);
 

@@ -30,6 +30,7 @@
   id="{{ id }}"
   class="ecru-carte{% if compact %} ecru-carte--compact{% endif %}"
   {% if auto_open %}data-auto-open{% endif %}
+  {% if defilement %}data-defilement{% endif %}
   data-ecru-carte
   data-module="{{ 'ecru-carte-3d.js' | asset_url }}"
   data-font="{{ 'archivo-black.woff2' | asset_url }}"

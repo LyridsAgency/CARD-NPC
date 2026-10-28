@@ -4479,3 +4479,58 @@ body::after {
   line-height: 1.6;
   color: var(--ecru-muted);
 }
+
+/* ----- Chrome : quelques touches seulement, avec un reflet qui passe ------ */
+:root {
+  --ecru-chrome: linear-gradient(100deg, #5f5d59 0%, #f6f4ef 14%, #8f8d88 27%, #dcd9d2 40%, #4f4d49 52%, #fbfaf7 63%, #9a9893 76%, #e6e3dc 88%, #6a6864 100%);
+}
+@keyframes ecru-reflet {
+  from { background-position: 0% 50%; }
+  to { background-position: 250% 50%; }
+}
+.ecru-hero__ligne + .ecru-hero__ligne,
+.ecru-fid-hero__ligne--creuse {
+  color: transparent;
+  -webkit-text-stroke: 0;
+  background: var(--ecru-chrome);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: ecru-reflet 9s linear infinite;
+}
+/* Offre mise en avant : un liseré chromé */
+.ecru-offre--mise-en-avant {
+  position: relative;
+  border-color: transparent;
+}
+.ecru-offre--mise-en-avant::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--ecru-chrome);
+  background-size: 250% 100%;
+  animation: ecru-reflet 9s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+/* Bouton « Chromé » dans les finitions */
+.ecru-option input:checked + label.ecru-chrome-label {
+  background: var(--ecru-chrome);
+  background-size: 250% 100%;
+  animation: ecru-reflet 6s linear infinite;
+  border-color: transparent;
+  color: #121211;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ecru-hero__ligne + .ecru-hero__ligne,
+  .ecru-fid-hero__ligne--creuse,
+  .ecru-offre--mise-en-avant::before,
+  .ecru-option input:checked + label.ecru-chrome-label {
+    animation: none;
+    background-position: 35% 50%;
+  }
+}

@@ -143,9 +143,9 @@
         if (v.indexOf('pvc') !== -1) finish = 'mat';
         if (data.couleurs[v]) color = data.couleurs[v];
       });
-      // Métal : satiné ou brossé, au choix
-      var brosse = form.querySelector('[data-ecru-finition-choix="brosse"]');
-      if (finish === 'metal' && brosse && brosse.checked) finish = 'brosse';
+      // Métal : satiné, brossé ou chromé, au choix
+      var finitionChoisie = form.querySelector('[data-ecru-finition-choix]:checked:not(:disabled)');
+      if (finish === 'metal' && finitionChoisie) finish = finitionChoisie.dataset.ecruFinitionChoix;
       var look = { finish: finish, elements: [] };
       if (modeDe(options) === 'design') {
         color = teintes.fond;
