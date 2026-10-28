@@ -581,7 +581,7 @@ export async function mount(el) {
             const display = el.f !== 'body';
             ctx.font = display ? `${size}px "${family}", sans-serif` : `500 ${size}px "${bodyFamily}", sans-serif`;
             const align = el.a || 'center';
-            drawSpaced(ctx, display ? txt.toUpperCase() : txt, x, y, size, display ? 0.12 : 0.04, align);
+            drawSpaced(ctx, display ? txt.toUpperCase() : txt, x, y, size, el.k ?? (display ? 0.12 : 0.04), align);
           }
         });
       },
@@ -629,7 +629,8 @@ export async function mount(el) {
   } catch (e) {
     elementsDepart = [];
   }
-  applyLook({ color: d.color, ink: d.ink, finish: d.finish, elements: elementsDepart, inlay: d.inlay });
+  // Un choix fait pendant le chargement de la 3D (couleur, modèle…) est gardé sur l'élément : on le reprend ici
+  applyLook({ color: d.color, ink: d.ink, finish: d.finish, elements: elementsDepart, inlay: d.inlay, ...(el.__ecruLook || {}) });
 
   // ---- Cadrage : la carte occupe toujours la même part de la scène (cohérent avec l'image de secours)
   // Pose fixe (images, vues) : data-pose="angle,inclinaison,zoom"

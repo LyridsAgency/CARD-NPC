@@ -4,6 +4,9 @@
   if (window.__ecruConfigurateur) return;
   window.__ecruConfigurateur = true;
 
+  // Modèles prêts à personnaliser (mêmes réglages que les rendus assets/ecru-modele-*.webp)
+  var MODELES = {"editorial":{"titre":"Éditorial","fond":"#0d0d0c","relief":"#e9e4d8","elements":[{"t":"text","v":"Maison","x":0.37,"y":0.6,"s":0.19,"f":"display","a":"left","k":-0.01},{"t":"text","v":"Lune","x":0.37,"y":0.8,"s":0.19,"f":"display","a":"left","k":-0.01},{"t":"text","v":"Restaurant — Paris","x":0.37,"y":0.14,"s":0.045,"f":"body","a":"left"}]},"minimal":{"titre":"Minimal","fond":"#e9e4d8","relief":"#121211","elements":[{"t":"text","v":"Atelier Sel","x":0.95,"y":0.86,"s":0.06,"f":"body","a":"right"},{"t":"text","v":"N° 001","x":0.95,"y":0.14,"s":0.045,"f":"body","a":"right"}]},"monogramme":{"titre":"Monogramme","fond":"#0d0d0c","relief":"#7d7b76","elements":[{"t":"text","v":"C","x":1.03,"y":0.8,"s":1.3,"f":"display","a":"right","k":-0.01},{"t":"text","v":"Club Marceau","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left"}]},"signature":{"titre":"Signature","fond":"#d6cfbf","relief":"#2e2c28","elements":[{"t":"text","v":"Salon Ambre","x":0.655,"y":0.47,"s":0.08,"f":"display","a":"center"},{"t":"text","v":"Coiffure · Lyon","x":0.655,"y":0.6,"s":0.042,"f":"body","a":"center"}]},"numero":{"titre":"Numéro","fond":"#2a2926","relief":"#e9e4d8","elements":[{"t":"text","v":"Nº7","x":0.95,"y":0.66,"s":0.42,"f":"display","a":"right","k":-0.01},{"t":"text","v":"Nuit Blanche","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left"}]},"pierre":{"titre":"Pierre","fond":"#8f8a80","relief":"#121211","elements":[{"t":"text","v":"Le Comptoir","x":0.37,"y":0.16,"s":0.085,"f":"display","a":"left"},{"t":"text","v":"Bar à vins","x":0.37,"y":0.28,"s":0.045,"f":"body","a":"left"},{"t":"text","v":"Depuis 2024","x":0.95,"y":0.86,"s":0.04,"f":"body","a":"right"}]}};
+
   function bas(v) {
     return String(v || '').trim().toLowerCase();
   }
@@ -86,6 +89,7 @@
     var logoRetirer = form.querySelector('[data-ecru-logo-retirer]');
     var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.66, y: 0.62, s: 0.09, f: 'display', a: 'center' }];
     var selection = null;
+    var modeleApplique = false;
 
     function modeDe(options) {
       var m = 'standard';
@@ -122,7 +126,7 @@
         color = teintes.fond;
         look.ink = teintes.relief;
         look.elements = visibles().map(function (e) {
-          return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: 'center' };
+          return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: e.a || 'center', k: e.k };
         });
       } else {
         look.ink = inkPour(color);
@@ -136,6 +140,8 @@
       if (!carte) return;
       var look = apparence();
       look.present = !!present;
+      // Gardé pour la 3D si elle n'est pas encore chargée
+      carte.__ecruLook = look;
       carte.dispatchEvent(new CustomEvent('ecru:card-update', { detail: look }));
     }
     // Pendant un glissement, la carte 3D suit sans saturer le navigateur
@@ -182,9 +188,12 @@
           n.style.setProperty('--ratio', e.ratio || 1);
           n.setAttribute('aria-label', 'Logo, position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
         } else {
-          n.classList.add('ecru-editeur__el--titre');
-          n.textContent = e.v.toUpperCase();
-          n.setAttribute('aria-label', 'Nom « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
+          var titre = e.f !== 'body';
+          n.classList.toggle('ecru-editeur__el--titre', titre);
+          n.textContent = titre ? e.v.toUpperCase() : e.v;
+          n.style.letterSpacing = (e.k != null ? e.k : titre ? 0.12 : 0.04) + 'em';
+          n.dataset.align = e.a || 'center';
+          n.setAttribute('aria-label', 'Texte « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer.');
         }
       });
       majReglages();
@@ -203,10 +212,11 @@
       reglages.hidden = !ok;
       if (!ok) return;
       var estTexte = e.t === 'text';
+      if (estTexte && champNom && document.activeElement !== champNom) champNom.value = e.v;
       reglages.querySelector('label').textContent = 'Taille';
       champTaille.setAttribute('aria-label', estTexte ? 'Taille du nom' : 'Taille du logo');
-      champTaille.min = estTexte ? 4 : 10;
-      champTaille.max = estTexte ? 30 : 70;
+      champTaille.min = estTexte ? 3 : 10;
+      champTaille.max = estTexte ? 130 : 70;
       champTaille.value = Math.round(e.s * 100);
     }
 
@@ -219,7 +229,7 @@
       lisible.value = vis
         .map(function (e) {
           var pos = 'position ' + pct(e.x) + ' / ' + pct(e.y) + ', taille ' + Math.round(e.s * 100);
-          return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Nom « ' + e.v + ' » (' + pos + ')';
+          return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Texte « ' + e.v + ' » (' + pos + ')';
         })
         .join(' ; ');
       brut.value = JSON.stringify(
@@ -302,8 +312,10 @@
 
     if (editeur) {
       champNom.addEventListener('input', function () {
-        element('nom').v = champNom.value;
-        selection = champNom.value.trim() ? 'nom' : null;
+        var e = element(selection);
+        if (!e || e.t !== 'text') e = element('nom');
+        e.v = champNom.value;
+        selection = e.id;
         dessinerEditeur();
         rendreBientot();
       });
@@ -350,7 +362,11 @@
       form.querySelectorAll('[data-ecru-note]').forEach(function (n) {
         n.hidden = n.dataset.ecruNote !== m;
       });
-      if (m === 'design') dessinerEditeur();
+      if (m === 'design') {
+        // Première ouverture du sur mesure : on part d'un beau modèle plutôt que d'une carte vide
+        if (!modeleApplique && !new URLSearchParams(window.location.search).get('modele')) appliquerModele('editorial');
+        dessinerEditeur();
+      }
     }
 
     function majMoq(options) {
@@ -425,9 +441,42 @@
         choisirTeinte(b.dataset.cible, b.dataset.teinte);
       });
     });
+    // Modèles : couleurs et mise en page d'un coup, tout reste modifiable
+    function appliquerModele(nom) {
+      var m = MODELES[nom];
+      if (!m) return;
+      modeleApplique = true;
+      var logo = elements.filter(function (e) {
+        return e.t === 'logo';
+      });
+      elements = m.elements.map(function (e, i) {
+        var c = Object.assign({}, e);
+        c.id = i === 0 ? 'nom' : 'texte' + i;
+        return c;
+      }).concat(logo);
+      selection = 'nom';
+      if (champNom) champNom.value = elements[0].v;
+      form.querySelectorAll('[data-ecru-modele]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.ecruModele === nom ? 'true' : 'false');
+      });
+      teintes.relief = m.relief;
+      var champ = form.querySelector('[data-ecru-champ="relief"]');
+      if (champ) champ.value = m.relief;
+      form.querySelectorAll('[data-cible="relief"]').forEach(function (x) {
+        x.setAttribute('aria-checked', x.dataset.teinte === m.relief ? 'true' : 'false');
+      });
+      choisirTeinte('fond', m.fond);
+    }
+    form.querySelectorAll('[data-ecru-modele]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        appliquerModele(b.dataset.ecruModele);
+      });
+    });
+
     // Assortiments : couleur de carte et de marquage choisies ensemble
     var assortiments = form.querySelectorAll('.ecru-assortiment');
     function majAssortiments() {
+      if (!assortiments) return;
       assortiments.forEach(function (b) {
         b.setAttribute('aria-pressed', b.dataset.fond === teintes.fond && b.dataset.relief === teintes.relief ? 'true' : 'false');
       });
@@ -486,7 +535,9 @@
       b.setAttribute('aria-checked', 'true');
     });
     maj();
-    if (modeDe(choix()) !== 'standard') rendre(false);
+    var modeleDemande = new URLSearchParams(window.location.search).get('modele');
+    if (modeleDemande && MODELES[modeleDemande] && modeDe(choix()) === 'design') appliquerModele(modeleDemande);
+    else if (modeDe(choix()) !== 'standard') rendre(false);
   }
 
   function initAll() {

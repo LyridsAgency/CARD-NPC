@@ -407,71 +407,68 @@
     "assortiments": {
       "type": "ecru-assortiments",
       "settings": {
-        "button_link": "/products/cartes-simples?variant=48429022216363"
+        "button_link": "/products/cartes-simples?variant=48429022216363",
+        "eyebrow": "Sur mesure",
+        "heading": "À votre image.",
+        "text": "Partez d'un modèle, changez le texte, la couleur, ajoutez votre logo. Vous la voyez en 3D avant de commander."
       },
       "blocks": {
-        "a1": {
-          "type": "assortiment",
+        "m1": {
+          "type": "modele",
           "settings": {
-            "title": "Noir et or",
-            "nom": "Maison Lune",
-            "fond": "#0d0d0c",
-            "marquage": "#c2a165"
+            "modele": "editorial",
+            "title": "Éditorial",
+            "text": "Noir et crème. Votre nom en grand."
           }
         },
-        "a2": {
-          "type": "assortiment",
+        "m2": {
+          "type": "modele",
           "settings": {
-            "title": "Crème et noir",
-            "nom": "Atelier Sel",
-            "fond": "#e9e4d8",
-            "marquage": "#121211"
+            "modele": "monogramme",
+            "title": "Monogramme",
+            "text": "Ton sur ton. Une initiale qui déborde."
           }
         },
-        "a3": {
-          "type": "assortiment",
+        "m3": {
+          "type": "modele",
           "settings": {
-            "title": "Bordeaux et or",
-            "nom": "Le Comptoir",
-            "fond": "#5a1a22",
-            "marquage": "#c2a165"
+            "modele": "minimal",
+            "title": "Minimal",
+            "text": "Crème et noir. Presque rien."
           }
         },
-        "a4": {
-          "type": "assortiment",
+        "m4": {
+          "type": "modele",
           "settings": {
-            "title": "Vert anglais et crème",
-            "nom": "Club Marceau",
-            "fond": "#1f3a2e",
-            "marquage": "#e9e4d8"
+            "modele": "numero",
+            "title": "Numéro",
+            "text": "Graphite. Un chiffre, une adresse."
           }
         },
-        "a5": {
-          "type": "assortiment",
+        "m5": {
+          "type": "modele",
           "settings": {
-            "title": "Bleu nuit et argent",
-            "nom": "Nuit Blanche",
-            "fond": "#1b2440",
-            "marquage": "#c9c8c4"
+            "modele": "signature",
+            "title": "Signature",
+            "text": "Écru. Centré, calme."
           }
         },
-        "a6": {
-          "type": "assortiment",
+        "m6": {
+          "type": "modele",
           "settings": {
-            "title": "Sable et noir",
-            "nom": "Salon Ambre",
-            "fond": "#cdbb9a",
-            "marquage": "#121211"
+            "modele": "pierre",
+            "title": "Pierre",
+            "text": "Gris chaud. Typographie de maison."
           }
         }
       },
       "block_order": [
-        "a1",
-        "a2",
-        "a3",
-        "a4",
-        "a5",
-        "a6"
+        "m1",
+        "m2",
+        "m3",
+        "m4",
+        "m5",
+        "m6"
       ]
     }
   },

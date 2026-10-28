@@ -2184,3 +2184,180 @@ body::after {
     stroke-dashoffset: 0;
   }
 }
+
+/* ----- Modèles : vitrine sur l'accueil ---------------------------------- */
+.ecru-modeles-vitrine {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3.2rem 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 750px) {
+  .ecru-modeles-vitrine {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1100px) {
+  .ecru-modeles-vitrine {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5.6rem 1.6rem;
+  }
+}
+.ecru-vitrine {
+  display: block;
+  color: var(--ecru-text);
+  text-decoration: none;
+  border-radius: 2px;
+}
+.ecru-vitrine__image {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: #070707;
+  overflow: hidden;
+}
+.ecru-vitrine__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
+  transition: transform 2.4s var(--ecru-ease);
+}
+.ecru-vitrine:hover .ecru-vitrine__image img {
+  transform: scale(1.1) rotate(-0.6deg);
+}
+.ecru-vitrine__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(233, 228, 216, 0.08) 50%, transparent 62%);
+  transform: translateX(-100%);
+  transition: transform 2.4s var(--ecru-ease);
+  pointer-events: none;
+}
+.ecru-vitrine:hover .ecru-vitrine__image::after {
+  transform: translateX(100%);
+}
+.ecru-vitrine__legende {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.6rem 1.4rem;
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-vitrine__num {
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  color: var(--ecru-muted);
+}
+.ecru-vitrine__titre {
+  font-family: var(--font-heading-family);
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.ecru-vitrine__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+  transition: color 0.6s var(--ecru-ease);
+}
+.ecru-vitrine:hover .ecru-vitrine__action {
+  color: var(--ecru-text);
+}
+.ecru-vitrine:hover .ecru-mini__fleche {
+  width: 36px;
+}
+.ecru-vitrine__action {
+  grid-column: 3;
+  grid-row: 1;
+}
+.ecru-vitrine__texte {
+  grid-column: 2 / 4;
+  grid-row: 2;
+  font-size: 1.35rem;
+  color: var(--ecru-muted);
+}
+.ecru-vitrine:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 6px;
+}
+
+/* ----- Modèles dans le configurateur ------------------------------------ */
+.ecru-modeles {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.ecru-modele {
+  display: block;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  background: #070707;
+  border: 1px solid var(--ecru-border);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.5s var(--ecru-ease);
+}
+.ecru-modele img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.35);
+  transition: transform 1s var(--ecru-ease);
+}
+.ecru-modele:hover img {
+  transform: scale(1.45);
+}
+.ecru-modele:hover {
+  border-color: var(--ecru-muted);
+}
+.ecru-modele[aria-pressed='true'] {
+  border-color: var(--ecru-text);
+}
+.ecru-modele:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 2px;
+}
+.ecru-createur__ligne--modeles {
+  align-items: flex-start;
+  padding: 1.4rem 0;
+}
+.ecru-createur__ligne--modeles .ecru-createur__label {
+  padding-top: 0.6rem;
+}
+
+/* Éditeur : alignement des textes des modèles */
+.ecru-editeur__el[data-align='left'] {
+  transform: translate(0, -50%);
+}
+.ecru-editeur__el[data-align='right'] {
+  transform: translate(-100%, -50%);
+}
+
+@media (max-width: 749px) {
+  .ecru-vitrine__legende {
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 1rem;
+  }
+  .ecru-vitrine__titre {
+    font-size: 1.4rem;
+  }
+  .ecru-vitrine__texte,
+  .ecru-vitrine__action {
+    display: none;
+  }
+}

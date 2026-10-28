@@ -1,4 +1,14 @@
-{%- comment -%} ECRU — Assortiments : des cartes sur mesure déjà composées, pour donner envie de créer la sienne. {%- endcomment -%}
+{%- comment -%}
+  ECRU — Modèles sur mesure : des cartes déjà composées, aux couleurs de la marque.
+  Chaque modèle ouvre le configurateur déjà réglé (paramètre ?modele=), tout reste modifiable.
+{%- endcomment -%}
+{%- liquid
+  assign lien = section.settings.button_link | default: routes.all_products_collection_url
+  assign sep = '?'
+  if lien contains '?'
+    assign sep = '&'
+  endif
+-%}
 <section
   class="ecru-section ecru-assortiments-section"
   style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
@@ -16,29 +26,31 @@
         {%- endif -%}
       </div>
       {%- if section.settings.button_label != blank -%}
-        <a class="ecru-bouton ecru-reveal" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
-          {{- section.settings.button_label | escape -}}
-        </a>
+        <a class="ecru-bouton ecru-reveal" href="{{ lien }}">{{ section.settings.button_label | escape }}</a>
       {%- endif -%}
     </header>
 
-    <ul class="ecru-assortiments-section__grille" role="list">
+    <ul class="ecru-modeles-vitrine" role="list">
       {%- for block in section.blocks -%}
         <li class="ecru-reveal" style="--d: {{ forloop.index0 | modulo: 3 }}" {{ block.shopify_attributes }}>
-          <a
-            class="ecru-mini ecru-spot"
-            href="{{ section.settings.button_link | default: routes.all_products_collection_url }}"
-            style="--fond: {{ block.settings.fond }}; --marquage: {{ block.settings.marquage }};"
-          >
-            <span class="ecru-mini__carte" aria-hidden="true">
-              <span class="ecru-mini__fenetre">
-                <svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg>
-              </span>
-              <span class="ecru-mini__nom">{{ block.settings.nom | escape }}</span>
+          <a class="ecru-vitrine ecru-spot" href="{{ lien }}{{ sep }}modele={{ block.settings.modele }}">
+            <span class="ecru-vitrine__image">
+              <img
+                src="{{ 'ecru-modele-' | append: block.settings.modele | append: '.webp' | asset_url }}"
+                alt="Carte ECRU, modèle {{ block.settings.title | escape }}"
+                width="1600"
+                height="1200"
+                loading="lazy"
+                decoding="async"
+              >
             </span>
-            <span class="ecru-mini__legende">
-              <span>{{ block.settings.title | escape }}</span>
-              <span class="ecru-mini__fleche" aria-hidden="true"></span>
+            <span class="ecru-vitrine__legende">
+              <span class="ecru-vitrine__num" aria-hidden="true">0{{ forloop.index }}</span>
+              <span class="ecru-vitrine__titre">{{ block.settings.title | escape }}</span>
+              {%- if block.settings.text != blank -%}
+                <span class="ecru-vitrine__texte">{{ block.settings.text | escape }}</span>
+              {%- endif -%}
+              <span class="ecru-vitrine__action">Personnaliser<span class="ecru-mini__fleche" aria-hidden="true"></span></span>
             </span>
           </a>
         </li>
@@ -49,40 +61,52 @@
 
 {% schema %}
 {
-  "name": "Assortiments ECRU",
+  "name": "Modèles ECRU",
   "tag": "div",
   "max_blocks": 6,
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Sur mesure" },
     { "type": "text", "id": "heading", "label": "Titre", "default": "À votre image." },
-    { "type": "text", "id": "text", "label": "Texte", "default": "Votre couleur, votre nom, votre logo, placés où vous voulez. Vous la voyez en 3D avant de commander." },
+    { "type": "text", "id": "text", "label": "Texte", "default": "Partez d'un modèle, changez le texte, la couleur, ajoutez votre logo. Vous la voyez en 3D avant de commander." },
     { "type": "text", "id": "button_label", "label": "Bouton", "default": "Composer ma carte" },
-    { "type": "url", "id": "button_link", "label": "Lien" },
+    { "type": "url", "id": "button_link", "label": "Lien (page produit, variante sur mesure)" },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
     { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
   ],
   "blocks": [
     {
-      "type": "assortiment",
-      "name": "Assortiment",
+      "type": "modele",
+      "name": "Modèle",
       "settings": [
-        { "type": "text", "id": "title", "label": "Nom de l'assortiment", "default": "Noir et or" },
-        { "type": "text", "id": "nom", "label": "Texte sur la carte", "default": "Votre marque" },
-        { "type": "color", "id": "fond", "label": "Couleur de la carte", "default": "#0d0d0c" },
-        { "type": "color", "id": "marquage", "label": "Couleur du marquage", "default": "#c2a165" }
+        {
+          "type": "select",
+          "id": "modele",
+          "label": "Modèle",
+          "options": [
+            { "value": "editorial", "label": "Éditorial" },
+            { "value": "minimal", "label": "Minimal" },
+            { "value": "monogramme", "label": "Monogramme" },
+            { "value": "signature", "label": "Signature" },
+            { "value": "numero", "label": "Numéro" },
+            { "value": "pierre", "label": "Pierre" }
+          ],
+          "default": "editorial"
+        },
+        { "type": "text", "id": "title", "label": "Nom", "default": "Éditorial" },
+        { "type": "text", "id": "text", "label": "Description" }
       ]
     }
   ],
   "presets": [
     {
-      "name": "Assortiments ECRU",
+      "name": "Modèles ECRU",
       "blocks": [
-        { "type": "assortiment", "settings": { "title": "Noir et or", "nom": "Maison Lune", "fond": "#0d0d0c", "marquage": "#c2a165" } },
-        { "type": "assortiment", "settings": { "title": "Crème et noir", "nom": "Atelier Sel", "fond": "#e9e4d8", "marquage": "#121211" } },
-        { "type": "assortiment", "settings": { "title": "Bordeaux et or", "nom": "Le Comptoir", "fond": "#5a1a22", "marquage": "#c2a165" } },
-        { "type": "assortiment", "settings": { "title": "Vert anglais et crème", "nom": "Club Marceau", "fond": "#1f3a2e", "marquage": "#e9e4d8" } },
-        { "type": "assortiment", "settings": { "title": "Bleu nuit et argent", "nom": "Nuit Blanche", "fond": "#1b2440", "marquage": "#c9c8c4" } },
-        { "type": "assortiment", "settings": { "title": "Sable et noir", "nom": "Salon Ambre", "fond": "#cdbb9a", "marquage": "#121211" } }
+        { "type": "modele", "settings": { "modele": "editorial", "title": "Éditorial", "text": "Noir et crème. Votre nom en grand." } },
+        { "type": "modele", "settings": { "modele": "monogramme", "title": "Monogramme", "text": "Ton sur ton. Une initiale qui déborde." } },
+        { "type": "modele", "settings": { "modele": "minimal", "title": "Minimal", "text": "Crème et noir. Presque rien." } },
+        { "type": "modele", "settings": { "modele": "numero", "title": "Numéro", "text": "Graphite. Un chiffre, une adresse." } },
+        { "type": "modele", "settings": { "modele": "signature", "title": "Signature", "text": "Écru. Centré, calme." } },
+        { "type": "modele", "settings": { "modele": "pierre", "title": "Pierre", "text": "Gris chaud. Typographie de maison." } }
       ]
     }
   ]
