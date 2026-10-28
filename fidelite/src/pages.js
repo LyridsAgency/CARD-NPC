@@ -9,7 +9,7 @@ function clarte(hex) {
   return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
 }
 
-// Toujours la même base, noire et crème (l'allure ECRU) ; la couleur du commerce ne sert que d'accent
+// Toujours la même base, noire et crème (l'allure ECRU), boutons compris ; la couleur du commerce ne sert que d'accent
 // (tampons, barre de progression), et seulement si elle se voit sur le noir.
 function teintes(accent) {
   const a = /^#[0-9a-f]{6}$/i.test(accent || '') && clarte(accent) > 70 ? accent : '#e9e4d8';
@@ -19,7 +19,6 @@ function teintes(accent) {
     doux: 'rgba(233,228,216,.62)',
     ligne: 'rgba(233,228,216,.18)',
     plein: a,
-    surPlein: clarte(a) > 150 ? '#121211' : '#e9e4d8',
   };
 }
 
@@ -62,11 +61,11 @@ h1,.titre{margin:0;font:400 34px/0.95 'Archivo Black',sans-serif;letter-spacing:
 .liens a::after{content:'→';color:${t.doux}}
 .boutons{display:grid;grid-template-columns:3fr 1fr;gap:10px}
 button,.bouton{display:flex;align-items:center;justify-content:center;width:100%;min-height:60px;padding:10px 18px;text-align:center;border:1px solid ${t.ligne};border-radius:999px;background:transparent;color:${t.encre};font:500 14px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;cursor:pointer}
-button.plein,.bouton.plein{background:${t.plein};border-color:${t.plein};color:${t.surPlein}}
+button.plein,.bouton.plein{background:${t.encre};border-color:${t.encre};color:${t.fond}}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid ${t.encre};outline-offset:3px}
 form{margin:0}
 .badge{align-self:flex-start;padding:6px 12px;border:1px solid ${t.ligne};border-radius:99px;font-size:11px;letter-spacing:.22em;text-transform:uppercase}
-.flash{padding:14px 18px;border-radius:12px;background:${t.plein};color:${t.surPlein};font-weight:500}
+.flash{padding:14px 18px;border-radius:12px;border:1px solid ${t.encre};color:${t.encre};font-weight:500}
 .grille{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .grille .bloc b{display:block;font:400 34px/1 'Archivo Black',sans-serif}
 label{display:block;font-size:13px;color:${t.doux};margin:0 0 6px}
@@ -76,7 +75,7 @@ input{width:100%;padding:14px 16px;border:1px solid ${t.ligne};border-radius:10p
 .choix legend{font-size:13px;margin-bottom:6px}
 .option{display:flex;gap:12px;align-items:flex-start;margin:0;padding:14px 16px;border:1px solid ${t.ligne};border-radius:12px;cursor:pointer;color:${t.encre};font-size:15px}
 .option:has(input:checked){border-color:${t.encre}}
-.option input{width:auto;margin:3px 0 0;accent-color:${t.plein}}
+.option input{width:auto;margin:3px 0 0;accent-color:${t.encre}}
 .option b{display:block;font-weight:500}
 .option span{color:${t.doux};font-size:13px;line-height:1.45}
 .option span b{color:${t.encre};font-size:15px}

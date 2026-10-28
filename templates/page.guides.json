@@ -1,0 +1,127 @@
+{
+  "sections": {
+    "main": {
+      "type": "ecru-guide",
+      "settings": {
+        "heading": "Mode d’emploi.",
+        "text": "Comment vos clients lisent la carte, et comment vous l’utilisez au comptoir. Deux minutes de lecture.",
+        "contact_text": "Une question qui n’est pas ici ?",
+        "contact_label": "Écrivez-nous",
+        "contact_link": "/pages/contact"
+      },
+      "blocks": {
+        "p-clients": {
+          "type": "partie",
+          "settings": {
+            "title": "Pour vos clients",
+            "text": "Ce qu’il faut savoir pour lire la carte. À montrer en caisse, ou à imprimer."
+          }
+        },
+        "approcher": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Approcher la carte",
+            "ancre": "approcher",
+            "illustration": "telephones",
+            "content": "<p>La carte n’a ni batterie ni application. Le téléphone la lit quand on l’approche, à un ou deux centimètres.</p><ol><li><strong>Déverrouillez le téléphone</strong>, écran allumé.</li><li><strong>Approchez la carte du dos du téléphone</strong> : en haut sur un iPhone, au milieu sur un Android.</li><li><strong>Gardez-la une seconde</strong>, sans bouger. Une notification apparaît : touchez-la, la page s’ouvre.</li></ol>"
+          }
+        },
+        "iphone": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Sur iPhone",
+            "ancre": "iphone",
+            "illustration": "aucune",
+            "content": "<ul><li><strong>iPhone XS et plus récents</strong> : rien à régler. La lecture fonctionne dès que l’écran est allumé.</li><li><strong>iPhone 7, 8 et X</strong> : ajoutez « Lecteur de tags NFC » dans Réglages › Centre de contrôle. Ouvrez-le depuis le Centre de contrôle, puis approchez la carte.</li><li>La lecture est en pause tant que l’appareil photo, Apple Pay ou le mode Avion sont ouverts.</li></ul>"
+          }
+        },
+        "android": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Sur Android",
+            "ancre": "android",
+            "illustration": "aucune",
+            "content": "<ul><li><strong>Vérifiez que le NFC est activé</strong> : dans les réglages rapides, en glissant depuis le haut de l’écran. Sinon dans Paramètres › Appareils connectés › NFC (Paramètres › Connexions sur Samsung).</li><li>L’antenne est le plus souvent au milieu du dos. Si rien ne se passe, faites glisser la carte doucement vers le haut ou vers le bas.</li><li>La grande majorité des Android récents lisent le NFC ; quelques modèles d’entrée de gamme n’en ont pas.</li></ul>"
+          }
+        },
+        "probleme": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Si rien ne s’ouvre",
+            "ancre": "probleme",
+            "illustration": "aucune",
+            "content": "<ul><li><strong>Coque épaisse, aimantée ou porte-cartes en métal</strong> : retirez-la le temps du scan.</li><li><strong>Carte en métal</strong> : présentez la face qui porte la fenêtre NFC, la longue barre.</li><li><strong>Une carte à la fois</strong> : deux cartes NFC l’une sur l’autre se brouillent.</li><li>Toujours rien ? Essayez avec un autre téléphone. Si aucun ne lit la carte, écrivez-nous.</li></ul>"
+          }
+        },
+        "p-pro": {
+          "type": "partie",
+          "settings": {
+            "title": "Pour vous, en caisse",
+            "text": "Avec l’option fidélité : votre téléphone devient votre outil de caisse."
+          }
+        },
+        "connexion": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Se connecter à votre espace",
+            "ancre": "connexion",
+            "illustration": "aucune",
+            "content": "<p>Pas de mot de passe, pas d’application : un lien personnel suffit.</p><ol><li>À la livraison de vos cartes, vous recevez par e-mail <strong>votre lien de connexion</strong>.</li><li>Ouvrez-le <strong>sur le téléphone du comptoir</strong>. Votre tableau de bord s’affiche : c’est fait.</li><li>Ce téléphone reste connecté un an. Pour équiper un collègue, ouvrez le même lien sur son téléphone.</li></ol><p>Lien perdu ou téléphone changé : demandez-nous un nouveau lien. L’ancien cesse aussitôt de fonctionner.</p>"
+          }
+        },
+        "recompenses": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Choisir vos récompenses",
+            "ancre": "recompenses",
+            "illustration": "aucune",
+            "content": "<p>C’est vous qui décidez, depuis votre tableau de bord. Vous changez quand vous voulez.</p><ul><li><strong>Tampons</strong> : un passage, un tampon. Vous fixez le nombre de tampons (de 3 à 30) et la récompense. Une fois la récompense remise, la carte recommence, ou s’arrête : vous la relancez quand vous voulez, en la scannant.</li><li><strong>Points</strong> : vous fixez les points gagnés par euro dépensé, et jusqu’à six cadeaux avec leur prix en points. Le client choisit quand il a assez.</li></ul><p>Changer de système remet les cartes à zéro : choisissez-le avant de distribuer vos cartes.</p>"
+          }
+        },
+        "caisse": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Valider un passage",
+            "ancre": "caisse",
+            "illustration": "aucune",
+            "content": "<ol><li>Le client présente sa carte.</li><li>Approchez-la de <strong>votre</strong> téléphone : sa progression s’affiche, avec vos boutons.</li><li><strong>Tampons</strong> : touchez « + 1 tampon ». <strong>Points</strong> : tapez le montant de l’achat, puis « Ajouter les points ».</li><li>Récompense atteinte : elle s’affiche. Remettez-la, puis touchez « Récompense remise » ou « Offrir ».</li></ol><p>Un double appui ne compte qu’une fois. Une erreur se rattrape avec « − 1 » ou « Corriger ».</p><p>Quand le client scanne sa carte avec son propre téléphone, il voit seulement où il en est. Il ne peut rien modifier.</p>"
+          }
+        },
+        "lancer": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Bien lancer vos cartes",
+            "ancre": "lancer",
+            "illustration": "aucune",
+            "content": "<ul><li>Posez une carte bien en vue près de la caisse.</li><li>Proposez-la au moment de payer : « Approchez-la de votre téléphone, c’est tout. »</li><li>Donnez le premier tampon tout de suite : le client repart avec une carte déjà commencée.</li><li>Gardez quelques cartes d’avance au comptoir.</li></ul>"
+          }
+        },
+        "abonnement": {
+          "type": "chapitre",
+          "settings": {
+            "title": "Liens, abonnement et arrêt",
+            "ancre": "abonnement",
+            "illustration": "aucune",
+            "content": "<ul><li>Les liens de la carte (menu, avis, réseaux, prise de rendez-vous) se changent sur simple demande, sans changer de carte.</li><li>L’option fidélité est sans engagement et se résilie à tout moment.</li><li>À l’arrêt de l’abonnement, les cartes affichent « Ce programme n’est plus actif ». À la reprise, tout revient, avec la progression de chaque client.</li></ul>"
+          }
+        }
+      },
+      "block_order": [
+        "p-clients",
+        "approcher",
+        "iphone",
+        "android",
+        "probleme",
+        "p-pro",
+        "connexion",
+        "recompenses",
+        "caisse",
+        "lancer",
+        "abonnement"
+      ]
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

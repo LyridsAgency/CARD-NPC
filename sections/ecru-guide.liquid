@@ -1,0 +1,158 @@
+{%- comment -%}
+  ECRU — Guide d'utilisation : une colonne de lecture, un sommaire qui suit la lecture, une version imprimable.
+  Blocs « Partie » (titre de groupe dans le sommaire) et « Chapitre » (titre, texte, illustration facultative).
+{%- endcomment -%}
+<section
+  class="ecru-section ecru-guide"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-guide__tete">
+      <h1 id="titre-{{ section.id }}" class="ecru-titre">{{ section.settings.heading | escape }}</h1>
+      {%- if section.settings.text != blank -%}
+        <p class="ecru-texte">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+      <button type="button" class="ecru-bouton ecru-bouton--ligne ecru-guide__imprimer" onclick="window.print()">
+        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M5 7V2h10v5M5 15H2V8h16v7h-3M5 12h10v6H5z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+        Imprimer ou PDF
+      </button>
+    </header>
+
+    <div class="ecru-guide__grille">
+      <nav class="ecru-guide__sommaire" aria-label="Sommaire du guide">
+        <ol role="list">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'partie' -%}
+              {%- unless forloop.first -%}</ol></li>{%- endunless -%}
+              <li class="ecru-guide__partie"><span>{{ block.settings.title | escape }}</span><ol role="list">
+            {%- else -%}
+              <li><a href="#{{ block.settings.ancre | handleize }}" data-ecru-guide-lien>{{ block.settings.title | escape }}</a></li>
+            {%- endif -%}
+            {%- if forloop.last -%}</ol></li>{%- endif -%}
+          {%- endfor -%}
+        </ol>
+      </nav>
+
+      <div class="ecru-guide__colonne">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'partie' -%}
+            <h2 class="ecru-guide__partie-titre" {{ block.shopify_attributes }}>{{ block.settings.title | escape }}</h2>
+            {%- if block.settings.text != blank -%}<p class="ecru-guide__partie-texte">{{ block.settings.text | escape }}</p>{%- endif -%}
+          {%- else -%}
+            <article class="ecru-guide__chapitre" id="{{ block.settings.ancre | handleize }}" {{ block.shopify_attributes }}>
+              <h3 class="ecru-titre ecru-titre--s">{{ block.settings.title | escape }}</h3>
+              {%- if block.settings.illustration == 'telephones' -%}
+                <figure class="ecru-guide__figure">
+                  <svg viewBox="0 0 520 300" role="img" aria-labelledby="fig-{{ block.id }}">
+                    <title id="fig-{{ block.id }}">Où approcher la carte : en haut au dos d’un iPhone, au milieu du dos d’un Android.</title>
+                    <g class="tel">
+                      <rect x="40" y="20" width="140" height="260" rx="24"/>
+                      <rect x="56" y="36" width="44" height="44" rx="12"/>
+                      <circle cx="70" cy="50" r="7"/><circle cx="86" cy="66" r="7"/>
+                    </g>
+                    <g class="carte" transform="translate(64 -6) rotate(-8)">
+                      <rect x="0" y="0" width="128" height="81" rx="7"/>
+                      <rect class="barre" x="4" y="4" width="36" height="73" rx="3"/>
+                    </g>
+                    <ellipse class="zone-fixe" cx="128" cy="34" rx="70" ry="44"/>
+                    <ellipse class="zone" cx="128" cy="34" rx="70" ry="44"/>
+                    <text x="110" y="300" text-anchor="middle">iPhone · en haut</text>
+
+                    <g class="tel">
+                      <rect x="320" y="20" width="140" height="260" rx="24"/>
+                      <rect x="366" y="34" width="48" height="22" rx="11"/>
+                    </g>
+                    <g class="carte" transform="translate(338 112) rotate(-8)">
+                      <rect x="0" y="0" width="128" height="81" rx="7"/>
+                      <rect class="barre" x="4" y="4" width="36" height="73" rx="3"/>
+                    </g>
+                    <ellipse class="zone-fixe" cx="402" cy="152" rx="72" ry="46"/>
+                    <ellipse class="zone" cx="402" cy="152" rx="72" ry="46"/>
+                    <text x="390" y="300" text-anchor="middle">Android · au milieu</text>
+                  </svg>
+                </figure>
+              {%- endif -%}
+              <div class="ecru-guide__texte">{{ block.settings.content }}</div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if section.settings.contact_text != blank -%}
+          <p class="ecru-guide__fin">
+            {{ section.settings.contact_text | escape }}
+            <a href="{{ section.settings.contact_link | default: '/pages/contact' }}">{{ section.settings.contact_label | escape }}</a>
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    // Le sommaire suit la lecture
+    var liens = document.querySelectorAll('[data-ecru-guide-lien]');
+    if (!liens.length || !('IntersectionObserver' in window)) return;
+    var parId = {};
+    liens.forEach(function (a) {
+      parId[a.getAttribute('href').slice(1)] = a;
+    });
+    var io = new IntersectionObserver(
+      function (entrees) {
+        entrees.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          liens.forEach(function (a) {
+            a.removeAttribute('aria-current');
+          });
+          var a = parId[e.target.id];
+          if (a) a.setAttribute('aria-current', 'true');
+        });
+      },
+      { rootMargin: '-30% 0px -60% 0px' }
+    );
+    document.querySelectorAll('.ecru-guide__chapitre').forEach(function (c) {
+      io.observe(c);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Guide ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Mode d’emploi." },
+    { "type": "textarea", "id": "text", "label": "Introduction" },
+    { "type": "text", "id": "contact_text", "label": "Texte de fin", "default": "Une question qui n’est pas ici ?" },
+    { "type": "text", "id": "contact_label", "label": "Lien de fin", "default": "Écrivez-nous" },
+    { "type": "url", "id": "contact_link", "label": "Adresse du lien de fin" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 128 }
+  ],
+  "blocks": [
+    {
+      "type": "partie",
+      "name": "Partie",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "Pour vos clients" },
+        { "type": "text", "id": "text", "label": "Texte court" }
+      ]
+    },
+    {
+      "type": "chapitre",
+      "name": "Chapitre",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "Approcher la carte" },
+        { "type": "text", "id": "ancre", "label": "Ancre (adresse du chapitre)", "default": "approcher" },
+        { "type": "select", "id": "illustration", "label": "Illustration", "default": "aucune", "options": [
+          { "value": "aucune", "label": "Aucune" },
+          { "value": "telephones", "label": "Où approcher la carte" }
+        ] },
+        { "type": "richtext", "id": "content", "label": "Texte" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Guide ECRU" }]
+}
+{% endschema %}

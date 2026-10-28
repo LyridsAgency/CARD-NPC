@@ -3429,3 +3429,321 @@ body::after {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ----- Guide : sommaire qui suit la lecture, colonne calme, version imprimable ----- */
+.ecru-guide__tete {
+  max-width: 72rem;
+  margin-bottom: clamp(4.8rem, 7vw, 8.8rem);
+}
+.ecru-guide__tete .ecru-texte {
+  max-width: 52ch;
+}
+.ecru-guide__imprimer {
+  margin-top: 3.2rem;
+}
+.ecru-guide__grille {
+  display: grid;
+  gap: 4.8rem;
+}
+@media (min-width: 990px) {
+  .ecru-guide__grille {
+    grid-template-columns: 24rem minmax(0, 68ch);
+    gap: clamp(6.4rem, 8vw, 12rem);
+  }
+}
+.ecru-guide__sommaire {
+  align-self: start;
+  border-top: 1px solid var(--ecru-border);
+  padding-top: 2rem;
+}
+@media (min-width: 990px) {
+  .ecru-guide__sommaire {
+    position: sticky;
+    top: 12rem;
+  }
+}
+.ecru-guide__sommaire ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ecru-guide__partie + .ecru-guide__partie {
+  margin-top: 2.4rem;
+}
+.ecru-guide__partie > span {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ecru-text);
+}
+.ecru-guide__sommaire a {
+  display: block;
+  padding: 0.6rem 0 0.6rem 1.4rem;
+  border-left: 1px solid var(--ecru-border);
+  font-size: 1.4rem;
+  line-height: 1.4;
+  color: var(--ecru-muted);
+  text-decoration: none;
+  transition: color 0.4s var(--ecru-ease), border-color 0.4s var(--ecru-ease);
+}
+.ecru-guide__sommaire a:hover,
+.ecru-guide__sommaire a[aria-current] {
+  color: var(--ecru-text);
+  border-left-color: var(--ecru-text);
+}
+.ecru-guide__partie-titre {
+  margin: 0 0 1.2rem;
+  padding-top: 2.4rem;
+  border-top: 1px solid var(--ecru-text);
+  font-family: var(--font-heading-family);
+  font-weight: 400;
+  font-size: clamp(2.8rem, 3.6vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ecru-text);
+}
+.ecru-guide__partie-titre:not(:first-child) {
+  margin-top: clamp(8rem, 10vw, 12.8rem);
+}
+.ecru-guide__partie-texte {
+  margin: 0 0 1.6rem;
+  font-size: 1.6rem;
+  line-height: 1.6;
+  color: var(--ecru-muted);
+}
+.ecru-guide__chapitre {
+  padding-top: 4.8rem;
+  scroll-margin-top: 10rem;
+}
+.ecru-guide__chapitre + .ecru-guide__chapitre {
+  margin-top: 1.6rem;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-guide__chapitre .ecru-titre--s {
+  margin-bottom: 2rem;
+}
+.ecru-guide__texte {
+  font-size: 1.65rem;
+  line-height: 1.7;
+  color: #cfcac0;
+}
+.ecru-guide__texte p {
+  margin: 0 0 1.4rem;
+}
+.ecru-guide__texte strong {
+  font-weight: 500;
+  color: var(--ecru-text);
+}
+.ecru-guide__texte a {
+  color: var(--ecru-text);
+  text-underline-offset: 0.3em;
+}
+.ecru-guide__texte ul,
+.ecru-guide__texte ol {
+  margin: 0 0 1.6rem;
+  padding: 0;
+  list-style: none;
+}
+.ecru-guide__texte li {
+  position: relative;
+  padding: 1.2rem 0 1.2rem 4rem;
+  border-bottom: 1px solid var(--ecru-border);
+}
+.ecru-guide__texte li:first-child {
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-guide__texte ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0.6rem;
+  top: 2.4rem;
+  width: 1.4rem;
+  height: 1px;
+  background: var(--ecru-muted);
+}
+/* Étapes numérotées : l'ordre compte */
+.ecru-guide__texte ol {
+  counter-reset: etape;
+}
+.ecru-guide__texte ol > li {
+  counter-increment: etape;
+}
+.ecru-guide__texte ol > li::before {
+  content: counter(etape);
+  position: absolute;
+  left: 0;
+  top: 1.2rem;
+  font-family: var(--font-heading-family);
+  font-size: 2rem;
+  line-height: 1.4;
+  color: var(--ecru-text);
+  font-variant-numeric: tabular-nums;
+}
+.ecru-guide__figure {
+  margin: 0 0 3.2rem;
+  padding: clamp(2rem, 4vw, 3.2rem);
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  background: var(--ecru-surface);
+}
+.ecru-guide__figure svg {
+  display: block;
+  width: 100%;
+  max-width: 52rem;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+.ecru-guide__figure .tel rect,
+.ecru-guide__figure .tel circle {
+  fill: none;
+  stroke: var(--ecru-muted);
+  stroke-width: 1.2;
+}
+.ecru-guide__figure .carte rect {
+  fill: var(--ecru-bg);
+  stroke: var(--ecru-text);
+  stroke-width: 1.2;
+}
+.ecru-guide__figure .carte .barre {
+  fill: #2a2926;
+  stroke: none;
+}
+.ecru-guide__figure .zone {
+  fill: none;
+  stroke: var(--ecru-text);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ecru-onde 2.8s var(--ecru-ease) infinite;
+}
+.ecru-guide__figure .zone-fixe {
+  fill: none;
+  stroke: var(--ecru-text);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  opacity: 0.55;
+}
+.ecru-guide__figure text {
+  fill: var(--ecru-muted);
+  font-family: var(--font-body-family);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+@keyframes ecru-onde {
+  0% { transform: scale(0.85); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ecru-guide__figure .zone {
+    animation: none;
+  }
+}
+.ecru-guide__fin {
+  margin: clamp(6.4rem, 8vw, 9.6rem) 0 0;
+  padding-top: 2.4rem;
+  border-top: 1px solid var(--ecru-text);
+  font-size: 1.6rem;
+  color: var(--ecru-muted);
+}
+.ecru-guide__fin a {
+  color: var(--ecru-text);
+  text-underline-offset: 0.3em;
+}
+::selection {
+  background: var(--ecru-text);
+  color: var(--ecru-bg);
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 18mm;
+  }
+  html,
+  body,
+  .ecru-section {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .shopify-section-group-header-group,
+  .shopify-section-group-footer-group,
+  .ecru-guide__imprimer,
+  .ecru-guide__sommaire,
+  #shopify-chat,
+  .cart-drawer {
+    display: none !important;
+  }
+  .ecru-section {
+    padding: 0 !important;
+  }
+  .ecru-guide__grille {
+    display: block;
+  }
+  .ecru-guide .ecru-titre,
+  .ecru-guide__partie-titre,
+  .ecru-guide__texte strong,
+  .ecru-guide__texte ol > li::before,
+  .ecru-guide__fin a {
+    color: #111 !important;
+  }
+  .ecru-guide .ecru-texte,
+  .ecru-guide__texte,
+  .ecru-guide__partie-texte,
+  .ecru-guide__fin {
+    color: #333 !important;
+    font-size: 11pt;
+  }
+  .ecru-guide__partie-titre {
+    border-top-color: #111;
+    break-before: page;
+  }
+  .ecru-guide__partie-titre:first-child {
+    break-before: auto;
+  }
+  .ecru-guide__chapitre {
+    padding-top: 2.4rem;
+  }
+  .ecru-guide__chapitre h3 {
+    break-after: avoid;
+  }
+  .ecru-guide__figure,
+  .ecru-guide__texte li {
+    break-inside: avoid;
+  }
+  .ecru-guide__texte li,
+  .ecru-guide__chapitre + .ecru-guide__chapitre {
+    border-color: #ccc !important;
+  }
+  .ecru-guide__figure {
+    background: #fff;
+    border-color: #ccc;
+  }
+  .ecru-guide__figure .tel rect,
+  .ecru-guide__figure .tel circle {
+    stroke: #777;
+  }
+  .ecru-guide__figure .carte rect {
+    fill: #fff;
+    stroke: #111;
+  }
+  .ecru-guide__figure .carte .barre {
+    fill: #ddd;
+  }
+  .ecru-guide__figure .zone {
+    display: none;
+  }
+  .ecru-guide__figure .zone-fixe {
+    stroke: #111;
+    opacity: 1;
+  }
+  .ecru-guide__figure text {
+    fill: #555;
+  }
+}
