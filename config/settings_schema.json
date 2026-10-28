@@ -1497,6 +1497,12 @@
         "info": "Par défaut : la page /pages/demande-particuliere."
       },
       {
+        "type": "text",
+        "id": "ecru_fidelite_url",
+        "label": "Adresse du serveur des cartes Fidélité",
+        "info": "Ex. https://carte.ecru.fr (dossier fidelite/ du projet). Ajoute le bouton « Mon tableau de fidélité » dans l'espace pro."
+      },
+      {
         "type": "header",
         "content": "Commande"
       },

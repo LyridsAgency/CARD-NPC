@@ -1,0 +1,20 @@
+# ECRU Fidélité — configuration Cloudflare Workers
+name = "ecru-fidelite"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# Adresse publique du service (celle écrite dans les puces) : un sous-domaine de VOTRE domaine
+PUBLIC_URL = "https://carte.ecru.fr"
+SITE_URL = "https://ecru.fr"
+SHOP_DOMAIN = "st9vcv-0w.myshopify.com"
+
+# Secrets à définir avec « npx wrangler secret put NOM » (jamais dans ce fichier) :
+#   SHOPIFY_STOREFRONT_TOKEN  jeton Storefront API (lecture des fiches « Commerce ECRU »)
+#   SESSION_SECRET            longue chaîne aléatoire (signature des sessions commerçant)
+#   ADMIN_TOKEN               clé de la page /admin
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ecru-fidelite"
+database_id = "A_REMPLACER_APRES_npx_wrangler_d1_create"

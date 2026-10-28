@@ -1,5 +1,10 @@
 # Abonnement Fidélité : page commerçant liée à l'abonnement
 
+> **Cartes Fidélité :** chaque carte a sa propre adresse, servie par le serveur `fidelite/` (voir `fidelite/README.md`) :
+> progression pour le client, tampons pour le commerçant. Ce serveur lit la fiche « Commerce ECRU » ci-dessous :
+> quand *Abonnement actif* est décoché, toutes les cartes du commerce s'arrêtent.
+> La page `/pages/carte/<handle>` reste la vitrine publique du commerce (liens, récompense).
+
 ## Principe
 - Chaque commerçant Fidélité a une entrée **Commerce ECRU** (Contenu → Métaobjets), avec le handle `client-<ID client Shopify>`.
 - Sa carte NFC ouvre `https://<domaine>/pages/carte/client-<ID>`.

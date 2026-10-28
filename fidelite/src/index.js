@@ -1,0 +1,222 @@
+// ECRU Fidélité — Cloudflare Worker.
+//   /c/<code>          la carte scannée : vue client (progression) ou vue commerçant (si son téléphone est connecté)
+//   /pro               tableau de bord du commerçant ; /pro/connexion?commerce=…&cle=… ; /pro/reglages ; /pro/deconnexion
+//   /admin             création des cartes (CSV d'adresses à encoder) et des liens de connexion commerçant
+import { aleatoire, hacher, egal, creerSession, lireSession, lireCookie } from './securite.js';
+import { lireCommerce } from './shopify.js';
+import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, echapper } from './pages.js';
+
+const COOKIE = 'ecru_pro';
+const ANTI_DOUBLE = 8; // secondes : un double appui ne donne pas deux tampons
+
+function html(corps, statut = 200, entetes = {}) {
+  return new Response(corps, {
+    status: statut,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-Frame-Options': 'DENY',
+      'Referrer-Policy': 'same-origin',
+      ...entetes,
+    },
+  });
+}
+
+function rediriger(url, entetes = {}) {
+  return new Response(null, { status: 303, headers: { Location: url, 'Cache-Control': 'no-store', ...entetes } });
+}
+
+function maintenantIso() {
+  return new Date().toISOString();
+}
+
+async function reglageDe(env, c) {
+  const r = await env.DB.prepare('SELECT seuil, recompense FROM reglages WHERE commerce = ?').bind(c.handle).first();
+  return {
+    seuil: Math.min(30, Math.max(3, (r && r.seuil) || c.seuil || 10)),
+    recompense: (r && r.recompense != null ? r.recompense : c.recompense) || '',
+  };
+}
+
+async function sessionPro(env, requete) {
+  return lireSession(env.SESSION_SECRET, lireCookie(requete, COOKIE));
+}
+
+// Une action vient bien du site (formulaire de la page), pas d'un autre site
+function memeOrigine(requete, url, env) {
+  const o = requete.headers.get('Origin');
+  if (!o) return true;
+  if (o === url.origin) return true;
+  try {
+    return o === new URL(env.PUBLIC_URL).origin;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function carte(env, code) {
+  return env.DB.prepare('SELECT * FROM cartes WHERE code = ?').bind(code).first();
+}
+
+async function scanCarte(env, requete, url, code) {
+  const k = await carte(env, code);
+  if (!k) return html(pageInconnue(), 404);
+  const c = await lireCommerce(env, k.commerce);
+  if (!c || !c.actif) return html(pageSuspendue(c), c ? 200 : 404);
+  const reglage = await reglageDe(env, c);
+  const pro = (await sessionPro(env, requete)) === k.commerce;
+
+  if (requete.method === 'POST') {
+    if (!pro || !memeOrigine(requete, url, env)) return html(pageMessage('Action refusée', 'Seul le téléphone du commerce peut ajouter des tampons.'), 403);
+    const f = await requete.formData();
+    const action = f.get('action');
+    const maintenant = maintenantIso();
+    let message = '';
+    if (action === 'tampon') {
+      const recent = await env.DB.prepare("SELECT a FROM evenements WHERE carte = ? AND type = 'tampon' ORDER BY id DESC LIMIT 1").bind(code).first();
+      if (recent && Date.now() - Date.parse(recent.a) < ANTI_DOUBLE * 1000) {
+        message = 'Tampon déjà ajouté à l’instant.';
+      } else {
+        await env.DB.prepare('UPDATE cartes SET tampons = tampons + 1, visites = visites + 1, derniere_visite = ? WHERE code = ?').bind(maintenant, code).run();
+        await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'tampon', ?)").bind(code, k.commerce, maintenant).run();
+        message = `Tampon ajouté : ${k.tampons + 1} / ${reglage.seuil}.`;
+        if (k.tampons + 1 >= reglage.seuil) message += ' Récompense due !';
+      }
+    } else if (action === 'retrait' && k.tampons > 0) {
+      await env.DB.prepare('UPDATE cartes SET tampons = tampons - 1, visites = MAX(visites - 1, 0) WHERE code = ?').bind(code).run();
+      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'retrait', ?)").bind(code, k.commerce, maintenant).run();
+      message = 'Tampon retiré.';
+    } else if (action === 'recompense' && k.tampons >= reglage.seuil) {
+      await env.DB.prepare('UPDATE cartes SET tampons = tampons - ?, recompenses = recompenses + 1 WHERE code = ?').bind(reglage.seuil, code).run();
+      await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'recompense', ?)").bind(code, k.commerce, maintenant).run();
+      message = 'Récompense remise. La carte repart pour un tour.';
+    }
+    return rediriger(`/c/${code}?ok=${encodeURIComponent(message)}`);
+  }
+
+  if (pro) {
+    const k2 = await carte(env, code);
+    return html(pagePro(c, k2, reglage, url.searchParams.get('ok') || ''));
+  }
+  // Vue client : on note le passage (au plus une fois par heure et par carte) pour les statistiques
+  const derniere = await env.DB.prepare("SELECT a FROM evenements WHERE carte = ? AND type = 'vue' ORDER BY id DESC LIMIT 1").bind(code).first();
+  if (!derniere || Date.now() - Date.parse(derniere.a) > 3600 * 1000) {
+    await env.DB.prepare("INSERT INTO evenements (carte, commerce, type, a) VALUES (?, ?, 'vue', ?)").bind(code, k.commerce, maintenantIso()).run();
+  }
+  return html(pageClient(c, k, reglage));
+}
+
+function debutMois(decalage = 0) {
+  const d = new Date();
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + decalage, 1)).toISOString();
+}
+
+async function statistiques(env, commerce) {
+  const m0 = debutMois(0);
+  const m1 = debutMois(-1);
+  const un = async (sql, ...args) => ((await env.DB.prepare(sql).bind(...args).first()) || {}).n || 0;
+  const visitesMois = await un("SELECT COUNT(*) AS n FROM evenements WHERE commerce = ? AND type = 'tampon' AND a >= ?", commerce, m0);
+  const visitesMoisPrec = await un("SELECT COUNT(*) AS n FROM evenements WHERE commerce = ? AND type = 'tampon' AND a >= ? AND a < ?", commerce, m1, m0);
+  const recompensesMois = await un("SELECT COUNT(*) AS n FROM evenements WHERE commerce = ? AND type = 'recompense' AND a >= ?", commerce, m0);
+  const clientsMois = await un("SELECT COUNT(DISTINCT carte) AS n FROM evenements WHERE commerce = ? AND type = 'tampon' AND a >= ?", commerce, m0);
+  const cartes = await un('SELECT COUNT(*) AS n FROM cartes WHERE commerce = ?', commerce);
+  const cartesActives = await un('SELECT COUNT(*) AS n FROM cartes WHERE commerce = ? AND visites > 0', commerce);
+  const fideles = await un('SELECT COUNT(*) AS n FROM cartes WHERE commerce = ? AND visites > 1', commerce);
+  return {
+    visitesMois,
+    visitesMoisPrec,
+    recompensesMois,
+    clientsMois,
+    cartes,
+    cartesActives,
+    tauxRetour: cartesActives ? Math.round((fideles / cartesActives) * 100) : 0,
+  };
+}
+
+async function routesPro(env, requete, url) {
+  const chemin = url.pathname;
+  if (chemin === '/pro/connexion') {
+    const commerce = url.searchParams.get('commerce') || '';
+    const cle = url.searchParams.get('cle') || '';
+    const acces = await env.DB.prepare('SELECT cle_hash FROM acces_pro WHERE commerce = ?').bind(commerce).first();
+    if (!acces || !egal(acces.cle_hash, await hacher(cle))) return html(pageMessage('Lien invalide', 'Ce lien de connexion n’est pas valable. Demandez-en un nouveau à ECRU.'), 403);
+    const jeton = await creerSession(env.SESSION_SECRET, commerce);
+    return rediriger('/pro', {
+      'Set-Cookie': `${COOKIE}=${encodeURIComponent(jeton)}; Path=/; Max-Age=${365 * 86400}; HttpOnly; Secure; SameSite=Lax`,
+    });
+  }
+  if (chemin === '/pro/deconnexion') {
+    return rediriger('/pro', { 'Set-Cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
+  }
+  const commerce = await sessionPro(env, requete);
+  if (!commerce) return html(pageMessage('Espace commerçant', 'Ouvrez le lien de connexion reçu d’ECRU sur le téléphone de votre commerce.'), 401);
+  const c = await lireCommerce(env, commerce);
+  if (!c) return html(pageInconnue(), 404);
+
+  if (chemin === '/pro/reglages' && requete.method === 'POST') {
+    if (!memeOrigine(requete, url, env)) return html(pageMessage('Action refusée', 'Requête refusée.'), 403);
+    const f = await requete.formData();
+    const seuil = Math.min(30, Math.max(3, parseInt(f.get('seuil'), 10) || 10));
+    const recompense = String(f.get('recompense') || '').slice(0, 80);
+    await env.DB.prepare(
+      'INSERT INTO reglages (commerce, seuil, recompense, modifie) VALUES (?, ?, ?, ?) ON CONFLICT(commerce) DO UPDATE SET seuil = excluded.seuil, recompense = excluded.recompense, modifie = excluded.modifie'
+    ).bind(commerce, seuil, recompense, maintenantIso()).run();
+    return rediriger('/pro?ok=' + encodeURIComponent('Réglages enregistrés.'));
+  }
+  if (chemin === '/pro') {
+    return html(pageTableau(c, await statistiques(env, commerce), await reglageDe(env, c), url.searchParams.get('ok') || ''));
+  }
+  return html(pageInconnue(), 404);
+}
+
+async function routesAdmin(env, requete, url) {
+  if (requete.method !== 'POST') return html(pageAdmin());
+  const f = await requete.formData();
+  if (!env.ADMIN_TOKEN || !egal(String(f.get('jeton') || ''), env.ADMIN_TOKEN)) return html(pageAdmin('<p class="flash">Clé d’administration incorrecte.</p>'), 403);
+  const commerce = String(f.get('commerce') || '').trim();
+  if (!/^[a-z0-9-]{1,80}$/.test(commerce)) return html(pageAdmin('<p class="flash">Handle de commerce invalide.</p>'), 400);
+
+  if (url.pathname === '/admin/cartes') {
+    const nombre = Math.min(1000, Math.max(1, parseInt(f.get('nombre'), 10) || 1));
+    const maintenant = maintenantIso();
+    const lignes = ['numero,code,adresse'];
+    for (let i = 1; i <= nombre; i++) {
+      const code = aleatoire(10);
+      await env.DB.prepare('INSERT INTO cartes (code, commerce, creee) VALUES (?, ?, ?)').bind(code, commerce, maintenant).run();
+      lignes.push(`${i},${code},${env.PUBLIC_URL}/c/${code}`);
+    }
+    return new Response(lignes.join('\n') + '\n', {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="cartes-${commerce}.csv"`,
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
+  if (url.pathname === '/admin/acces') {
+    const cle = aleatoire(24);
+    await env.DB.prepare(
+      'INSERT INTO acces_pro (commerce, cle_hash, creee) VALUES (?, ?, ?) ON CONFLICT(commerce) DO UPDATE SET cle_hash = excluded.cle_hash, creee = excluded.creee'
+    ).bind(commerce, await hacher(cle), maintenantIso()).run();
+    const lien = `${env.PUBLIC_URL}/pro/connexion?commerce=${encodeURIComponent(commerce)}&cle=${cle}`;
+    return html(pageAdmin(`<div class="bloc"><p class="petit">Lien de connexion (l’ancien ne marche plus)</p><p style="word-break:break-all;margin-top:8px">${echapper(lien)}</p></div>`));
+  }
+  return html(pageInconnue(), 404);
+}
+
+export default {
+  async fetch(requete, env) {
+    const url = new URL(requete.url);
+    try {
+      const m = url.pathname.match(/^\/c\/([a-z0-9]{6,32})\/?$/);
+      if (m) return await scanCarte(env, requete, url, m[1]);
+      if (url.pathname === '/pro' || url.pathname.startsWith('/pro/')) return await routesPro(env, requete, url);
+      if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) return await routesAdmin(env, requete, url);
+      if (url.pathname === '/') return rediriger(env.SITE_URL || 'https://ecru.fr');
+      return html(pageInconnue(), 404);
+    } catch (e) {
+      console.error(e);
+      return html(pageMessage('Un instant', 'La page ne répond pas pour le moment. Réessayez dans quelques secondes.'), 503);
+    }
+  },
+};
