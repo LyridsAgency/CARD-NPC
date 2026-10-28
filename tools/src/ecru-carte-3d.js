@@ -813,6 +813,12 @@ export async function mount(el) {
   el.addEventListener('ecru:view', (e) => {
     const v = e.detail && e.detail.view;
     state.view = v in VUES ? VUES[v] : null;
+    // Un choix de vue l'emporte tout de suite sur l'élan ou la pause d'après un geste
+    state.vel = 0;
+    state.libreApres = 0;
+    state.presentUntil = 0;
+    state.lecture = false;
+    start();
   });
 
   // Édition : quand la carte est posée de face, on publie sa place à l'écran (px, dans la scène)

@@ -4175,7 +4175,18 @@ body::after {
   .ecru-produit__vue {
     width: 7.2rem;
   }
-  .ecru-produit.is-edition .ecru-produit__vues {
-    display: none;
-  }
+}
+
+/* En-tête : icônes au trait fin, comme le reste du site */
+.header__icon .ecru-icone svg {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+.header__icon--account,
+.header__icon--cart {
+  transition: color 0.4s var(--ecru-ease);
+}
+.header__icon--account:hover,
+.header__icon--cart:hover {
+  color: var(--ecru-text);
 }

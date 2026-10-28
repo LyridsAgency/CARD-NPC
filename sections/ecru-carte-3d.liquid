@@ -10,12 +10,17 @@
     endif
   endfor
   comment
-    Carte vierge, comme le produit réel ; un marquage discret en bas à droite si renseigné
+    Carte de présentation : la marque en grand (comme le modèle Éditorial), une ligne discrète en haut.
   endcomment
   assign elements = '[]'
   if section.settings.card_text != blank
     assign marque = section.settings.card_text | strip | json
-    assign elements = '[{"t":"text","v":' | append: marque | append: ',"x":0.9,"y":0.84,"s":0.06,"f":"display","a":"right"}]'
+    assign elements = '[{"t":"text","v":' | append: marque | append: ',"x":0.37,"y":0.79,"s":0.25,"f":"display","a":"left","k":-0.01}'
+    if section.settings.card_tagline != blank
+      assign ligne = section.settings.card_tagline | strip | json
+      assign elements = elements | append: ',{"t":"text","v":' | append: ligne | append: ',"x":0.37,"y":0.15,"s":0.043,"f":"body","a":"left"}'
+    endif
+    assign elements = elements | append: ']'
   endif
   assign heading_tag = 'h2'
   if section.settings.heading_h1
@@ -101,9 +106,15 @@
     {
       "type": "text",
       "id": "card_text",
-      "label": "Marquage discret",
+      "label": "Marque sur la carte",
       "default": "ECRU",
-      "info": "En bas à droite de la carte. Laisser vide pour une carte vierge."
+      "info": "En grand sur la carte. Laisser vide pour une carte vierge."
+    },
+    {
+      "type": "text",
+      "id": "card_tagline",
+      "label": "Ligne discrète (haut de la carte)",
+      "default": "Cartes NFC"
     },
     {
       "type": "checkbox",

@@ -5,7 +5,7 @@
   window.__ecruConfigurateur = true;
 
   // Modèles prêts à personnaliser (mêmes réglages que les rendus assets/ecru-modele-*.webp)
-  var MODELES = {"editorial":{"titre":"Éditorial","fond":"#0d0d0c","relief":"#e9e4d8","elements":[{"t":"text","v":"Maison","x":0.37,"y":0.6,"s":0.19,"f":"display","a":"left","k":-0.01},{"t":"text","v":"Lune","x":0.37,"y":0.8,"s":0.19,"f":"display","a":"left","k":-0.01},{"t":"text","v":"Restaurant — Paris","x":0.37,"y":0.14,"s":0.045,"f":"body","a":"left"}]},"minimal":{"titre":"Minimal","fond":"#e9e4d8","relief":"#121211","elements":[{"t":"text","v":"Atelier Sel","x":0.95,"y":0.86,"s":0.06,"f":"body","a":"right"},{"t":"text","v":"N° 001","x":0.95,"y":0.14,"s":0.045,"f":"body","a":"right"}]},"monogramme":{"titre":"Monogramme","fond":"#0d0d0c","relief":"#7d7b76","elements":[{"t":"text","v":"C","x":1.03,"y":0.8,"s":1.3,"f":"display","a":"right","k":-0.01},{"t":"text","v":"Club Marceau","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left"}]},"signature":{"titre":"Signature","fond":"#d6cfbf","relief":"#2e2c28","elements":[{"t":"text","v":"Salon Ambre","x":0.655,"y":0.47,"s":0.08,"f":"display","a":"center"},{"t":"text","v":"Coiffure · Lyon","x":0.655,"y":0.6,"s":0.042,"f":"body","a":"center"}]},"numero":{"titre":"Numéro","fond":"#2a2926","relief":"#e9e4d8","elements":[{"t":"text","v":"Nº7","x":0.95,"y":0.66,"s":0.42,"f":"display","a":"right","k":-0.01},{"t":"text","v":"Nuit Blanche","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left"}]},"pierre":{"titre":"Pierre","fond":"#8f8a80","relief":"#121211","elements":[{"t":"text","v":"Le Comptoir","x":0.37,"y":0.16,"s":0.085,"f":"display","a":"left"},{"t":"text","v":"Bar à vins","x":0.37,"y":0.28,"s":0.045,"f":"body","a":"left"},{"t":"text","v":"Depuis 2024","x":0.95,"y":0.86,"s":0.04,"f":"body","a":"right"}]}};
+  var MODELES = {"editorial":{"titre":"Éditorial","fond":"#0d0d0c","relief":"#e9e4d8","elements":[{"t":"text","v":"ECRU","x":0.37,"y":0.8,"s":0.24,"f":"display","a":"left","k":-0.01},{"t":"text","v":"Cartes NFC","x":0.37,"y":0.14,"s":0.045,"f":"body","a":"left"}]},"minimal":{"titre":"Minimal","fond":"#e9e4d8","relief":"#121211","elements":[{"t":"text","v":"ECRU","x":0.95,"y":0.86,"s":0.06,"f":"body","a":"right","k":0.3},{"t":"text","v":"N° 001","x":0.95,"y":0.14,"s":0.045,"f":"body","a":"right"}]},"monogramme":{"titre":"Monogramme","fond":"#0d0d0c","relief":"#7d7b76","elements":[{"t":"text","v":"E","x":1.03,"y":0.8,"s":1.3,"f":"display","a":"right","k":-0.01},{"t":"text","v":"ECRU","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left","k":0.3}]},"signature":{"titre":"Signature","fond":"#d6cfbf","relief":"#2e2c28","elements":[{"t":"text","v":"ECRU","x":0.655,"y":0.47,"s":0.1,"f":"display","a":"center","k":0.12},{"t":"text","v":"Un geste. Tout s’ouvre.","x":0.655,"y":0.6,"s":0.042,"f":"body","a":"center"}]},"numero":{"titre":"Numéro","fond":"#2a2926","relief":"#e9e4d8","elements":[{"t":"text","v":"Nº7","x":0.95,"y":0.66,"s":0.42,"f":"display","a":"right","k":-0.01},{"t":"text","v":"ECRU","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left","k":0.3}]},"pierre":{"titre":"Pierre","fond":"#8f8a80","relief":"#121211","elements":[{"t":"text","v":"ECRU","x":0.37,"y":0.16,"s":0.085,"f":"display","a":"left","k":0.04},{"t":"text","v":"Cartes NFC","x":0.37,"y":0.28,"s":0.045,"f":"body","a":"left"},{"t":"text","v":"Sur mesure","x":0.95,"y":0.86,"s":0.04,"f":"body","a":"right"}]}};
 
   function bas(v) {
     return String(v || '').trim().toLowerCase();
@@ -947,9 +947,19 @@
     boutonsVue.forEach(function (b) {
       b.addEventListener('click', function () {
         if (!carte) return;
+        marquerVue(b.dataset.ecruVue);
+        // Sans 3D (téléphone sans WebGL, chargement en cours) : on affiche la photo de ce point de vue
+        if (!carte.classList.contains('is-ready')) {
+          var affiche = carte.querySelector('.ecru-carte__affiche-img');
+          var photo = b.querySelector('img');
+          if (affiche && photo) {
+            affiche.removeAttribute('srcset');
+            affiche.src = photo.currentSrc || photo.src;
+          }
+          return;
+        }
         if (surCarte && modeEdition) edition(false);
         carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: b.dataset.ecruVue } }));
-        marquerVue(b.dataset.ecruVue);
       });
     });
     if (carte)
