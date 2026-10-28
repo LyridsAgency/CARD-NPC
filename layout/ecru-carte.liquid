@@ -1,0 +1,26 @@
+{%- comment -%}
+  ECRU — Mise en page des pages commerçants (ouvertes par la carte NFC) : plein écran, sans en-tête ni pied de page de la boutique.
+{%- endcomment -%}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#070707">
+    <title>{{ page_title | escape }}</title>
+    <style>
+      {{ settings.type_header_font | font_face: font_display: 'swap' }}
+      {{ settings.type_body_font | font_face: font_display: 'swap' }}
+      :root {
+        --font-heading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+        --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+      }
+      html, body { margin: 0; min-height: 100%; background: #070707; }
+    </style>
+    {{ content_for_header }}
+  </head>
+  <body>
+    {{ content_for_layout }}
+  </body>
+</html>

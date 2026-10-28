@@ -1,0 +1,10 @@
+{
+  "layout": "ecru-carte",
+  "sections": {
+    "main": {
+      "type": "ecru-page-commerce",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

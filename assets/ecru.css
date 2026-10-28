@@ -2971,3 +2971,36 @@ body::after {
   color: var(--ecru-text);
   font-variant-numeric: tabular-nums;
 }
+.ecru-page-infos {
+  margin-top: 2rem;
+  border-top: 1px solid var(--ecru-border);
+  border-bottom: 1px solid var(--ecru-border);
+}
+.ecru-page-infos summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 5.6rem;
+  cursor: pointer;
+  list-style: none;
+  font-size: 1.4rem;
+  color: var(--ecru-text);
+}
+.ecru-page-infos summary::-webkit-details-marker {
+  display: none;
+}
+.ecru-page-infos summary::after {
+  content: '+';
+  font-size: 2rem;
+  color: var(--ecru-muted);
+}
+.ecru-page-infos[open] summary::after {
+  content: '−';
+}
+.ecru-page-infos[open] {
+  padding-bottom: 1.6rem;
+}
+.ecru-page-infos summary:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 4px;
+}

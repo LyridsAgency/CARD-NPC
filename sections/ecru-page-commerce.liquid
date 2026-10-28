@@ -1,0 +1,132 @@
+{%- comment -%}
+  ECRU — Page d'un commerçant, ouverte par sa carte NFC (entrée « Commerce ECRU » dans Contenu → Métaobjets).
+  Abonnement actif : la page du commerce (logo, couleur, récompense, liens).
+  Abonnement arrêté (champ « actif » décoché, automatiquement par Shopify Flow) : la carte n'ouvre plus qu'un message neutre.
+{%- endcomment -%}
+{%- liquid
+  assign m = metaobject
+  assign actif = m.actif.value
+  assign fond = m.couleur.value | default: '#0d0d0c'
+  assign clair = fond | color_brightness
+  assign encre = '#e9e4d8'
+  assign doux = 'rgba(233,228,216,0.62)'
+  assign ligne = 'rgba(233,228,216,0.18)'
+  if clair > 150
+    assign encre = '#121211'
+    assign doux = 'rgba(18,18,17,0.62)'
+    assign ligne = 'rgba(18,18,17,0.18)'
+  endif
+-%}
+<main
+  class="ecru-commerce{% unless actif %} ecru-commerce--inactif{% endunless %}"
+  style="--fond: {{ fond }}; --encre: {{ encre }}; --doux: {{ doux }}; --ligne: {{ ligne }};"
+>
+  {%- if actif -%}
+    <header class="ecru-commerce__tete">
+      {%- if m.logo.value != blank -%}
+        <img class="ecru-commerce__logo" src="{{ m.logo.value | image_url: width: 640 }}" alt="{{ m.nom.value | escape }}" width="320" height="160">
+      {%- else -%}
+        <h1 class="ecru-commerce__nom">{{ m.nom.value | escape }}</h1>
+      {%- endif -%}
+      <p class="ecru-commerce__accroche">{{ m.accroche.value | default: 'Bon retour parmi nous.' | escape }}</p>
+    </header>
+
+    {%- if m.recompense.value != blank -%}
+      <section class="ecru-commerce__fidelite" aria-label="Programme de fidélité">
+        <p class="ecru-commerce__etiquette">Programme de fidélité</p>
+        <p class="ecru-commerce__recompense">{{ m.recompense.value | escape }}</p>
+      </section>
+    {%- endif -%}
+
+    <nav class="ecru-commerce__liens" aria-label="Liens de {{ m.nom.value | escape }}">
+      {%- if m.lien_menu.value != blank -%}<a href="{{ m.lien_menu.value }}">Voir le menu</a>{%- endif -%}
+      {%- if m.lien_avis.value != blank -%}<a href="{{ m.lien_avis.value }}">Laisser un avis</a>{%- endif -%}
+      {%- if m.lien_reseaux.value != blank -%}<a href="{{ m.lien_reseaux.value }}">Nous suivre</a>{%- endif -%}
+      {%- if m.lien_site.value != blank -%}<a href="{{ m.lien_site.value }}">Notre site</a>{%- endif -%}
+    </nav>
+  {%- else -%}
+    <div class="ecru-commerce__pause">
+      <p class="ecru-commerce__etiquette">{{ m.nom.value | escape }}</p>
+      <h1 class="ecru-commerce__titre">Ce programme n’est plus actif.</h1>
+      <p class="ecru-commerce__accroche">Cette carte n’ouvre plus de page pour le moment.</p>
+    </div>
+  {%- endif -%}
+
+  <p class="ecru-commerce__signature">Carte <a href="{{ routes.root_url }}">ECRU</a></p>
+</main>
+
+<style>
+  .ecru-commerce {
+    min-height: 100vh;
+    min-height: 100svh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 3.2rem;
+    padding: max(48px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--fond);
+    color: var(--encre);
+    font-family: var(--font-body-family);
+    -webkit-font-smoothing: antialiased;
+  }
+  .ecru-commerce *, .ecru-commerce *::before { box-sizing: border-box; }
+  body { background: {{ fond }}; }
+  .ecru-commerce__tete { padding-top: 4vh; }
+  .ecru-commerce__logo { display: block; max-width: 220px; max-height: 120px; width: auto; height: auto; object-fit: contain; }
+  .ecru-commerce__nom, .ecru-commerce__titre {
+    margin: 0;
+    font-family: var(--font-heading-family);
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .ecru-commerce__accroche { margin: 16px 0 0; font-size: 16px; line-height: 1.5; color: var(--doux); }
+  .ecru-commerce__fidelite {
+    padding: 22px 22px 24px;
+    border: 1px solid var(--ligne);
+    border-radius: 14px;
+  }
+  .ecru-commerce__etiquette {
+    margin: 0 0 10px;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--doux);
+  }
+  .ecru-commerce__recompense { margin: 0; font-family: var(--font-heading-family); font-size: 22px; line-height: 1.15; text-transform: uppercase; }
+  .ecru-commerce__liens { display: flex; flex-direction: column; border-top: 1px solid var(--ligne); }
+  .ecru-commerce__liens a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 60px;
+    border-bottom: 1px solid var(--ligne);
+    color: var(--encre);
+    text-decoration: none;
+    font-size: 17px;
+  }
+  .ecru-commerce__liens a::after { content: '→'; color: var(--doux); transition: transform 0.4s; }
+  .ecru-commerce__liens a:hover::after, .ecru-commerce__liens a:focus-visible::after { transform: translateX(4px); }
+  .ecru-commerce a:focus-visible { outline: 1px solid var(--encre); outline-offset: 4px; }
+  .ecru-commerce__pause { margin: auto 0; }
+  .ecru-commerce__signature {
+    margin: auto 0 0;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--doux);
+  }
+  .ecru-commerce__signature a { color: inherit; }
+</style>
+
+{% schema %}
+{
+  "name": "Page commerçant ECRU",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}

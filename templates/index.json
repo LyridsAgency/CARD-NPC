@@ -157,6 +157,13 @@
             "question": "J'ai une demande particulière.",
             "answer": "<p>Événement, grande quantité, finition à part : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>, nous étudions chaque demande.</p>"
           }
+        },
+        "q9": {
+          "type": "question",
+          "settings": {
+            "question": "Comment résilier l'abonnement Fidélité ?",
+            "answer": "<p>Depuis votre <a href=\"/account\">compte client</a>, rubrique Abonnements, quand vous voulez. Une fois l'abonnement arrêté, vos cartes n'ouvrent plus votre page : elles affichent « Ce programme n'est plus actif ».</p>"
+          }
         }
       },
       "block_order": [
@@ -167,6 +174,7 @@
         "q5",
         "q6",
         "q7",
+        "q9",
         "q8"
       ]
     },

@@ -255,24 +255,42 @@
                 {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
               </div>
               <div class="ecru-createur__ligne">
-                <span class="ecru-createur__label">Logo</span>
+                <span class="ecru-createur__label">Logo *</span>
                 <input
                   id="{{ uid }}-logo"
                   class="ecru-outil__fichier"
                   type="file"
                   name="properties[Logo]"
                   accept="image/png,image/jpeg,image/svg+xml"
+                  required
+                  aria-required="true"
                   data-ecru-fichier
                 >
                 <label for="{{ uid }}-logo" class="ecru-outil">Ajouter</label>
                 <span class="ecru-fichier__nom" data-ecru-fichier-nom></span>
                 <button type="button" class="ecru-outil ecru-outil--discret" data-ecru-logo-retirer hidden>Retirer</button>
               </div>
-              <p class="ecru-champ__aide">PNG ou SVG transparent de préférence. Pas de logo sous la main ? Envoyez-le après la commande, nous vous écrivons.</p>
+              <p class="ecru-champ__aide">Obligatoire pour commander. PNG ou SVG sur fond transparent de préférence.</p>
               <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
               <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
               <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json>
             </div>
+            <details class="ecru-page-infos">
+              <summary>Votre page (ouverte par la carte)</summary>
+              <p class="ecru-champ__aide">Vous pourrez la compléter ou la modifier plus tard en nous écrivant.</p>
+              <div class="ecru-champ">
+                <label for="{{ uid }}-recompense">Récompense</label>
+                <input id="{{ uid }}-recompense" type="text" name="properties[Récompense]" maxlength="80" placeholder="10 visites : le dessert offert">
+              </div>
+              {%- assign liens = 'Menu:https://…/menu|Avis:https://g.page/…|Réseaux:https://instagram.com/…|Site:https://votre-site.fr' | split: '|' -%}
+              {%- for l in liens -%}
+                {%- assign ll = l | split: ':' -%}
+                <div class="ecru-champ">
+                  <label for="{{ uid }}-lien-{{ forloop.index }}">Lien : {{ ll[0] | downcase }}</label>
+                  <input id="{{ uid }}-lien-{{ forloop.index }}" type="url" inputmode="url" name="properties[Lien {{ ll[0] | downcase }}]" placeholder="{{ l | remove_first: ll[0] | remove_first: ':' }}">
+                </div>
+              {%- endfor -%}
+            </details>
             {%- if section.settings.abonnement != blank -%}
               {%- assign abo = section.settings.abonnement -%}
               <p class="ecru-abonnement">

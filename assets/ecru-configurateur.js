@@ -627,6 +627,17 @@
         statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
         return;
       }
+      // Fidélité : le logo est indispensable pour fabriquer les cartes
+      if (data.fidelite && !(fichier && fichier.files && fichier.files.length)) {
+        e.preventDefault();
+        statut.textContent = 'Ajoutez votre logo pour commander : il est imprimé sur vos cartes.';
+        var l = form.querySelector('label[for="' + (fichier && fichier.id) + '"]');
+        if (l) {
+          l.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          l.focus && fichier.focus();
+        }
+        return;
+      }
       // Fidélité : les cartes et l'abonnement mensuel partent ensemble au panier
       var abo = data.abonnement;
       if (!abo || !abo.plan || !window.fetch) return;
