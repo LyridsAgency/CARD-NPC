@@ -61,7 +61,8 @@
     "offres": {
       "type": "ecru-offres",
       "settings": {
-        "surface": false
+        "surface": false,
+        "heading": "Choisissez votre carte."
       },
       "blocks": {
         "offre_simple": {
@@ -155,14 +156,14 @@
           "type": "question",
           "settings": {
             "question": "Y a-t-il un minimum de commande ?",
-            "answer": "<p>10 cartes pour le noir et le blanc, vierges. 100 cartes pour le sur mesure et pour l'offre Fidélité.</p>"
+            "answer": "<p>10 cartes pour les cartes simples, noires ou blanches. 100 cartes pour le sur mesure, avec ou sans l’option fidélité.</p>"
           }
         },
         "q7": {
           "type": "question",
           "settings": {
-            "question": "Quelle différence entre Fidélité et Cartes simples ?",
-            "answer": "<p>Fidélité, c'est le programme complet : des cartes à votre logo et à vos couleurs, les récompenses, le suivi et un rapport chaque mois, avec un abonnement mensuel. Cartes simples, c'est une carte qui ouvre le lien de votre choix.</p>"
+            "question": "Cartes simples, sur mesure, fidélité : quelle différence ?",
+            "answer": "<p><strong>Cartes simples</strong> : noires ou blanches, sans marquage, elles ouvrent vos liens. <strong>Sur mesure</strong> : votre couleur, votre texte et votre logo, au recto comme au verso. <strong>Option fidélité</strong> : elle s’ajoute au sur mesure et transforme vos cartes en programme de fidélité. Tout est détaillé sur la <a href=\"/pages/fidelite\">page Fidélité</a>.</p>"
           }
         },
         "q8": {
@@ -178,6 +179,13 @@
             "question": "Comment résilier l'abonnement Fidélité ?",
             "answer": "<p>Depuis votre <a href=\"/account\">compte client</a>, rubrique Abonnements, quand vous voulez. Une fois l'abonnement arrêté, vos cartes n'ouvrent plus votre page : elles affichent « Ce programme n'est plus actif ».</p>"
           }
+        },
+        "q8b": {
+          "type": "question",
+          "settings": {
+            "question": "Comment s’utilise la carte au quotidien ?",
+            "answer": "<p>Tout est expliqué dans le <a href=\"/pages/mode-emploi\">mode d’emploi</a> : comment vos clients la lisent, et comment vous l’utilisez au comptoir. Il existe aussi en version imprimable.</p>"
+          }
         }
       },
       "block_order": [
@@ -189,6 +197,7 @@
         "q6",
         "q7",
         "q9",
+        "q8b",
         "q8"
       ]
     },
@@ -391,44 +400,69 @@
       "type": "ecru-demo",
       "settings": {}
     },
-    "croissance": {
-      "type": "ecru-croissance",
+    "fidelite": {
+      "type": "ecru-fidelite-apercu",
       "settings": {
-        "button_link": "/products/cartes-sur-mesure?fidelite=1"
+        "partout": true,
+        "eyebrow": "Option fidélité",
+        "heading": "Et s’ils revenaient ?",
+        "text": "Ajoutez l’option fidélité à vos cartes sur mesure : le client voit sa récompense approcher, vous validez son passage d’un scan.",
+        "button_label": "Découvrir l’option fidélité",
+        "button_link": "/pages/fidelite"
+      }
+    },
+    "avis": {
+      "type": "ecru-avis",
+      "settings": {
+        "heading": "Ils l’ont adoptée."
+      },
+      "blocks": {},
+      "block_order": []
+    },
+    "matieres": {
+      "type": "ecru-matieres",
+      "settings": {
+        "eyebrow": "Matières",
+        "heading": "Le poids des choses.",
+        "surface": true
       },
       "blocks": {
-        "e1": {
-          "type": "etude",
+        "pvc": {
+          "type": "matiere",
           "settings": {
-            "chiffre": "+25 à 95 %",
-            "texte": "de bénéfices quand la fidélisation des clients augmente de 5 %.",
-            "source": "Frederick F. Reichheld, Bain & Company"
+            "title": "PVC",
+            "text": "Mat, léger, résistant. L’essentiel, bien fait.",
+            "details": "Format carte bancaire, 85,6 × 54 mm\nPuce NFC intégrée, sans batterie\nNoir, blanc ou à vos couleurs",
+            "visual": "pvc"
           }
         },
-        "e2": {
-          "type": "etude",
+        "metal": {
+          "type": "matiere",
           "settings": {
-            "chiffre": "60 à 70 %",
-            "texte": "de chances de vendre à un client déjà venu, contre 5 à 20 % pour un nouveau.",
-            "source": "Farris, Bendle, Pfeifer, Reibstein, « Marketing Metrics »"
+            "title": "Métal",
+            "text": "Plus de poids, plus de présence. Elle se garde.",
+            "details": "Format carte bancaire, 85,6 × 54 mm\nFenêtre NFC pour la lecture\nNoir, blanc ou à vos couleurs",
+            "visual": "metal"
           }
         }
       },
       "block_order": [
-        "e1",
-        "e2"
+        "pvc",
+        "metal"
       ]
     }
   },
   "order": [
     "hero",
     "defilement",
+    "usages",
     "demo",
-    "croissance",
     "assortiments",
     "vues",
-    "usages",
+    "matieres",
+    "fidelite",
     "offres",
+    "avis",
     "faq",
     "appel"
   ]

@@ -1,0 +1,83 @@
+{%- comment -%}
+  ECRU — Avis clients. Uniquement des avis réels, ajoutés dans l'éditeur (un bloc par avis) ou par une
+  application d'avis (bloc d'application). Sans avis, la section ne s'affiche pas sur le site.
+{%- endcomment -%}
+{%- assign avis = section.blocks | where: 'type', 'avis' -%}
+{%- assign apps = section.blocks | where: 'type', '@app' -%}
+{%- if avis.size > 0 or apps.size > 0 or request.design_mode -%}
+<section
+  class="ecru-section ecru-avis{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete">
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+    </header>
+
+    {%- if avis.size > 0 -%}
+      <ul class="ecru-avis__liste" role="list">
+        {%- for block in avis -%}
+          <li class="ecru-avis__item ecru-reveal" style="--d: {{ forloop.index0 | modulo: 3 }}" {{ block.shopify_attributes }}>
+            <figure>
+              <p class="ecru-avis__note" aria-label="Note : {{ block.settings.note }} sur 5">
+                {%- for i in (1..5) -%}<span aria-hidden="true"{% if i > block.settings.note %} class="is-vide"{% endif %}>★</span>{%- endfor -%}
+              </p>
+              <blockquote>{{ block.settings.texte | escape }}</blockquote>
+              <figcaption>
+                <b>{{ block.settings.nom | escape }}</b>
+                {%- if block.settings.commerce != blank or block.settings.ville != blank -%}
+                  <span>{{ block.settings.commerce | escape }}{% if block.settings.commerce != blank and block.settings.ville != blank %} · {% endif %}{{ block.settings.ville | escape }}</span>
+                {%- endif -%}
+              </figcaption>
+            </figure>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- elsif apps.size == 0 -%}
+      <p class="ecru-texte">Ajoutez ici vos premiers avis clients (un bloc « Avis » par avis), ou le bloc de votre application d’avis. Cette section reste cachée sur le site tant qu’elle est vide.</p>
+    {%- endif -%}
+
+    {%- for block in apps -%}
+      <div class="ecru-avis__app" {{ block.shopify_attributes }}>{% render block %}</div>
+    {%- endfor -%}
+
+    {%- if section.settings.lien_label != blank -%}
+      <p class="ecru-avis__donner">
+        <a href="{{ section.settings.lien | default: '/pages/contact' }}">{{ section.settings.lien_label | escape }}</a>
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Avis clients ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Ils l’ont adoptée." },
+    { "type": "text", "id": "lien_label", "label": "Lien pour donner son avis", "default": "Vous avez nos cartes ? Donnez-nous votre avis" },
+    { "type": "url", "id": "lien", "label": "Adresse du lien" },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": false },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    { "type": "@app" },
+    {
+      "type": "avis",
+      "name": "Avis",
+      "settings": [
+        { "type": "paragraph", "content": "Uniquement des avis réels, reçus de vos clients." },
+        { "type": "range", "id": "note", "label": "Note", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "textarea", "id": "texte", "label": "Avis" },
+        { "type": "text", "id": "nom", "label": "Prénom et initiale" },
+        { "type": "text", "id": "commerce", "label": "Commerce" },
+        { "type": "text", "id": "ville", "label": "Ville" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Avis clients ECRU" }]
+}
+{% endschema %}

@@ -809,7 +809,7 @@ export async function mount(el) {
   });
   el.addEventListener('ecru:avantages', (e) => (state.lecture = !!e.detail));
   // Points de vue : recto, verso, profil ; 'auto' relance la rotation
-  const VUES = { recto: 0, verso: Math.PI, profil: 1.25 };
+  const VUES = { recto: 0, verso: Math.PI, profil: 1.25, 'trois-quarts': -0.6 };
   el.addEventListener('ecru:view', (e) => {
     const v = e.detail && e.detail.view;
     state.view = v in VUES ? VUES[v] : null;

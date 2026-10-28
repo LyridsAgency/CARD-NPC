@@ -10,7 +10,7 @@
 7. **Pages légales** : CGV, remboursement, expédition — Paramètres → Politiques.
 8. **Abonnement Fidélité** : dans Subscriptions, créer le plan mensuel (sans remise) avec le produit
    « Abonnement Fidélité » (29 €).
-9. **Vérifier les prix** : simple PVC 2,50 € / métal 14,90 € ; sur mesure PVC 3,50 € / métal 17,90 € ;
+9. **Vérifier les prix** : simple PVC 2,50 € / métal 9,90 € ; sur mesure PVC 3,50 € / métal 12,90 € ;
    option lien 0,20 € par carte et par lien (produit caché « Option lien ») ; option fidélité 29 €/mois.
    Le produit « Carte Fidélité » est passé en brouillon : la fidélité est maintenant une option du sur mesure
    (l'ancienne adresse redirige).
@@ -36,6 +36,11 @@
 17. **Klaviyo** : synchroniser les inscrits « Restez dans le cercle ».
 18. **Avis clients** (Judge.me) quand les premiers vrais avis arrivent.
 19. Remplacer les noms d'exemple des modèles (Maison Lune, Club Marceau…) par de vrais clients, avec leur accord.
+
+## Avis clients
+18. **Avis réels uniquement** : section « Avis clients ECRU » sur l'accueil, cachée tant qu'elle est vide.
+    Ajouter chaque avis reçu (Personnaliser → Accueil → Avis → Ajouter un bloc « Avis »), ou installer une
+    application d'avis (ex. Judge.me, gratuite) et ajouter son bloc dans cette même section.
 
 ## Prospection
 17. **For Guys (Argentan)** : mail prêt dans `docs/prospection/` (HTML, texte, image, conseils anti-spam).

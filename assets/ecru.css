@@ -4038,3 +4038,144 @@ body::after {
 .ecru-fid-prix__liste {
   margin: 0;
 }
+
+/* ----- Avis clients (réels uniquement) ---------------------------------- */
+.ecru-avis__liste {
+  display: grid;
+  gap: 1.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 750px) {
+  .ecru-avis__liste {
+    grid-template-columns: repeat(auto-fill, minmax(32rem, 1fr));
+  }
+}
+.ecru-avis__item figure {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(2.8rem, 3vw, 4rem);
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  background: var(--ecru-surface);
+}
+.ecru-avis__note {
+  margin: 0 0 2rem;
+  letter-spacing: 0.3em;
+  color: var(--ecru-text);
+}
+.ecru-avis__note .is-vide {
+  color: var(--ecru-border);
+}
+.ecru-avis__item blockquote {
+  flex-grow: 1;
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.6;
+  color: var(--ecru-text);
+}
+.ecru-avis__item figcaption {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 2.8rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--ecru-border);
+  font-size: 1.3rem;
+}
+.ecru-avis__item figcaption b {
+  font-weight: 500;
+  color: var(--ecru-text);
+}
+.ecru-avis__item figcaption span {
+  color: var(--ecru-muted);
+}
+.ecru-avis__donner {
+  margin: 3.2rem 0 0;
+  font-size: 1.4rem;
+}
+.ecru-avis__donner a {
+  color: var(--ecru-muted);
+  text-underline-offset: 0.3em;
+}
+.ecru-avis__donner a:hover {
+  color: var(--ecru-text);
+}
+
+/* Points de vue sous la grande carte */
+.ecru-produit__vues {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 0.4rem auto 1.2rem;
+  padding: 0 var(--ecru-gutter);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ecru-produit__vues::-webkit-scrollbar {
+  display: none;
+}
+.ecru-produit__vue {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  width: 8.8rem;
+  padding: 0.6rem 0.6rem 0.8rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ecru-muted);
+  font: inherit;
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.4s var(--ecru-ease), color 0.4s var(--ecru-ease);
+}
+.ecru-produit__vue-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.ecru-produit__vue img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.75);
+  transition: transform 0.6s var(--ecru-ease);
+}
+.ecru-produit__vue:hover img {
+  transform: scale(1.9);
+}
+.ecru-produit__vue--3d svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  padding: 1.4rem;
+}
+.ecru-produit__vue:hover,
+.ecru-produit__vue[aria-pressed='true'] {
+  border-color: var(--ecru-text);
+  color: var(--ecru-text);
+}
+.ecru-produit__vue:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 3px;
+}
+@media (max-width: 989px) {
+  .ecru-produit__vues {
+    justify-content: flex-start;
+  }
+  .ecru-produit__vue {
+    width: 7.2rem;
+  }
+  .ecru-produit.is-edition .ecru-produit__vues {
+    display: none;
+  }
+}

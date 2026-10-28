@@ -573,12 +573,50 @@
       }
       majTotal();
     }
+    // Réglages fidélité : la grande carte reprend sa rotation, l'aperçu du téléphone s'anime
+    var fieldsetFid = form.querySelector('.ecru-option--fidelite');
+    var animFid = 0;
+    function animerPageFidelite(on) {
+      clearInterval(animFid);
+      if (!on || !ecranFid || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var tampons = ecranFid.querySelectorAll('.ecru-apercu__tampons i');
+      var n = ecranFid.querySelector('.ecru-apercu__compte b');
+      var msg = ecranFid.querySelector('.ecru-apercu__offre');
+      var compte = 7;
+      animFid = setInterval(function () {
+        compte = compte >= 10 ? 1 : compte + 1;
+        tampons.forEach(function (t, i) {
+          t.classList.toggle('is-plein', i < compte);
+          t.classList.toggle('is-nouveau', i === compte - 1);
+        });
+        if (n) n.textContent = compte;
+        if (msg) msg.textContent = compte >= 10 ? 'Récompense disponible : montrez cette page en caisse.' : 'Plus que ' + (10 - compte) + (10 - compte > 1 ? ' visites' : ' visite') + ' : votre récompense.';
+        ecranFid.classList.toggle('is-recompense', compte >= 10);
+      }, 2200);
+    }
+    function libererCarte() {
+      if (surCarte && modeEdition) edition(false);
+      if (carte) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: 'auto' } }));
+      if (typeof marquerVue === 'function') marquerVue('auto');
+    }
+    if (fieldsetFid)
+      ['pointerdown', 'focusin'].forEach(function (t) {
+        fieldsetFid.addEventListener(t, libererCarte);
+      });
     if (caseFidelite) {
       majPageFidelite();
+      caseFidelite.addEventListener('change', function () {
+        animerPageFidelite(caseFidelite.checked);
+      });
       caseFidelite.addEventListener('change', majFidelite);
       if (new URLSearchParams(window.location.search).get('fidelite') === '1') {
         caseFidelite.checked = true;
         majFidelite();
+        // Après l'initialisation complète (l'aperçu du téléphone est déclaré plus bas)
+        setTimeout(function () {
+          majPageFidelite();
+          animerPageFidelite(true);
+        }, 0);
       }
     }
 
@@ -712,6 +750,7 @@
     var bouton3d = root.querySelector('[data-ecru-mode-3d]');
     function edition(on) {
       modeEdition = on;
+      if (on && typeof marquerVue === 'function') marquerVue('');
       root.classList.toggle('is-edition', on && surCarte);
       if (carte) carte.dispatchEvent(new CustomEvent('ecru:edition', { detail: { face: on ? face : null } }));
       if (bouton3d) {
@@ -897,6 +936,26 @@
         if (!form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
       });
     }
+
+    // ---------- Points de vue ----------
+    var boutonsVue = root.querySelectorAll('[data-ecru-vue]');
+    function marquerVue(v) {
+      boutonsVue.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.ecruVue === v ? 'true' : 'false');
+      });
+    }
+    boutonsVue.forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!carte) return;
+        if (surCarte && modeEdition) edition(false);
+        carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: b.dataset.ecruVue } }));
+        marquerVue(b.dataset.ecruVue);
+      });
+    });
+    if (carte)
+      carte.addEventListener('ecru:tournee', function () {
+        marquerVue('');
+      });
 
     // ---------- Retourner la carte ----------
     var retourner = root.querySelector('[data-ecru-retourner]');

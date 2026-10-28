@@ -63,6 +63,21 @@
   <div class="ecru-conteneur ecru-produit__grille">
     <div class="ecru-produit__visuel">
       {%- render 'ecru-carte', id: uid, color: color, ink: ink, finish: finish, alt: product.title, compact: true -%}
+      {%- comment -%} Points de vue : la grande carte (à vos réglages) se tourne vers l'angle choisi {%- endcomment -%}
+      <div class="ecru-produit__vues" role="group" aria-label="Points de vue sur la carte">
+        {%- assign vues = 'trois-quarts:Angle|recto:Recto|verso:Verso|profil:Profil' | split: '|' -%}
+        {%- for v in vues -%}
+          {%- assign vv = v | split: ':' -%}
+          <button type="button" class="ecru-produit__vue" data-ecru-vue="{{ vv[0] }}" aria-pressed="false">
+            <span class="ecru-produit__vue-img"><img src="{{ 'ecru-vue-' | append: vv[0] | append: '.webp' | asset_url }}" alt="" width="160" height="120" loading="lazy" decoding="async"></span>
+            <span>{{ vv[1] }}</span>
+          </button>
+        {%- endfor -%}
+        <button type="button" class="ecru-produit__vue ecru-produit__vue--3d" data-ecru-vue="auto" aria-pressed="true">
+          <svg viewBox="0 0 20 20" width="22" height="22" aria-hidden="true"><path d="M10 3 3 7l7 4 7-4-7-4ZM3 7v6l7 4 7-4V7M10 11v6" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+          <span>3D</span>
+        </button>
+      </div>
       <div class="ecru-produit__sous-carte">
         <p class="ecru-produit__mention">
           <span data-ecru-legende>{{ current.options | join: ' · ' }}</span>
