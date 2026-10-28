@@ -4769,3 +4769,9 @@ body::after {
 .ecru-champ.is-exige label::after {
   content: ' *';
 }
+.ecru-chiffres__titre {
+  margin: 0 0 32px;
+}
+.ecru-chiffre__valeur {
+  white-space: nowrap;
+}

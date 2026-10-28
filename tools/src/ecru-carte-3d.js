@@ -819,7 +819,7 @@ export async function mount(el) {
     pitch0: -0.05,
   };
   el.__ecruEtat = state; // lecture seule, pour les tests
-  const SPIN = 0.2; // rad/s : un tour en ~31 s
+  const SPIN = 0.45; // rad/s : un tour en ~14 s
 
   const onMove = (e) => {
     if (e.pointerType === 'touch' && state.gyro) return;
@@ -1027,9 +1027,8 @@ export async function mount(el) {
       // Avantages ouverts ou choix récent : la carte se pose de face
       const target = Math.round(state.yaw / (Math.PI * 2)) * Math.PI * 2;
       state.yaw += (target - state.yaw) * (1 - Math.exp(-dt * 2.2));
-    } else if (state.hover) {
-      // Sous la souris, la carte reste où on l'a laissée : on peut la faire tourner à la main
     } else if (!still) {
+      // Elle tourne toujours, même sous la souris : la main la saisit en glissant
       state.yaw += SPIN * dt;
     }
 
@@ -1056,7 +1055,7 @@ export async function mount(el) {
     // Économie : rien ne bouge → pas de dessin ; rotation automatique sur téléphone → une image sur deux
     const signe = [pivot.rotation.x, pivot.rotation.y, pivot.position.y, camera.position.z, sw, sh].map((v) => v.toFixed(4)).join();
     const auRepos = signe === dernierSigne && !aRedessiner;
-    const automatique = !state.drag && !state.hover && !state.edition && state.view === null && Math.abs(state.vel) < 0.02;
+    const automatique = !state.drag && !state.edition && state.view === null && Math.abs(state.vel) < 0.02;
     impair = !impair;
     if (!auRepos && !(automatique && small && impair)) {
       renderer.render(scene, camera);

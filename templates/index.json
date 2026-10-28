@@ -19,34 +19,11 @@
         "note": "Aperçu 3D · Dès 10 cartes",
         "card_color": "#141413",
         "ink_color": "#e9e4d8",
-        "finish": "irise",
+        "finish": "chrome",
         "card_tagline": "Cartes NFC"
       },
-      "blocks": {
-        "avantage_1": {
-          "type": "avantage",
-          "settings": {
-            "text": "Sans application"
-          }
-        },
-        "avantage_2": {
-          "type": "avantage",
-          "settings": {
-            "text": "Votre logo, vos couleurs"
-          }
-        },
-        "avantage_3": {
-          "type": "avantage",
-          "settings": {
-            "text": "PVC ou métal"
-          }
-        }
-      },
-      "block_order": [
-        "avantage_1",
-        "avantage_2",
-        "avantage_3"
-      ]
+      "blocks": {},
+      "block_order": []
     },
     "offres": {
       "type": "ecru-offres",
@@ -341,7 +318,8 @@
     "chiffres": {
       "type": "ecru-chiffres",
       "settings": {
-        "label": "ECRU en chiffres",
+        "titre": "Ce que disent les études",
+        "label": "Avis et fidélité : ce que disent les études",
         "padding_top": 72,
         "padding_bottom": 72
       },
@@ -349,29 +327,39 @@
         "c1": {
           "type": "chiffre",
           "settings": {
-            "valeur": "1",
-            "label": "geste pour ouvrir votre page"
+            "avant": "+",
+            "valeur": "270",
+            "apres": "%",
+            "label": "de taux de conversion avec 5 avis plutôt qu’aucun",
+            "source": "Spiegel Research Center, Northwestern University, 2017"
           }
         },
         "c2": {
           "type": "chiffre",
           "settings": {
-            "valeur": "0",
-            "label": "application à installer"
+            "valeur": "75",
+            "apres": "%",
+            "label": "des clients lisent les avis avant de choisir un commerce",
+            "source": "BrightLocal, Local Consumer Review Survey 2024"
           }
         },
         "c3": {
           "type": "chiffre",
           "settings": {
-            "valeur": "3",
-            "label": "finitions métal"
+            "avant": "×",
+            "valeur": "5",
+            "label": "le coût d’un nouveau client face à un client qui revient (jusqu’à ×25)",
+            "source": "Harvard Business Review, 2014"
           }
         },
         "c4": {
           "type": "chiffre",
           "settings": {
-            "valeur": "10",
-            "label": "cartes pour commencer"
+            "avant": "+",
+            "valeur": "25",
+            "apres": "%",
+            "label": "de bénéfices, jusqu’à +95 %, quand 5 % de clients en plus reviennent",
+            "source": "Bain & Company (F. Reichheld)"
           }
         }
       },

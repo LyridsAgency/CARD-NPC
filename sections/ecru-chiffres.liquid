@@ -8,6 +8,9 @@
   aria-label="{{ section.settings.label | escape }}"
 >
   <div class="ecru-conteneur">
+    {%- if section.settings.titre != blank -%}
+      <p class="ecru-surtitre ecru-chiffres__titre ecru-reveal">{{ section.settings.titre | escape }}</p>
+    {%- endif -%}
     <ul class="ecru-chiffres__grille" role="list">
       {%- for block in section.blocks -%}
         <li class="ecru-chiffre ecru-reveal" style="--d: {{ forloop.index0 }}" {{ block.shopify_attributes }}>
@@ -32,6 +35,7 @@
   "tag": "div",
   "max_blocks": 4,
   "settings": [
+    { "type": "text", "id": "titre", "label": "Surtitre", "info": "Ex. « Ce que disent les études »" },
     { "type": "text", "id": "label", "label": "Description (accessibilité)", "default": "En chiffres" },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
     { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 }

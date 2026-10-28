@@ -6,6 +6,8 @@
 
   // tenir : la carte se pose de face (survol, bouton) ; sinon elle continue de tourner
   function setOpen(el, open, tenir) {
+    // Sans avantages à montrer, rien à lire : la carte continue de tourner
+    if (!el.querySelector('.ecru-carte__avantage')) return;
     el.classList.toggle('is-open', open);
     if (tenir !== false) el.dispatchEvent(new CustomEvent('ecru:avantages', { detail: open }));
   }
