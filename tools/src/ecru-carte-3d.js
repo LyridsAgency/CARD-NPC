@@ -377,11 +377,14 @@ function studioChrome() {
   panel(36, 36, 0, 11.8, 0, 0, Math.PI / 2, 1.6); // plafond
   for (let k = 0; k < 16; k++) {
     const a = (k * Math.PI) / 8;
-    panel(7.6, 2.2, Math.sin(a) * 19, 2.4, Math.cos(a) * 19, a + Math.PI, 0, k % 2 ? 3.2 : 5); // anneau d'horizon
-    panel(7.6, 5, Math.sin(a) * 19, 7.5, Math.cos(a) * 19, a + Math.PI, 0, 0.55); // ciel plus doux
+    // La caméra regarde un peu vers le bas : la face reflète le bas des murs. L'anneau lumineux est donc
+    // juste sous l'horizon, en bandes alternées, pour qu'un reflet traverse la carte à chaque angle.
+    panel(7.6, 5, Math.sin(a) * 19, -1.6, Math.cos(a) * 19, a + Math.PI, 0, k % 2 ? 1.2 : 4.2);
+    panel(7.6, 4.6, Math.sin(a) * 19, 3.2, Math.cos(a) * 19, a + Math.PI, 0, k % 2 ? 2.6 : 0.8);
   }
   // Derrière la caméra : un grand dégradé (clair en haut, sombre en bas) que la face reflète de face
-  [[10.5, 4.6], [7, 2.6], [3.5, 1.1], [0, 0.35]].forEach(([y, pw]) => panel(34, 3.6, 0, y, 19.5, Math.PI, 0, pw));
+  // (jusque sous l'horizon : quand la carte s'incline, elle ne reflète plus un trou noir)
+  [[10.5, 4.6], [7, 3], [3.5, 2], [0, 1.3], [-3.5, 0.75], [-7, 0.4]].forEach(([y, pw]) => panel(34, 3.6, 0, y, 19.5, Math.PI, 0, pw));
   panel(6, 20, -9, 4, 19.4, Math.PI, 0, 5.5); // bande verticale franche : le reflet qui traverse la carte
   return s;
 }

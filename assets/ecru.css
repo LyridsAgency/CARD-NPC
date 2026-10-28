@@ -4548,9 +4548,6 @@ body::after {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
   background: radial-gradient(circle at 35% 30%, #8a8883, #3b3a37 70%);
 }
-.ecru-finition label[for$='-fin-brosse']::before {
-  background: repeating-linear-gradient(0deg, #6d6b66 0 1px, #4d4b47 1px 2px), #5a5854;
-}
 .ecru-finition label.ecru-chrome-label::before {
   background: var(--ecru-chrome);
 }
@@ -4624,7 +4621,7 @@ body::after {
 }
 @media (min-width: 990px) {
   .ecru-finitions__grille {
-    grid-template-columns: 5fr 7fr;
+    grid-template-columns: 4fr 8fr;
     gap: 64px;
   }
 }
@@ -4659,9 +4656,6 @@ body::after {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
   background: radial-gradient(circle at 35% 30%, #8a8883, #3b3a37 70%);
   transition: transform 0.5s var(--ecru-ease);
-}
-.ecru-finitions__choix--brosse::before {
-  background: repeating-linear-gradient(0deg, #6d6b66 0 1px, #4d4b47 1px 2px), #5a5854;
 }
 .ecru-finitions__choix--chrome::before {
   background: var(--ecru-chrome);
@@ -4703,24 +4697,9 @@ body::after {
 }
 .ecru-finitions__visuel {
   position: relative;
-  aspect-ratio: 4 / 3;
-}
-.ecru-finitions__image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  opacity: 0;
-  transform: scale(0.97);
-  transition: opacity 0.7s var(--ecru-ease), transform 0.9s var(--ecru-ease);
-}
-.ecru-finitions__image.is-active {
-  opacity: 1;
-  transform: none;
+  min-width: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .ecru-finitions__image,
   .ecru-finitions__desc,
   .ecru-finitions__choix::before {
     transition: none;

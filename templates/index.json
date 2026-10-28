@@ -16,7 +16,7 @@
         "subheading": "",
         "button_2_label": "Voir les cartes",
         "button_2_link": "shopify://collections/cartes",
-        "note": "Aperçu 3D avant commande · Dès 10 cartes · Sans application",
+        "note": "Aperçu 3D · Dès 10 cartes",
         "card_color": "#141413",
         "ink_color": "#e9e4d8",
         "finish": "irise",
@@ -26,13 +26,13 @@
         "avantage_1": {
           "type": "avantage",
           "settings": {
-            "text": "Aucune application à installer"
+            "text": "Sans application"
           }
         },
         "avantage_2": {
           "type": "avantage",
           "settings": {
-            "text": "Votre couleur, votre logo"
+            "text": "Votre logo, vos couleurs"
           }
         },
         "avantage_3": {
@@ -40,26 +40,12 @@
           "settings": {
             "text": "PVC ou métal"
           }
-        },
-        "avantage_4": {
-          "type": "avantage",
-          "settings": {
-            "text": "Format carte bancaire"
-          }
-        },
-        "avantage_5": {
-          "type": "avantage",
-          "settings": {
-            "text": "Aucune batterie"
-          }
         }
       },
       "block_order": [
         "avantage_1",
         "avantage_2",
-        "avantage_3",
-        "avantage_4",
-        "avantage_5"
+        "avantage_3"
       ]
     },
     "offres": {
@@ -73,7 +59,7 @@
           "type": "offre",
           "settings": {
             "title": "Cartes simples",
-            "text": "Noir ou blanc, vierges. Un geste, un lien : votre site, votre menu, vos avis.",
+            "text": "Noir ou blanc. Un geste, un lien.",
             "price_note": "Paiement unique · dès 10 cartes",
             "features": "Noir ou blanc\nPVC ou métal\nVos liens : menu, avis, réseaux…\nSans application",
             "button_label": "Choisir",
@@ -85,7 +71,7 @@
           "settings": {
             "title": "Sur mesure",
             "badge": "À votre image",
-            "text": "Votre couleur, votre nom, votre logo, placés où vous voulez. Vous la voyez en 3D avant de commander.",
+            "text": "Votre couleur, votre nom, votre logo. En 3D avant de commander.",
             "price_note": "Paiement unique · dès 100 cartes",
             "features": "Couleur, texte et logo libres\nRecto et verso\nCouleur de la fenêtre NFC\nPVC ou métal\nOption fidélité possible",
             "button_label": "Composer",
@@ -97,7 +83,7 @@
           "settings": {
             "title": "Option fidélité",
             "badge": "S’ajoute au sur mesure",
-            "text": "Vos cartes sur mesure deviennent un programme de fidélité : le client scanne, vous validez son passage.",
+            "text": "Vos cartes deviennent un programme de fidélité.",
             "price_text": "+ 29 € / mois",
             "price_note": "Sans engagement · résiliable à tout moment",
             "features": "Tampons ou points, au choix\nVos récompenses, vos cadeaux, vos prix\nLe client voit sa progression d’un geste\nVous validez en scannant sa carte",
@@ -135,27 +121,6 @@
             "answer": "<p>La plupart des smartphones récents lisent le NFC. Sur certains modèles Android, le NFC doit être activé dans les réglages.</p>"
           }
         },
-        "q3": {
-          "type": "question",
-          "settings": {
-            "question": "La carte a-t-elle une batterie ?",
-            "answer": "<p>Non. La puce NFC est passive : elle fonctionne sans batterie ni recharge.</p>"
-          }
-        },
-        "q4": {
-          "type": "question",
-          "settings": {
-            "question": "Quelle taille fait la carte ?",
-            "answer": "<p>Le format carte bancaire : 85,6 × 54 mm. Elle se glisse dans tous les portefeuilles.</p>"
-          }
-        },
-        "q5": {
-          "type": "question",
-          "settings": {
-            "question": "Puis-je avoir ma couleur, mon nom, mon logo ?",
-            "answer": "<p>Oui, avec « Sur mesure » : choisissez la couleur, placez votre nom et votre logo où vous voulez, et voyez le résultat en 3D avant de commander.</p>"
-          }
-        },
         "q6": {
           "type": "question",
           "settings": {
@@ -170,39 +135,20 @@
             "answer": "<p><strong>Cartes simples</strong> : noires ou blanches, sans marquage, elles ouvrent vos liens. <strong>Sur mesure</strong> : votre couleur, votre texte et votre logo, au recto comme au verso. <strong>Option fidélité</strong> : elle s’ajoute au sur mesure et transforme vos cartes en programme de fidélité. Tout est détaillé sur la <a href=\"/pages/fidelite\">page Fidélité</a>.</p>"
           }
         },
-        "q8": {
-          "type": "question",
-          "settings": {
-            "question": "J'ai une demande particulière.",
-            "answer": "<p>Événement, grande quantité, finition à part : <a href=\"/pages/demande-particuliere\">écrivez-nous</a>, nous étudions chaque demande.</p>"
-          }
-        },
         "q9": {
           "type": "question",
           "settings": {
             "question": "Comment résilier l'abonnement Fidélité ?",
             "answer": "<p>Depuis votre <a href=\"/account\">compte client</a>, rubrique Abonnements, quand vous voulez. Une fois l'abonnement arrêté, vos cartes n'ouvrent plus votre page : elles affichent « Ce programme n'est plus actif ».</p>"
           }
-        },
-        "q8b": {
-          "type": "question",
-          "settings": {
-            "question": "Comment s’utilise la carte au quotidien ?",
-            "answer": "<p>Tout est expliqué dans le <a href=\"/pages/mode-emploi\">mode d’emploi</a> : comment vos clients la lisent, et comment vous l’utilisez au comptoir. Il existe aussi en version imprimable.</p>"
-          }
         }
       },
       "block_order": [
         "q1",
         "q2",
-        "q3",
-        "q4",
-        "q5",
         "q6",
         "q7",
-        "q9",
-        "q8b",
-        "q8"
+        "q9"
       ]
     },
     "appel": {
@@ -219,80 +165,13 @@
       "type": "ecru-defilement",
       "settings": {}
     },
-    "usages": {
-      "type": "ecru-usages",
-      "settings": {
-        "eyebrow": "Une carte, vos usages",
-        "heading": "Elle ouvre ce que vous voulez.",
-        "text": "Un geste contre le téléphone, et la bonne page s'ouvre.",
-        "surface": false
-      },
-      "blocks": {
-        "usage_1": {
-          "type": "usage",
-          "settings": {
-            "title": "Le menu",
-            "text": "Toujours à jour, sans papier.",
-            "pour": "Restaurants, cafés, bars"
-          }
-        },
-        "usage_2": {
-          "type": "usage",
-          "settings": {
-            "title": "Vos avis",
-            "text": "Un geste, et le client laisse son avis.",
-            "pour": "Commerces, salons"
-          }
-        },
-        "usage_3": {
-          "type": "usage",
-          "settings": {
-            "title": "Vos réseaux",
-            "text": "On vous suit en une seconde.",
-            "pour": "Boutiques, créateurs"
-          }
-        },
-        "usage_4": {
-          "type": "usage",
-          "settings": {
-            "title": "La fidélité",
-            "text": "Ils cumulent, vous récompensez.",
-            "pour": "Avec l’option fidélité"
-          }
-        },
-        "usage_5": {
-          "type": "usage",
-          "settings": {
-            "title": "Événements",
-            "text": "Programme, plan, infos pratiques.",
-            "pour": "Festivals, soirées"
-          }
-        },
-        "usage_6": {
-          "type": "usage",
-          "settings": {
-            "title": "Votre site",
-            "text": "N'importe quel lien, tout simplement.",
-            "pour": "Tout le monde"
-          }
-        }
-      },
-      "block_order": [
-        "usage_1",
-        "usage_2",
-        "usage_3",
-        "usage_4",
-        "usage_5",
-        "usage_6"
-      ]
-    },
     "assortiments": {
       "type": "ecru-assortiments",
       "settings": {
         "button_link": "/products/cartes-simples?variant=48429022216363",
         "eyebrow": "Sur mesure",
         "heading": "À votre image.",
-        "text": "Partez d'un modèle, changez le texte, la couleur, ajoutez votre logo. Vous la voyez en 3D avant de commander."
+        "text": "Partez d’un modèle, mettez votre nom et votre logo."
       },
       "blocks": {
         "m1": {
@@ -363,7 +242,7 @@
         "partout": true,
         "eyebrow": "Option fidélité",
         "heading": "Et s’ils revenaient ?",
-        "text": "Ajoutez l’option fidélité à vos cartes sur mesure : le client voit sa récompense approcher, vous validez son passage d’un scan.",
+        "text": "Le client voit sa récompense approcher. Vous validez d’un scan.",
         "button_label": "Découvrir l’option fidélité",
         "button_link": "/pages/fidelite"
       }
@@ -376,44 +255,12 @@
       "blocks": {},
       "block_order": []
     },
-    "matieres": {
-      "type": "ecru-matieres",
-      "settings": {
-        "eyebrow": "Matières",
-        "heading": "Le poids des choses.",
-        "surface": true
-      },
-      "blocks": {
-        "pvc": {
-          "type": "matiere",
-          "settings": {
-            "title": "PVC",
-            "text": "Mat, léger, résistant. L’essentiel, bien fait.",
-            "details": "Format carte bancaire, 85,6 × 54 mm\nPuce NFC intégrée, sans batterie\nNoir, blanc ou à vos couleurs",
-            "visual": "pvc"
-          }
-        },
-        "metal": {
-          "type": "matiere",
-          "settings": {
-            "title": "Métal",
-            "text": "Plus de poids, plus de présence. Elle se garde.",
-            "details": "Format carte bancaire, 85,6 × 54 mm\nFenêtre NFC pour la lecture\nNoir, blanc ou à vos couleurs",
-            "visual": "metal"
-          }
-        }
-      },
-      "block_order": [
-        "pvc",
-        "metal"
-      ]
-    },
     "niveau": {
       "type": "ecru-avantages",
       "settings": {
         "eyebrow": "Votre prochain niveau",
         "heading": "Passez au niveau supérieur.",
-        "text": "Une carte ECRU n’est pas un accessoire de plus. C’est ce qui sépare le commerce qu’on oublie de celui dont on parle : plus d’image, plus d’avis, plus de clients qui reviennent.",
+        "text": "Plus d’image, plus d’avis, plus de clients qui reviennent.",
         "publics": "Restaurants, Cafés, Salons, Barbiers, Boutiques, Clubs, Festivals"
       },
       "blocks": {
@@ -421,7 +268,7 @@
           "type": "avantage",
           "settings": {
             "title": "Une image qui marque",
-            "text": "Une carte en métal à votre nom, posée sur le comptoir. Le détail qui fait passer un bon commerce pour une grande maison.",
+            "text": "Une carte en métal à votre nom, sur le comptoir.",
             "pour": "Le premier regard"
           }
         },
@@ -429,7 +276,7 @@
           "type": "avantage",
           "settings": {
             "title": "Plus d’avis, plus de visibilité",
-            "text": "Un geste et le client laisse son avis ou vous suit. Ce qui demandait trois écrans ne demande plus qu’une seconde.",
+            "text": "Un geste, et le client laisse son avis.",
             "pour": "Être choisi en ligne"
           }
         },
@@ -437,7 +284,7 @@
           "type": "avantage",
           "settings": {
             "title": "Des clients qui reviennent",
-            "text": "Avec l’option fidélité, chaque passage compte et vous voyez enfin qui revient. Vous pilotez au lieu d’espérer.",
+            "text": "Chaque passage compte, vous voyez qui revient.",
             "pour": "Faire durer"
           }
         }
@@ -452,8 +299,8 @@
       "type": "ecru-finitions",
       "settings": {
         "eyebrow": "Métal",
-        "heading": "Quatre finitions. Une seule signature.",
-        "text": "Même prix pour les quatre : seule la lumière change. Choisissez celle qui ressemble à votre maison.",
+        "heading": "Trois finitions. Une seule signature.",
+        "text": "Même prix. Seule la lumière change.",
         "button_label": "Composer ma carte",
         "button_link": "/products/cartes-sur-mesure",
         "padding_top": 96,
@@ -464,23 +311,15 @@
           "type": "finition",
           "settings": {
             "title": "Satiné",
-            "text": "Un voile doux qui retient la lumière. Sobre et élégant.",
+            "text": "Un voile doux. Sobre et élégant.",
             "visual": "metal"
-          }
-        },
-        "brosse": {
-          "type": "finition",
-          "settings": {
-            "title": "Brossé",
-            "text": "De fines stries d’acier, comme un boîtier de montre.",
-            "visual": "brosse"
           }
         },
         "chrome": {
           "type": "finition",
           "settings": {
             "title": "Chromé",
-            "text": "Un miroir parfait. Le nom et le logo sont dépolis pour rester lisibles.",
+            "text": "Un miroir. Le nom reste lisible, dépoli.",
             "visual": "chrome"
           }
         },
@@ -488,27 +327,69 @@
           "type": "finition",
           "settings": {
             "title": "Irisé",
-            "text": "Des reflets qui changent de couleur à chaque mouvement de la main.",
+            "text": "Les couleurs changent à chaque mouvement.",
             "visual": "irise"
           }
         }
       },
       "block_order": [
-        "satine",
-        "brosse",
         "chrome",
-        "irise"
+        "irise",
+        "satine"
+      ]
+    },
+    "chiffres": {
+      "type": "ecru-chiffres",
+      "settings": {
+        "label": "ECRU en chiffres",
+        "padding_top": 72,
+        "padding_bottom": 72
+      },
+      "blocks": {
+        "c1": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "1",
+            "label": "geste pour ouvrir votre page"
+          }
+        },
+        "c2": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "0",
+            "label": "application à installer"
+          }
+        },
+        "c3": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "3",
+            "label": "finitions métal"
+          }
+        },
+        "c4": {
+          "type": "chiffre",
+          "settings": {
+            "valeur": "10",
+            "label": "cartes pour commencer"
+          }
+        }
+      },
+      "block_order": [
+        "c1",
+        "c2",
+        "c3",
+        "c4"
       ]
     }
   },
   "order": [
     "hero",
+    "chiffres",
     "defilement",
     "niveau",
-    "usages",
     "demo",
     "assortiments",
-    "matieres",
     "finitions",
     "fidelite",
     "offres",
