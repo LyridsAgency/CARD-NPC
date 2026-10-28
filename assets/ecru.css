@@ -4787,3 +4787,6 @@ body::after {
   width: 2px;
   background: var(--ecru-chrome);
 }
+.ecru-champ.is-exige label::after {
+  content: ' *';
+}

@@ -627,7 +627,7 @@
       var q = parseInt(quantite.value, 10) || 0;
       var texte = 'Total : ' + argent.format((unite * q) / 100) + ' pour ' + q + ' cartes';
       if (n) texte += ' (dont ' + n + (n > 1 ? ' liens' : ' lien') + ')';
-      if (avecFidelite() && dejaAbonne) texte += ' · fidélité déjà active, rien à repayer';
+      if (avecFidelite() && dejaAbonne) texte += ' · fidélité incluse dans votre abonnement';
       else if (avecFidelite() && data.mois) texte += ' + ' + argent.format(data.mois / 100) + ' / mois';
       totalEl.textContent = texte;
     }
@@ -635,8 +635,37 @@
     form.addEventListener('input', function (e) {
       if (e.target.type === 'url') majTotal();
     });
+    // Client déjà abonné : la fidélité est incluse, jamais refacturée
+    dejaAbonne = !!(data.dejaAbonne && caseFidelite);
+    if (dejaAbonne) {
+      caseFidelite.value = 'Incluse dans mon abonnement';
+      var prixInclus = form.querySelector('.ecru-interrupteur__prix');
+      if (prixInclus) prixInclus.textContent = 'Incluse';
+      var texteInclus = form.querySelector('.ecru-interrupteur__texte > span');
+      if (texteInclus) texteInclus.textContent = 'Vous êtes déjà abonné : ces cartes rejoignent votre programme, sans rien repayer.';
+    }
+    // Recommande sans fidélité : des cartes simples, qui ont besoin de leur lien
+    var enRecommande = false;
+    var champLien = form.querySelector('[name="properties[Lien]"]');
+    function majLienExige() {
+      if (!champLien) return;
+      var exige = enRecommande && !avecFidelite();
+      champLien.required = exige;
+      var bloc = champLien.closest('.ecru-champ');
+      bloc.classList.toggle('is-exige', exige);
+      var aide = bloc.querySelector('[data-ecru-lien-exige]');
+      if (exige && !aide) {
+        aide = document.createElement('p');
+        aide.className = 'ecru-champ__aide';
+        aide.dataset.ecruLienExige = '';
+        aide.textContent = 'Sans fidélité, la carte ouvre ce lien : votre site, votre menu ou votre page d’avis.';
+        bloc.appendChild(aide);
+      }
+      if (aide) aide.hidden = !exige;
+    }
     function majFidelite() {
       var on = avecFidelite();
+      majLienExige();
       if (detailsFidelite) {
         detailsFidelite.hidden = !on;
         detailsFidelite.querySelectorAll('input').forEach(function (c) {
@@ -967,7 +996,7 @@
         return;
       }
       // Option fidélité : le logo est indispensable pour la page de fidélité
-      if (avecFidelite() && !logoAncien && !(fichier && fichier.files && fichier.files.length)) {
+      if (avecFidelite() && !dejaAbonne && !logoAncien && !(fichier && fichier.files && fichier.files.length)) {
         e.preventDefault();
         statut.textContent = 'Ajoutez votre logo pour l’option fidélité : il s’affiche sur la page de vos clients.';
         var l = form.querySelector('label[for="' + (fichier && fichier.id) + '"]');
@@ -1200,17 +1229,15 @@
       });
       if (ajoutLien && !form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
       // Fidélité : l'abonnement en cours continue, il n'est pas ajouté au panier une seconde fois
+      // Abonné : les cartes rejoignent son programme (rien à repayer), qu'elles l'aient eu ou non.
+      // Il peut décocher : ce seront des cartes simples, avec leur lien.
+      enRecommande = true;
       var avaitFidelite = !!p['Option fidélité'];
-      if (caseFidelite && avaitFidelite) {
-        dejaAbonne = !!data.dejaAbonne;
-        if (dejaAbonne) {
-          caseFidelite.value = 'Déjà abonné' + (p._commande ? ' (commande ' + p._commande + ')' : '');
-          var prixFid = form.querySelector('.ecru-interrupteur__prix');
-          if (prixFid) prixFid.textContent = 'Déjà actif';
-        }
+      if (caseFidelite && (dejaAbonne || avaitFidelite)) {
+        if (dejaAbonne) caseFidelite.value = 'Incluse dans mon abonnement' + (p._commande ? ' (recommande de ' + p._commande + ')' : '');
         caseFidelite.checked = true;
-        majFidelite();
       }
+      majFidelite();
       // Quantité
       var q = parseInt(r.q, 10);
       if (q > 0) quantite.value = Math.max(minimum, q);
@@ -1222,7 +1249,9 @@
       note.setAttribute('role', 'status');
       note.textContent =
         'Recommande' + (p._commande ? ' de la commande ' + p._commande : '') + ' : tout est repris à l’identique. Changez ce que vous voulez, puis ajoutez au panier.' +
-        (avaitFidelite && dejaAbonne ? ' Votre abonnement fidélité continue : il n’est pas facturé une seconde fois.' : '');
+        (dejaAbonne && caseFidelite
+          ? ' Ces cartes rejoignent votre programme de fidélité, sans rien repayer. Vous n’en voulez pas ? Décochez la fidélité : ce seront des cartes simples qui ouvrent votre lien.'
+          : '');
       form.insertBefore(note, form.firstChild);
     }
   }

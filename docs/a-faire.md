@@ -63,7 +63,8 @@
 21. Le commerçant recommande depuis **Votre compte → Vos cartes** (ou « Commander à nouveau mes cartes » dans son
     espace pro). La commande reprend tout : matière, finition, couleurs, textes et polices (`_maquette`), logo
     (même fichier), liens, quantité.
-22. **Fidélité déjà active** : la ligne porte « Option fidélité : Déjà abonné (commande #…) » et l'abonnement
-    n'est pas ajouté au panier. Avant fabrication, **vérifiez que son abonnement est toujours actif**, puis
+22. **Client déjà abonné** : sur sur mesure, la fidélité est cochée par défaut et marquée « Option fidélité :
+    Incluse dans mon abonnement (recommande de #…) » ; l'abonnement n'est pas ajouté au panier. S'il la décoche,
+    ce sont des cartes simples et le lien principal devient obligatoire. Avant fabrication, **vérifiez que son abonnement est toujours actif**, puis
     programmez les nouvelles cartes sur sa page de fidélité existante (`/admin` → son commerce → cartes).
     Le site ne propose « Déjà abonné » qu'à un client connecté dont une commande passée contient l'abonnement.
