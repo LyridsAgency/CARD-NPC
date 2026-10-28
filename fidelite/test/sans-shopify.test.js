@@ -63,7 +63,7 @@ test('fiche du commerce créée dans /admin, puis carte lisible', async () => {
   assert.match(page, /Maison Lune/);
   assert.match(page, /<span>\/ 5<\/span>/);
   assert.match(page, /Voir le menu/);
-  assert.match(page, /#b8975a/); // couleur d'accent visible sur le noir
+  assert.doesNotMatch(page, /#b8975a/); // la couleur du commerce n'est plus utilisée : page ECRU noire et crème
   const liste = await (await appel('/admin')).text();
   assert.match(liste, /maison-lune · 1 carte · actif/);
 });

@@ -354,19 +354,12 @@
                 </div>
                 <div class="ecru-fidelite-reglages">
                   <p class="ecru-fidelite-reglages__titre">La page de vos clients</p>
-                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte. Fond noir ECRU, à votre logo et à votre couleur.</p>
+                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte : la page ECRU, noire et crème, à votre logo.</p>
                   <div class="ecru-createur__ligne">
                     <span class="ecru-createur__label">Logo *</span>
                     <label for="{{ uid }}-logo" class="ecru-outil">PNG</label>
                     <span class="ecru-fichier__nom" data-ecru-fid-logo-nom>De préférence sur fond transparent.</span>
                   </div>
-                  <div class="ecru-createur__ligne">
-                    <span class="ecru-createur__label">Couleur</span>
-                    {%- assign palette_accent = 'Crème:#e9e4d8|Or:#c2a165|Argent:#c9c8c4|Sable:#cbb89a|Terre cuite:#c46a4a|Sauge:#8fa58a|Ciel:#8fb3cf|Poudre:#d9a5a0' | split: '|' -%}
-                    {%- render 'ecru-palette', cible: 'accent', teintes: palette_accent, libre: '#c2a165', label: 'Couleur de votre page de fidélité' -%}
-                  </div>
-                  <p class="ecru-champ__aide" data-ecru-fid-note>Votre couleur colore les tampons et la progression.</p>
-                  <input type="hidden" name="properties[Couleur page fidélité]" value="#e9e4d8" data-ecru-champ="accent" disabled>
                 </div>
               </div>
               <p class="ecru-champ__aide">Tampons ou points, récompenses et cadeaux : vous réglez tout vous-même depuis votre espace, et vous changez quand vous voulez. Les liens ci-dessus s’affichent aussi sur cette page.</p>

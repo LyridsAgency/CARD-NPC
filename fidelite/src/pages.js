@@ -9,10 +9,10 @@ function clarte(hex) {
   return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
 }
 
-// Toujours la même base, noire et crème (l'allure ECRU), boutons compris ; la couleur du commerce ne sert que d'accent
-// (tampons, barre de progression), et seulement si elle se voit sur le noir.
+// Toujours la même allure ECRU, noire et crème, pour tous les commerces.
 function teintes(accent) {
-  const a = /^#[0-9a-f]{6}$/i.test(accent || '') && clarte(accent) > 70 ? accent : '#e9e4d8';
+  // Les couleurs ne se choisissent plus : toutes les pages sont noires et crème, seul le logo change
+  const a = '#e9e4d8';
   return {
     fond: '#0d0d0c',
     encre: '#e9e4d8',
@@ -335,7 +335,7 @@ export function pageAdmin(resultat = '', commerces = []) {
       <p class="petit">1. Fiche du commerce (créer ou modifier)</p>
       ${cle('t0')}${commerce('c0')}
       <div><label for="nom">Nom affiché</label><input id="nom" name="nom" maxlength="60" required></div>
-      <div><label for="couleur">Couleur d’accent des tampons (#rrggbb, la page reste noire)</label><input id="couleur" name="couleur" value="#0d0d0c" pattern="#[0-9a-fA-F]{6}"></div>
+      
       <div><label for="logo">Adresse du logo (image en ligne, facultatif)</label><input id="logo" name="logo" type="url"></div>
       <div><label for="accroche">Message d’accueil</label><input id="accroche" name="accroche" maxlength="120" placeholder="Bon retour parmi nous."></div>
       <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" placeholder="Le dessert offert"></div>
