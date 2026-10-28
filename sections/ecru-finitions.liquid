@@ -1,0 +1,122 @@
+{%- comment -%}
+  ECRU — Les finitions du métal : une grande carte, quatre matières. Survoler ou toucher un nom change la carte.
+  Images : assets/ecru-vue-<finition>.webp (rendues par tools/preview.mjs vues, même pose).
+{%- endcomment -%}
+<section
+  class="ecru-section ecru-finitions"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur ecru-finitions__grille">
+    <div class="ecru-finitions__texte">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ecru-surtitre ecru-reveal">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="ecru-texte ecru-reveal">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+
+      <ul class="ecru-finitions__liste" role="list" data-ecru-finitions>
+        {%- for block in section.blocks -%}
+          <li {{ block.shopify_attributes }}>
+            <button
+              type="button"
+              class="ecru-finitions__choix ecru-finitions__choix--{{ block.settings.visual }}"
+              aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+              data-ecru-finition-vue="{{ forloop.index0 }}"
+            >
+              <span class="ecru-finitions__nom">{{ block.settings.title | escape }}</span>
+              <span class="ecru-finitions__desc">{{ block.settings.text | escape }}</span>
+            </button>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.button_label != blank -%}
+        <div class="ecru-actions">
+          <a class="ecru-bouton" href="{{ section.settings.button_link | default: '/products/cartes-sur-mesure' }}">{{ section.settings.button_label | escape }}</a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="ecru-finitions__visuel">
+      {%- for block in section.blocks -%}
+        <img
+          class="ecru-finitions__image{% if forloop.first %} is-active{% endif %}"
+          src="{{ block.settings.visual | prepend: 'ecru-vue-' | append: '.webp' | asset_url }}"
+          alt="Carte ECRU noire, finition {{ block.settings.title | escape }}"
+          width="1600"
+          height="1200"
+          loading="lazy"
+          decoding="async"
+          data-ecru-finition-image="{{ forloop.index0 }}"
+          {% unless forloop.first %}aria-hidden="true"{% endunless %}
+        >
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var liste = document.querySelector('[data-ecru-finitions]');
+    if (!liste) return;
+    var section = liste.closest('.ecru-finitions');
+    var boutons = liste.querySelectorAll('[data-ecru-finition-vue]');
+    var images = section.querySelectorAll('[data-ecru-finition-image]');
+    function montrer(i) {
+      boutons.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.ecruFinitionVue === i ? 'true' : 'false');
+      });
+      images.forEach(function (img) {
+        var actif = img.dataset.ecruFinitionImage === i;
+        img.classList.toggle('is-active', actif);
+        if (actif) img.removeAttribute('aria-hidden');
+        else img.setAttribute('aria-hidden', 'true');
+      });
+    }
+    boutons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        montrer(b.dataset.ecruFinitionVue);
+      });
+      // Au survol, la carte change déjà : on compare d'un coup d'œil
+      b.addEventListener('pointerenter', function (e) {
+        if (e.pointerType === 'mouse') montrer(b.dataset.ecruFinitionVue);
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Finitions ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Métal" },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Quatre finitions. Une seule signature." },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Composer ma carte" },
+    { "type": "url", "id": "button_link", "label": "Lien du bouton" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "blocks": [
+    {
+      "type": "finition",
+      "name": "Finition",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Nom", "default": "Satiné" },
+        { "type": "text", "id": "text", "label": "Description" },
+        { "type": "select", "id": "visual", "label": "Image", "default": "metal", "options": [
+          { "value": "metal", "label": "Satiné" },
+          { "value": "brosse", "label": "Brossé" },
+          { "value": "chrome", "label": "Chromé" },
+          { "value": "irise", "label": "Irisé" }
+        ] }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Finitions ECRU" }]
+}
+{% endschema %}

@@ -17,9 +17,9 @@
         "button_2_label": "Voir les cartes",
         "button_2_link": "shopify://collections/cartes",
         "note": "Aperçu 3D avant commande · Dès 10 cartes · Sans application",
-        "card_color": "#5e5d59",
+        "card_color": "#141413",
         "ink_color": "#e9e4d8",
-        "finish": "brosse",
+        "finish": "irise",
         "card_tagline": "Cartes NFC"
       },
       "blocks": {
@@ -447,6 +447,58 @@
         "a2",
         "a3"
       ]
+    },
+    "finitions": {
+      "type": "ecru-finitions",
+      "settings": {
+        "eyebrow": "Métal",
+        "heading": "Quatre finitions. Une seule signature.",
+        "text": "Même prix pour les quatre : seule la lumière change. Choisissez celle qui ressemble à votre maison.",
+        "button_label": "Composer ma carte",
+        "button_link": "/products/cartes-sur-mesure",
+        "padding_top": 96,
+        "padding_bottom": 96
+      },
+      "blocks": {
+        "satine": {
+          "type": "finition",
+          "settings": {
+            "title": "Satiné",
+            "text": "Un voile doux qui retient la lumière. Sobre et élégant.",
+            "visual": "metal"
+          }
+        },
+        "brosse": {
+          "type": "finition",
+          "settings": {
+            "title": "Brossé",
+            "text": "De fines stries d’acier, comme un boîtier de montre.",
+            "visual": "brosse"
+          }
+        },
+        "chrome": {
+          "type": "finition",
+          "settings": {
+            "title": "Chromé",
+            "text": "Un miroir parfait. Le nom et le logo sont dépolis pour rester lisibles.",
+            "visual": "chrome"
+          }
+        },
+        "irise": {
+          "type": "finition",
+          "settings": {
+            "title": "Irisé",
+            "text": "Des reflets qui changent de couleur à chaque mouvement de la main.",
+            "visual": "irise"
+          }
+        }
+      },
+      "block_order": [
+        "satine",
+        "brosse",
+        "chrome",
+        "irise"
+      ]
     }
   },
   "order": [
@@ -457,6 +509,7 @@
     "demo",
     "assortiments",
     "matieres",
+    "finitions",
     "fidelite",
     "offres",
     "avis",

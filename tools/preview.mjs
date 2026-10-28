@@ -172,8 +172,10 @@ if (mode === 'vues') {
     }
   }
 } else if (mode === 'poster') {
-  // Image de secours : carte = 62,5 % de la largeur, fond transparent
-  const { server, url } = await serve(name);
+  // Image de secours : carte = 62,5 % de la largeur, fond transparent, mêmes réglages que l'accueil
+  const accueil = await readFile(join(ROOT, 'templates', 'index.json'), 'utf8');
+  const hero = JSON.parse(accueil.slice(accueil.indexOf('{'))).sections.hero?.settings || {};
+  const { server, url } = await serve(name, hero);
   const p = await browser.newPage({ viewport: { width: 1600, height: 1400 }, deviceScaleFactor: 1 });
   await p.emulateMedia({ reducedMotion: 'reduce' });
   await p.addStyleTag({ content: '' }).catch(() => {});

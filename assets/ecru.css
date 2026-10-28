@@ -4525,12 +4525,204 @@ body::after {
   border-color: transparent;
   color: #121211;
 }
+/* Irisé : reflets arc-en-ciel sur fond sombre, comme une couche d'oxyde sur métal */
+:root {
+  --ecru-irise: linear-gradient(100deg, #3b3a40 0%, #b9a7e6 12%, #8fd3d0 26%, #e8e3b3 38%, #f1b8c8 50%, #9ab8f0 62%, #c9f0d9 76%, #b9a7e6 88%, #3b3a40 100%);
+}
+.ecru-option input:checked + label.ecru-irise-label {
+  background: var(--ecru-irise);
+  background-size: 250% 100%;
+  animation: ecru-reflet 6s linear infinite;
+  border-color: transparent;
+  color: #121211;
+}
+/* Pastilles de finition : un aperçu de la matière avant même de cliquer */
+.ecru-finition label::before {
+  content: '';
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.5em;
+  border-radius: 50%;
+  vertical-align: -0.08em;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  background: radial-gradient(circle at 35% 30%, #8a8883, #3b3a37 70%);
+}
+.ecru-finition label[for$='-fin-brosse']::before {
+  background: repeating-linear-gradient(0deg, #6d6b66 0 1px, #4d4b47 1px 2px), #5a5854;
+}
+.ecru-finition label.ecru-chrome-label::before {
+  background: var(--ecru-chrome);
+}
+.ecru-finition label.ecru-irise-label::before {
+  background: conic-gradient(from 200deg, #b9a7e6, #8fd3d0, #e8e3b3, #f1b8c8, #9ab8f0, #b9a7e6);
+}
+
+/* Barre de lecture : un fil chromé en haut de l'écran qui avance avec la page */
+.ecru-progression {
+  display: none;
+}
+@supports (animation-timeline: scroll()) {
+  .ecru-progression {
+    display: block;
+    position: fixed;
+    inset: 0 0 auto;
+    height: 2px;
+    z-index: 1000;
+    pointer-events: none;
+    background: var(--ecru-chrome);
+    background-size: 100vw 100%;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    animation: ecru-progression linear both;
+    animation-timeline: scroll(root);
+  }
+  @keyframes ecru-progression {
+    to { transform: scaleX(1); }
+  }
+}
+
+/* Signature : le logo ECRU en très grand, chromé, qui ferme chaque page */
+.ecru-signature {
+  padding: 0 var(--ecru-gutter) var(--ecru-gutter);
+  background: var(--ecru-bg);
+  overflow: hidden;
+}
+.ecru-signature span {
+  display: block;
+  max-width: var(--ecru-max);
+  margin: 0 auto;
+  aspect-ratio: 3683 / 712;
+  background: var(--ecru-chrome);
+  background-size: 250% 100%;
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+  opacity: 0.9;
+  animation: ecru-reflet 14s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ecru-hero__ligne + .ecru-hero__ligne,
   .ecru-fid-hero__ligne--creuse,
   .ecru-offre--mise-en-avant::before,
-  .ecru-option input:checked + label.ecru-chrome-label {
+  .ecru-option input:checked + label.ecru-chrome-label,
+  .ecru-option input:checked + label.ecru-irise-label,
+  .ecru-signature span {
     animation: none;
     background-position: 35% 50%;
+  }
+  .ecru-progression {
+    display: none;
+  }
+}
+
+/* ----- Finitions : une grande carte, quatre matières ------------------------ */
+.ecru-finitions__grille {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+@media (min-width: 990px) {
+  .ecru-finitions__grille {
+    grid-template-columns: 5fr 7fr;
+    gap: 64px;
+  }
+}
+.ecru-finitions__liste {
+  list-style: none;
+  margin: 32px 0;
+  padding: 0;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-finitions__liste li {
+  border-bottom: 1px solid var(--ecru-border);
+}
+.ecru-finitions__choix {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1.1em 1fr;
+  column-gap: 14px;
+  width: 100%;
+  padding: 18px 0;
+  cursor: pointer;
+  color: var(--ecru-muted);
+  transition: color 0.4s var(--ecru-ease);
+}
+.ecru-finitions__choix::before {
+  content: '';
+  grid-row: span 2;
+  width: 1.1em;
+  height: 1.1em;
+  margin-top: 0.15em;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  background: radial-gradient(circle at 35% 30%, #8a8883, #3b3a37 70%);
+  transition: transform 0.5s var(--ecru-ease);
+}
+.ecru-finitions__choix--brosse::before {
+  background: repeating-linear-gradient(0deg, #6d6b66 0 1px, #4d4b47 1px 2px), #5a5854;
+}
+.ecru-finitions__choix--chrome::before {
+  background: var(--ecru-chrome);
+}
+.ecru-finitions__choix--irise::before {
+  background: conic-gradient(from 200deg, #b9a7e6, #8fd3d0, #e8e3b3, #f1b8c8, #9ab8f0, #b9a7e6);
+}
+.ecru-finitions__choix:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 4px;
+}
+.ecru-finitions__choix[aria-pressed='true'],
+.ecru-finitions__choix:hover {
+  color: var(--ecru-text);
+}
+.ecru-finitions__choix[aria-pressed='true']::before {
+  transform: scale(1.25);
+}
+.ecru-finitions__nom {
+  font-family: 'Archivo Black', var(--font-heading-family), sans-serif;
+  font-size: 1.9rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.ecru-finitions__desc {
+  grid-column: 2;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.6s var(--ecru-ease), opacity 0.6s var(--ecru-ease), margin 0.6s var(--ecru-ease);
+}
+.ecru-finitions__choix[aria-pressed='true'] .ecru-finitions__desc {
+  max-height: 6em;
+  opacity: 1;
+  margin-top: 6px;
+  color: var(--ecru-muted);
+}
+.ecru-finitions__visuel {
+  position: relative;
+  aspect-ratio: 4 / 3;
+}
+.ecru-finitions__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.7s var(--ecru-ease), transform 0.9s var(--ecru-ease);
+}
+.ecru-finitions__image.is-active {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ecru-finitions__image,
+  .ecru-finitions__desc,
+  .ecru-finitions__choix::before {
+    transition: none;
   }
 }

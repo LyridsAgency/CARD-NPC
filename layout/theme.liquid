@@ -328,6 +328,7 @@
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
+    <span class="ecru-progression" aria-hidden="true"></span>
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
@@ -349,6 +350,7 @@
     </main>
 
     {% sections 'footer-group' %}
+    <div class="ecru-signature" aria-hidden="true" style="--logo: url({{ 'ecru-logo.svg' | asset_url }})"><span></span></div>
 
     <ul hidden>
       <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>

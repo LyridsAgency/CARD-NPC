@@ -257,9 +257,14 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
   return { map, orm: ormTex, bump: bumpTex };
 }
 
-function faceMaterial(tex, anisotropy, metal, brushed, chrome = false) {
+function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = false) {
   [tex.map, tex.orm, tex.bump].forEach((t) => (t.anisotropy = anisotropy));
   return new MeshPhysicalMaterial({
+    // Irisé : couche mince (oxyde de titane) dont la couleur change avec l'angle
+    iridescence: irise ? 1 : 0,
+    iridescenceIOR: 1.8,
+    iridescenceThicknessRange: [180, 980],
+    iridescenceThicknessMap: irise ? epaisseurIrisee() : null,
     anisotropy: brushed ? 0.75 : 0,
     specularIntensity: metal ? 1 : 0.6,
     color: 0xffffff,
@@ -273,6 +278,21 @@ function faceMaterial(tex, anisotropy, metal, brushed, chrome = false) {
     clearcoat: chrome ? 1 : brushed ? 0.35 : metal ? 0.08 : 0.1,
     clearcoatRoughness: chrome ? 0.04 : brushed ? 0.3 : 0.5,
   });
+}
+
+// Épaisseur de la couche irisée : des bandes douces en diagonale, pour que les couleurs glissent sur la carte
+let texEpaisseur = null;
+function epaisseurIrisee() {
+  if (texEpaisseur) return texEpaisseur;
+  const c = canvas(512, 512);
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 512, 512);
+  [0, 0.35, 0.2, 0.75, 0.5, 1, 0.65].forEach((v, i, a) => g.addColorStop(i / (a.length - 1), `rgb(0,${Math.round(v * 255)},0)`));
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 512, 512);
+  texEpaisseur = new CanvasTexture(c);
+  texEpaisseur.colorSpace = NoColorSpace;
+  return texEpaisseur;
 }
 
 function radialTexture(stops) {
@@ -619,10 +639,11 @@ export async function mount(el) {
     elements = Array.isArray(elements) ? elements : [];
     verso = Array.isArray(verso) ? verso : [];
     // finish : 'mat' (PVC) ou 'metal' (métal satiné). 'brosse' reste disponible pour un métal brossé.
-    // 'chrome' : métal poli miroir, marquage poli lui aussi
+    // 'chrome' : métal poli miroir, marquage dépoli ; 'irise' : chrome à reflets changeants
     const metal = finish !== 'mat';
     const brushed = finish === 'brosse';
-    const chrome = finish === 'chrome';
+    const irise = finish === 'irise';
+    const chrome = finish === 'chrome' || irise;
     const cardColor = new Color(color || '#0d0d0c');
     // Teinte lue en sRGB, comme le nuancier : les réglages suivent ce que le client voit
     const hsl = cardColor.getHSL({}, SRGBColorSpace);
@@ -708,8 +729,8 @@ export async function mount(el) {
         drawElements(ctx, w, h, verso, images);
       },
     });
-    front.material = faceMaterial(frontTex, anisotropy, metal, brushed, chrome);
-    back.material = faceMaterial(backTex, anisotropy, metal, brushed, chrome);
+    front.material = faceMaterial(frontTex, anisotropy, metal, brushed, chrome, irise);
+    back.material = faceMaterial(backTex, anisotropy, metal, brushed, chrome, irise);
     // Tranche : métal poli plus clair, qui accroche la lumière
     const edge = cardColor.clone().lerp(new Color('#b5b2aa'), metal ? (dark ? 0.7 : 0.3) : 0.16);
     edgeMat.color.copy(edge);
