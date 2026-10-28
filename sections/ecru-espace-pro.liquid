@@ -1,122 +1,41 @@
 {%- comment -%}
-  ECRU — Espace pro : le commerçant connecté retrouve sa carte (statut, adresse encodée, aperçu),
-  son abonnement (géré dans le compte client Shopify) et peut demander une modification de sa page.
-  La fiche du commerçant est l'entrée « Commerce ECRU » de handle client-<ID client>.
+  ECRU — Espace pro : comment un commerçant (option fidélité) se connecte à son espace.
+  Pas de mot de passe : un lien personnel, ouvert une fois sur le téléphone du comptoir (serveur fidélité, /pro).
 {%- endcomment -%}
-{%- liquid
-  assign fiche = nil
-  if customer
-    assign cle = 'client-' | append: customer.id
-    assign fiche = metaobjects.ecru_commerce[cle]
-  endif
-  assign contact = settings.ecru_contact_link | default: '/pages/demande-particuliere'
--%}
+{%- assign pro = settings.ecru_fidelite_url | append: '/pro' -%}
 <section
   class="ecru-section ecru-pro"
   style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
   aria-labelledby="titre-{{ section.id }}"
 >
-  <div class="ecru-conteneur">
-    <header class="ecru-entete">
-      <p class="ecru-surtitre">Espace pro</p>
-      <h1 id="titre-{{ section.id }}" class="ecru-titre ecru-titre--m">
-        {%- if customer -%}Bonjour {{ customer.first_name | default: customer.name | escape }}.{%- else -%}Votre espace commerçant.{%- endif -%}
-      </h1>
-      {%- unless customer -%}
-        <p class="ecru-texte">Connectez-vous avec l’adresse e-mail utilisée pour votre commande : vous retrouvez votre carte, votre page et votre abonnement.</p>
-        <div class="ecru-actions">
-          <a class="ecru-bouton" href="{{ routes.account_login_url }}">Se connecter</a>
-          <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.all_products_collection_url }}">Découvrir les cartes</a>
-        </div>
-      {%- endunless -%}
-    </header>
-
-    {%- if customer -%}
-      {%- if fiche != blank -%}
-        {%- assign actif = fiche.actif.value -%}
-        {%- capture adresse -%}{{ fiche.adresse_carte.value | default: '' }}{%- endcapture -%}
-        {%- if adresse == blank -%}{%- capture adresse -%}{{ request.origin }}{{ fiche.system.url }}{%- endcapture -%}{%- endif -%}
-        <div class="ecru-pro__grille">
-          <article class="ecru-pro__bloc">
-            <p class="ecru-pro__label">Votre programme</p>
-            <p class="ecru-pro__valeur">{{ fiche.nom.value | escape }}</p>
-            <p class="ecru-pro__statut{% if actif %} is-actif{% endif %}">
-              <i aria-hidden="true"></i>{% if actif %}Actif : vos cartes ouvrent votre page{% else %}Suspendu : vos cartes affichent un message de fin{% endif %}
-            </p>
-            <div class="ecru-actions">
-              {%- if settings.ecru_fidelite_url != blank -%}
-                <a class="ecru-bouton" href="{{ settings.ecru_fidelite_url | append: '/pro' | replace_last: '//pro', '/pro' }}">Mon tableau de fidélité</a>
-              {%- endif -%}
-              <a class="ecru-bouton ecru-bouton--ligne" href="{{ fiche.system.url }}" target="_blank" rel="noopener">Voir ma page</a>
-            </div>
-            {%- if settings.ecru_fidelite_url != blank -%}
-              <p class="ecru-champ__aide">Le tableau de bord s’ouvre sur le téléphone connecté à votre commerce (lien de connexion envoyé par ECRU). Pour ajouter un tampon, scannez la carte du client avec ce téléphone.</p>
-            {%- endif -%}
-          </article>
-
-          <article class="ecru-pro__bloc">
-            <p class="ecru-pro__label">Adresse de vos cartes</p>
-            <p class="ecru-pro__adresse" data-ecru-adresse>{{ adresse | escape }}</p>
-            <p class="ecru-champ__aide">C’est l’adresse écrite dans vos puces NFC. Elle ne change jamais : seule la page derrière évolue.</p>
-            <div class="ecru-actions">
-              <button type="button" class="ecru-bouton ecru-bouton--ligne" data-ecru-copier>Copier l’adresse</button>
-            </div>
-          </article>
-
-          <article class="ecru-pro__bloc">
-            <p class="ecru-pro__label">Votre page</p>
-            <ul class="ecru-pro__liste" role="list">
-              <li><span>Récompense</span><span>{{ fiche.recompense.value | default: '—' | escape }}</span></li>
-              <li><span>Menu</span><span>{% if fiche.lien_menu.value != blank %}Oui{% else %}—{% endif %}</span></li>
-              <li><span>Avis</span><span>{% if fiche.lien_avis.value != blank %}Oui{% else %}—{% endif %}</span></li>
-              <li><span>Réseaux</span><span>{% if fiche.lien_reseaux.value != blank %}Oui{% else %}—{% endif %}</span></li>
-              <li><span>Site</span><span>{% if fiche.lien_site.value != blank %}Oui{% else %}—{% endif %}</span></li>
-            </ul>
-            <div class="ecru-actions">
-              <a class="ecru-bouton ecru-bouton--ligne" href="{{ contact }}?produit={{ 'Modification de ma page — ' | append: fiche.nom.value | url_encode }}">Demander une modification</a>
-            </div>
-          </article>
-
-          <article class="ecru-pro__bloc">
-            <p class="ecru-pro__label">Abonnement et commandes</p>
-            <p class="ecru-texte">Factures, commandes, et gestion de l’abonnement (pause ou résiliation) se trouvent dans votre compte client.</p>
-            <div class="ecru-actions">
-              <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.account_url }}">Mon compte</a>
-            </div>
-          </article>
-        </div>
-      {%- else -%}
-        <div class="ecru-pro__vide">
-          <p class="ecru-texte">Aucune carte Fidélité n’est encore liée à votre compte. Votre espace se remplit après votre première commande Fidélité.</p>
-          <div class="ecru-actions">
-            <a class="ecru-bouton" href="{{ routes.root_url }}products/cartes-sur-mesure?fidelite=1">Créer mes cartes avec l’option fidélité</a>
-            <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.account_url }}">Mon compte</a>
-          </div>
-        </div>
-      {%- endif -%}
-    {%- endif -%}
+  <div class="ecru-conteneur ecru-pro__grille-connexion">
+    <div>
+      <h1 id="titre-{{ section.id }}" class="ecru-titre">{{ section.settings.heading | escape }}</h1>
+      <p class="ecru-texte">{{ section.settings.text | escape }}</p>
+      <div class="ecru-actions">
+        <a class="ecru-bouton" href="{{ pro }}" rel="noopener">Ouvrir mon espace</a>
+        <a class="ecru-bouton ecru-bouton--ligne" href="{{ settings.ecru_contact_link | default: '/pages/contact' }}">Lien perdu ?</a>
+      </div>
+      <p class="ecru-pro__note">Pas encore l’option fidélité ? <a href="/pages/fidelite">Découvrir l’option</a> · Vos commandes et factures sont dans <a href="/pages/compte">votre compte client</a>.</p>
+    </div>
+    <ol class="ecru-pro__etapes" role="list">
+      <li><b>Vous recevez votre lien</b><span>À la livraison de vos cartes, par e-mail. Il est personnel : gardez-le pour vous.</span></li>
+      <li><b>Ouvrez-le sur le téléphone du comptoir</b><span>Votre tableau de bord s’affiche. Le téléphone reste connecté un an.</span></li>
+      <li><b>Scannez la carte d’un client</b><span>Ce téléphone affiche son niveau et vos boutons : tampon, points, récompense.</span></li>
+      <li><b>Un collègue, un autre téléphone ?</b><span>Ouvrez le même lien dessus. Lien perdu : écrivez-nous, l’ancien est désactivé et un nouveau vous est envoyé.</span></li>
+    </ol>
   </div>
 </section>
-
-<script>
-  document.querySelectorAll('[data-ecru-copier]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var t = document.querySelector('[data-ecru-adresse]');
-      if (!t || !navigator.clipboard) return;
-      navigator.clipboard.writeText(t.textContent.trim()).then(function () {
-        b.textContent = 'Adresse copiée';
-      });
-    });
-  });
-</script>
 
 {% schema %}
 {
   "name": "Espace pro ECRU",
   "tag": "div",
   "settings": [
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Votre espace commerçant." },
+    { "type": "textarea", "id": "text", "label": "Texte", "default": "Pour les commerces qui ont l’option fidélité. Pas de mot de passe : votre téléphone se connecte une fois, avec votre lien personnel." },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
-    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 128 }
   ],
   "presets": [{ "name": "Espace pro ECRU" }]
 }

@@ -88,6 +88,9 @@ input{width:100%;padding:14px 16px;border:1px solid ${t.ligne};border-radius:10p
 .cadeaux li.ok b{color:${t.plein}}
 details summary{cursor:pointer;list-style:none}
 .cadeau-btn{text-transform:none;letter-spacing:0;font-size:16px}
+.etapes{list-style:none;margin:0;padding:0}
+.etapes li{display:flex;gap:14px;align-items:baseline;padding:16px 0;border-bottom:1px solid ${t.ligne};color:${t.doux}}
+.etapes b{font:400 18px 'Archivo Black',sans-serif;color:${t.encre}}
 .pied{margin-top:auto;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:${t.doux}}
 .pied a{color:inherit}
 </style>
@@ -310,6 +313,24 @@ export function pageTableau(c, stats, reglage, flash = '') {
       </form>
     </section>
     <a class="bouton" href="/pro/deconnexion">Se déconnecter de ce téléphone</a>
+    ${pied}`,
+  });
+}
+
+// Téléphone pas encore connecté : comment se connecter
+export function pageConnexion(site) {
+  const contact = `${(site || '').replace(/\/$/, '')}/pages/contact`;
+  return page({
+    titre: 'Espace commerçant',
+    corps: `<span class="badge">Espace commerçant</span>
+    <header><h1>Connectez ce téléphone.</h1>
+      <p class="doux" style="margin-top:14px">Pas de mot de passe : ouvrez une fois votre lien personnel sur ce téléphone. Il reste connecté un an.</p></header>
+    <ol class="liens etapes">
+      <li><b>1</b>Retrouvez l’e-mail d’ECRU avec votre lien de connexion.</li>
+      <li><b>2</b>Touchez le lien depuis ce téléphone : votre tableau de bord s’ouvre.</li>
+      <li><b>3</b>Scannez la carte d’un client : ses tampons et vos boutons s’affichent.</li>
+    </ol>
+    ${site ? `<a class="bouton" href="${echapper(contact)}">Lien perdu : en demander un nouveau</a>` : ''}
     ${pied}`,
   });
 }

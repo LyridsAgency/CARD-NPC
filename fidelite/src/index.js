@@ -4,7 +4,7 @@
 //   /admin             création des cartes (CSV d'adresses à encoder) et des liens de connexion commerçant
 import { aleatoire, hacher, egal, creerSession, lireSession, lireCookie } from './securite.js';
 import { lireCommerce } from './shopify.js';
-import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, echapper } from './pages.js';
+import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper } from './pages.js';
 
 const COOKIE = 'ecru_pro';
 const ANTI_DOUBLE = 8; // secondes : un double appui ne donne pas deux tampons
@@ -203,7 +203,7 @@ async function routesPro(env, requete, url) {
     return rediriger('/pro', { 'Set-Cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
   }
   const commerce = await sessionPro(env, requete);
-  if (!commerce) return html(pageMessage('Espace commerçant', 'Ouvrez le lien de connexion reçu d’ECRU sur le téléphone de votre commerce.'), 401);
+  if (!commerce) return html(pageConnexion(env.SITE_URL), 401);
   const c = await lireCommerce(env, commerce);
   if (!c) return html(pageInconnue(), 404);
 
@@ -295,7 +295,11 @@ async function routesAdmin(env, requete, url) {
       'INSERT INTO acces_pro (commerce, cle_hash, creee) VALUES (?, ?, ?) ON CONFLICT(commerce) DO UPDATE SET cle_hash = excluded.cle_hash, creee = excluded.creee'
     ).bind(commerce, await hacher(cle), maintenantIso()).run();
     const lien = `${env.PUBLIC_URL}/pro/connexion?commerce=${encodeURIComponent(commerce)}&cle=${cle}`;
-    return html(pageAdmin(`<div class="bloc"><p class="petit">Lien de connexion (l’ancien ne marche plus)</p><p style="word-break:break-all;margin-top:8px">${echapper(lien)}</p></div>`, liste));
+    // E-mail prêt à envoyer au commerçant (ouvre la messagerie de l'administrateur)
+    const objet = 'Votre espace commerçant ECRU';
+    const corps = `Bonjour,\n\nVoici votre lien de connexion personnel à votre espace ECRU :\n${lien}\n\nOuvrez-le une fois sur le téléphone du comptoir : il reste connecté un an. Pour un collègue, ouvrez le même lien sur son téléphone.\nGardez ce lien pour vous : il donne accès à votre programme de fidélité.\n\nÀ bientôt,\nECRU`;
+    const mailto = `mailto:?subject=${encodeURIComponent(objet)}&body=${encodeURIComponent(corps)}`;
+    return html(pageAdmin(`<div class="bloc"><p class="petit">Lien de connexion (l’ancien ne marche plus)</p><p style="word-break:break-all;margin-top:8px">${echapper(lien)}</p><a class="bouton plein" style="margin-top:14px" href="${echapper(mailto)}">Envoyer par e-mail</a></div>`, liste));
   }
   return html(pageInconnue(), 404);
 }

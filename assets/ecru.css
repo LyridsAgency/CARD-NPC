@@ -4423,3 +4423,59 @@ body::after {
 .ecru-lien:hover {
   color: var(--ecru-text);
 }
+
+/* ----- Espace pro : se connecter ---------------------------------------- */
+.ecru-pro__grille-connexion {
+  display: grid;
+  gap: 4.8rem;
+}
+@media (min-width: 990px) {
+  .ecru-pro__grille-connexion {
+    grid-template-columns: 6fr 5fr;
+    gap: 8rem;
+    align-items: start;
+  }
+}
+.ecru-pro__note {
+  margin: 2.8rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: var(--ecru-muted);
+}
+.ecru-pro__note a {
+  color: var(--ecru-text);
+  text-underline-offset: 0.3em;
+}
+.ecru-pro__etapes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: etape;
+  border-top: 1px solid var(--ecru-text);
+}
+.ecru-pro__etapes li {
+  counter-increment: etape;
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 0.4rem 0;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--ecru-border);
+}
+.ecru-pro__etapes li::before {
+  content: counter(etape);
+  grid-row: span 2;
+  font-family: var(--font-heading-family);
+  font-size: 2rem;
+  line-height: 1.2;
+  color: var(--ecru-text);
+}
+.ecru-pro__etapes b {
+  font-weight: 500;
+  font-size: 1.6rem;
+  color: var(--ecru-text);
+}
+.ecru-pro__etapes span {
+  font-size: 1.4rem;
+  line-height: 1.6;
+  color: var(--ecru-muted);
+}
