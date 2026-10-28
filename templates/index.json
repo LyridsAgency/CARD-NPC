@@ -6,7 +6,7 @@
         "show_text": true,
         "heading_h1": true,
         "eyebrow": "Cartes NFC pour commerçants",
-        "heading": "Ils reviennent. Naturellement.",
+        "heading": "Un geste. Tout s’ouvre.",
         "button_label": "Composer ma carte",
         "button_link": "/products/cartes-simples?variant=48429022216363",
         "padding_top": 24,
@@ -22,7 +22,7 @@
         "avantage_1": {
           "type": "avantage",
           "settings": {
-            "text": "Un geste, sans application"
+            "text": "Aucune application à installer"
           }
         },
         "avantage_2": {
