@@ -304,6 +304,15 @@
       var fen = teintes.fenetre !== 'auto' ? ', fenêtre NFC ' + teintes.fenetre.toUpperCase() : '';
       lisible.value = 'Fond ' + teintes.fond.toUpperCase() + fen + ' | Recto : ' + (visibles('recto').map(resume).join(' ; ') || 'vierge') + (verso.length ? ' | Verso : ' + verso.map(resume).join(' ; ') : '');
       brut.value = JSON.stringify({ recto: visibles('recto').map(brutDe), verso: verso.map(brutDe) });
+      // Résumé lisible pour le client (panier, e-mails) : textes, polices, logo ; le détail technique reste caché
+      var design = form.querySelector('[data-ecru-design]');
+      if (design) {
+        var court = function (e) {
+          return e.t === 'logo' ? 'logo' : '« ' + e.v + ' » (' + POLICES[policeDe(e)].nom + ')';
+        };
+        var r = visibles('recto').map(court).join(', ');
+        design.value = 'Recto : ' + (r || 'vierge') + (verso.length ? ' · Verso : ' + verso.map(court).join(', ') : '');
+      }
     }
 
     function guides(x, y) {
@@ -960,7 +969,14 @@
       var q = parseInt(quantite.value, 10) || 0;
       if (n && data.lien) extras.push({ id: data.lien.id, quantity: n * q, properties: { Cartes: data.titre || '' } });
       var abo = data.abonnement;
-      if (avecFidelite() && abo && abo.plan) extras.push({ id: abo.id, quantity: 1, selling_plan: abo.plan });
+      // Option fidélité : l'abonnement mensuel part toujours avec les cartes.
+      // Sans formule d'abonnement configurée (Shopify Subscriptions), le premier mois est ajouté, clairement indiqué.
+      if (avecFidelite() && abo && abo.id)
+        extras.push(
+          abo.plan
+            ? { id: abo.id, quantity: 1, selling_plan: abo.plan }
+            : { id: abo.id, quantity: 1, properties: { Facturation: 'Premier mois. Le prélèvement mensuel est mis en place à la validation de votre commande.' } }
+        );
       if (!extras.length || !window.fetch) return;
       e.preventDefault();
       bouton.disabled = true;

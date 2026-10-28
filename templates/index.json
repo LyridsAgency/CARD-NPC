@@ -8,7 +8,7 @@
         "eyebrow": "Cartes NFC pour commerçants",
         "heading": "Un geste. Tout s’ouvre.",
         "button_label": "Composer ma carte",
-        "button_link": "/products/cartes-simples?variant=48429022216363",
+        "button_link": "/products/cartes-sur-mesure",
         "padding_top": 24,
         "padding_bottom": 48,
         "card_text": "ECRU",
@@ -75,7 +75,7 @@
             "title": "Cartes simples",
             "text": "Noir ou blanc, vierges. Un geste, un lien : votre site, votre menu, vos avis.",
             "price_note": "Paiement unique · dès 10 cartes",
-            "features": "Noir ou blanc\nPVC ou métal\nUn lien au choix\nSans application",
+            "features": "Noir ou blanc\nPVC ou métal\nVos liens : menu, avis, réseaux…\nSans application",
             "button_label": "Choisir",
             "product": "cartes-simples"
           }
@@ -208,8 +208,10 @@
     "appel": {
       "type": "ecru-appel",
       "settings": {
-        "button_link": "/products/cartes-simples?variant=48429022216363",
-        "button_label": "Composer ma carte"
+        "button_link": "/products/cartes-sur-mesure",
+        "button_label": "Composer ma carte",
+        "button_2_label": "Demander un devis",
+        "button_2_link": "/pages/demande-particuliere"
       }
     },
     "defilement": {
@@ -254,14 +256,14 @@
           "settings": {
             "title": "La fidélité",
             "text": "Ils cumulent, vous récompensez.",
-            "pour": "Avec l'offre Fidélité"
+            "pour": "Avec l’option fidélité"
           }
         },
         "usage_5": {
           "type": "usage",
           "settings": {
-            "title": "Billetterie et accès",
-            "text": "Entrées, programme, infos pratiques.",
+            "title": "Événements",
+            "text": "Programme, plan, infos pratiques.",
             "pour": "Festivals, soirées"
           }
         },

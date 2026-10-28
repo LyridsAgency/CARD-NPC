@@ -261,7 +261,7 @@
                   </div>
                   <div class="ecru-createur__ligne">
                     <label class="ecru-createur__label" for="{{ uid }}-nom">Texte</label>
-                    <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" name="properties[Nom]" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom>
+                    <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom>
                   </div>
                   <div class="ecru-createur__ligne ecru-createur__ligne--polices">
                     <span class="ecru-createur__label" id="{{ uid }}-police-label">Police</span>
@@ -295,10 +295,11 @@
                     <input id="{{ uid }}-taille" class="ecru-createur__taille" type="range" min="4" max="40" step="1" value="12" data-ecru-el-taille>
                   </div>
 
-                  <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
-                  <input type="hidden" name="properties[Fenêtre NFC]" value="" data-ecru-champ="fenetre">
-                  <input type="hidden" name="properties[Marquage]" value="#e9e4d8" data-ecru-champ="relief">
-                  <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
+                  <input type="hidden" name="properties[Design]" value="" data-ecru-design>
+                  <input type="hidden" name="properties[_Couleur]" value="#0d0d0c" data-ecru-champ="fond">
+                  <input type="hidden" name="properties[_Fenêtre NFC]" value="" data-ecru-champ="fenetre">
+                  <input type="hidden" name="properties[_Marquage]" value="#e9e4d8" data-ecru-champ="relief">
+                  <input type="hidden" name="properties[_Maquette]" value="" data-ecru-maquette>
                   <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json>
                 </div>
             <p class="ecru-option__aide">
@@ -328,7 +329,7 @@
             <button type="button" class="ecru-outil" data-ecru-lien-ajout>+ Ajouter un lien</button>
             <p class="ecru-champ__aide">
               {%- if option_lien != blank -%}+ {{ option_lien.price | money }} par carte et par lien. {% endif -%}
-              Sans lien, la carte reste vierge. Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à vos couleurs qui les réunit.
+              Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à votre nom qui les réunit. Sans lien, la puce n’est pas programmée.
             </p>
           </fieldset>
         {%- endif -%}
@@ -526,7 +527,7 @@
     { "type": "text", "id": "option_lien", "label": "Option lien (identifiant du produit)", "default": "option-lien", "info": "Ajoutée au panier une fois par carte et par lien rempli. Vide : les liens sont gratuits." },
     { "type": "checkbox", "id": "show_perso", "label": "Demander le lien (produits avec le tag « simple »)", "default": true },
     { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
-    { "type": "text", "id": "contact_label", "label": "Demande particulière", "default": "Demande particulière" },
+    { "type": "text", "id": "contact_label", "label": "Bouton devis", "default": "Demander un devis" },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 48 },
     { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
   ],

@@ -4,7 +4,8 @@
       "type": "ecru-produit",
       "settings": {
         "abonnement": "abonnement-fidelite",
-        "option_lien": "option-lien"
+        "option_lien": "option-lien",
+        "contact_label": "Demander un devis"
       },
       "blocks": {},
       "block_order": []
