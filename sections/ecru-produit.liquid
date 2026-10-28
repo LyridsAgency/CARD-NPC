@@ -348,18 +348,25 @@
           </fieldset>
         {%- endif -%}
 
-        {%- if section.settings.show_perso and product.tags contains 'simple' -%}
+        {%- if section.settings.show_perso and est_fidelite == false -%}
           {%- assign etape = etape | plus: 1 -%}
-          <fieldset class="ecru-option ecru-perso">
+          <fieldset class="ecru-option ecru-perso" data-ecru-liens>
             <legend>
               <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
-              Lien
+              Liens
             </legend>
             <div class="ecru-champ">
-              <label class="visually-hidden" for="{{ uid }}-lien">Lien à ouvrir</label>
+              <label for="{{ uid }}-lien">Lien principal</label>
               <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
-              <p class="ecru-champ__aide">La page qui s'ouvre au contact du téléphone.</p>
             </div>
+            {%- for i in (2..4) -%}
+              <div class="ecru-champ" data-ecru-lien-sup hidden>
+                <label for="{{ uid }}-lien-{{ i }}">Lien {{ i }}</label>
+                <input id="{{ uid }}-lien-{{ i }}" type="url" name="properties[Lien {{ i }}]" placeholder="Menu, avis, Instagram…" inputmode="url" disabled>
+              </div>
+            {%- endfor -%}
+            <button type="button" class="ecru-outil" data-ecru-lien-ajout>+ Ajouter un lien</button>
+            <p class="ecru-champ__aide">Un seul lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à vos couleurs qui les réunit. Modifiable plus tard sur simple demande.</p>
           </fieldset>
         {%- endif -%}
 

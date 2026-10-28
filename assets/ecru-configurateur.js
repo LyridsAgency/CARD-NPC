@@ -776,6 +776,20 @@
         });
     });
 
+    // ---------- Liens supplémentaires (jusqu'à 4) ----------
+    var ajoutLien = form.querySelector('[data-ecru-lien-ajout]');
+    if (ajoutLien) {
+      ajoutLien.addEventListener('click', function () {
+        var suivant = form.querySelector('[data-ecru-lien-sup][hidden]');
+        if (!suivant) return;
+        suivant.hidden = false;
+        var champ = suivant.querySelector('input');
+        champ.disabled = false;
+        champ.focus();
+        if (!form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
+      });
+    }
+
     // ---------- Retourner la carte ----------
     var retourner = root.querySelector('[data-ecru-retourner]');
     if (retourner && carte) {

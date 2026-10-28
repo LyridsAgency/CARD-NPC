@@ -9,15 +9,22 @@ function clarte(hex) {
   return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
 }
 
-function teintes(fond) {
-  const clair = clarte(fond) > 150;
-  return clair
-    ? { fond, encre: '#121211', doux: 'rgba(18,18,17,.62)', ligne: 'rgba(18,18,17,.18)', plein: '#121211', surPlein: '#e9e4d8' }
-    : { fond, encre: '#e9e4d8', doux: 'rgba(233,228,216,.62)', ligne: 'rgba(233,228,216,.18)', plein: '#e9e4d8', surPlein: '#121211' };
+// Toujours la même base, noire et crème (l'allure ECRU) ; la couleur du commerce ne sert que d'accent
+// (tampons, barre de progression), et seulement si elle se voit sur le noir.
+function teintes(accent) {
+  const a = /^#[0-9a-f]{6}$/i.test(accent || '') && clarte(accent) > 70 ? accent : '#e9e4d8';
+  return {
+    fond: '#0d0d0c',
+    encre: '#e9e4d8',
+    doux: 'rgba(233,228,216,.62)',
+    ligne: 'rgba(233,228,216,.18)',
+    plein: a,
+    surPlein: clarte(a) > 150 ? '#121211' : '#e9e4d8',
+  };
 }
 
-export function page({ titre, fond = '#070707', corps }) {
-  const t = teintes(fond);
+export function page({ titre, accent, corps }) {
+  const t = teintes(accent);
   return `<!doctype html>
 <html lang="fr">
 <head>
@@ -90,7 +97,7 @@ const pied = `<p class="pied">Carte <a href="https://ecru.fr">ECRU</a></p>`;
 export function pageSuspendue(c) {
   return page({
     titre: c ? c.nom : 'Carte ECRU',
-    fond: c ? c.couleur : '#0d0d0c',
+    accent: c ? c.couleur : null,
     corps: `<div style="margin:auto 0">
       ${c ? `<p class="petit">${echapper(c.nom)}</p>` : ''}
       <h1 style="margin-top:12px">Ce programme n’est plus actif.</h1>
@@ -119,7 +126,7 @@ export function pageClient(c, carte, reglage) {
     : `<div class="bloc"><p class="petit">Plus que ${reste} visite${reste > 1 ? 's' : ''}</p>${reglage.recompense ? `<p class="recompense">${echapper(reglage.recompense)}</p>` : ''}</div>`;
   return page({
     titre: c.nom,
-    fond: c.couleur,
+    accent: c.couleur,
     corps: `<header>${enTete(c)}<p class="doux" style="margin-top:12px">${echapper(c.accroche || 'Bon retour parmi nous.')}</p></header>
     <section aria-label="Vos tampons">
       <p class="compte"><b>${n}</b><span>/ ${seuil}</span></p>
@@ -139,7 +146,7 @@ export function pagePro(c, carte, reglage, flash = '') {
   const depuis = carte.derniere_visite ? ilYa(carte.derniere_visite) : 'jamais';
   return page({
     titre: `${c.nom} · carte ${carte.code}`,
-    fond: '#0d0d0c',
+    accent: c.couleur,
     corps: `<span class="badge">Mode commerçant · ${echapper(c.nom)}</span>
     ${flash ? `<p class="flash" role="status">${echapper(flash)}</p>` : ''}
     <header><p class="petit">Carte ${echapper(carte.code.toUpperCase())}</p>
@@ -162,7 +169,7 @@ export function pagePro(c, carte, reglage, flash = '') {
 export function pageTableau(c, stats, reglage, flash = '') {
   return page({
     titre: `${c.nom} · tableau de bord`,
-    fond: '#0d0d0c',
+    accent: c.couleur,
     corps: `<span class="badge">Espace commerçant</span>
     ${flash ? `<p class="flash" role="status">${echapper(flash)}</p>` : ''}
     <header>${enTete(c)}<p class="doux" style="margin-top:12px">Pour ajouter un tampon, scannez la carte du client avec ce téléphone.</p></header>
@@ -190,8 +197,8 @@ export function pageTableau(c, stats, reglage, flash = '') {
   });
 }
 
-export function pageMessage(titre, texte, fond = '#0d0d0c') {
-  return page({ titre, fond, corps: `<div style="margin:auto 0"><h1>${echapper(titre)}</h1><p class="doux" style="margin-top:14px">${echapper(texte)}</p></div>${pied}` });
+export function pageMessage(titre, texte) {
+  return page({ titre, corps: `<div style="margin:auto 0"><h1>${echapper(titre)}</h1><p class="doux" style="margin-top:14px">${echapper(texte)}</p></div>${pied}` });
 }
 
 export function pageAdmin(resultat = '', commerces = []) {
@@ -211,7 +218,7 @@ export function pageAdmin(resultat = '', commerces = []) {
       <p class="petit">1. Fiche du commerce (créer ou modifier)</p>
       ${cle('t0')}${commerce('c0')}
       <div><label for="nom">Nom affiché</label><input id="nom" name="nom" maxlength="60" required></div>
-      <div><label for="couleur">Couleur (#rrggbb)</label><input id="couleur" name="couleur" value="#0d0d0c" pattern="#[0-9a-fA-F]{6}"></div>
+      <div><label for="couleur">Couleur d’accent des tampons (#rrggbb, la page reste noire)</label><input id="couleur" name="couleur" value="#0d0d0c" pattern="#[0-9a-fA-F]{6}"></div>
       <div><label for="logo">Adresse du logo (image en ligne, facultatif)</label><input id="logo" name="logo" type="url"></div>
       <div><label for="accroche">Message d’accueil</label><input id="accroche" name="accroche" maxlength="120" placeholder="Bon retour parmi nous."></div>
       <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" placeholder="Le dessert offert"></div>

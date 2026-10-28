@@ -3164,7 +3164,7 @@ body::after {
   padding: 16% 7cqi 8cqi;
   border-radius: 31px;
   overflow: hidden;
-  background: #5a1a22;
+  background: #0d0d0c;
   color: #e9e4d8;
 }
 .ecru-apercu__ecran--pro {
@@ -3280,4 +3280,31 @@ body::after {
   text-align: center;
   font-size: 1.2rem;
   color: #85817a;
+}
+
+/* ----- Devis : choix en pastilles, estimation en direct ----------------- */
+.ecru-devis__groupe {
+  margin-bottom: 2.4rem;
+}
+.ecru-devis__estimation {
+  margin: 0 0 3.2rem;
+  padding: 2.4rem 2.8rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  background: var(--ecru-surface);
+}
+.ecru-devis__label {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
+.ecru-devis__montant {
+  margin: 0;
+  font-family: var(--font-heading-family);
+  font-size: clamp(3.2rem, 4vw, 4.8rem);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ecru-text);
 }

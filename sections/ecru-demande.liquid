@@ -50,62 +50,82 @@
         </div>
       {%- endif -%}
 
-      <input type="hidden" name="contact[Type de message]" value="Demande particulière">
+      <input type="hidden" name="contact[Type de message]" value="Demande de devis">
       <input type="hidden" name="contact[Produit]" value="" data-ecru-produit-source>
+      <input type="hidden" name="contact[Estimation affichée]" value="" data-ecru-estimation-champ>
 
-      <div class="ecru-demande__ligne">
-        <div class="ecru-champ">
-          <label for="demande-nom">Nom <span aria-hidden="true">*</span></label>
-          <input id="demande-nom" type="text" name="contact[name]" autocomplete="name" required value="{{ form.name }}">
+      {%- liquid
+        assign offres = 'cartes-simples:Cartes simples|cartes-sur-mesure:Sur mesure|carte-fidelite:Fidélité' | split: '|'
+        assign quantites = '50|100|250|500|1000' | split: '|'
+      -%}
+      <fieldset class="ecru-option ecru-devis__groupe">
+        <legend><span class="ecru-option__etape" aria-hidden="true">01</span>Votre projet</legend>
+        <div class="ecru-option__choix">
+          {%- for o in offres -%}
+            {%- assign oo = o | split: ':' -%}
+            <input type="radio" id="devis-type-{{ forloop.index }}" name="contact[Type de carte]" value="{{ oo[1] }}" data-ecru-devis="type" {% if forloop.index == 2 %}checked{% endif %}>
+            <label for="devis-type-{{ forloop.index }}">{{ oo[1] }}</label>
+          {%- endfor -%}
+          <input type="radio" id="devis-type-4" name="contact[Type de carte]" value="Je ne sais pas" data-ecru-devis="type">
+          <label for="devis-type-4">Je ne sais pas</label>
         </div>
-        <div class="ecru-champ">
-          <label for="demande-email">E-mail <span aria-hidden="true">*</span></label>
-          <input id="demande-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+      </fieldset>
+
+      <fieldset class="ecru-option ecru-devis__groupe">
+        <legend><span class="ecru-option__etape" aria-hidden="true">02</span>Matière</legend>
+        <div class="ecru-option__choix">
+          {%- assign matieres = 'PVC|Métal|À conseiller' | split: '|' -%}
+          {%- for m in matieres -%}
+            <input type="radio" id="devis-mat-{{ forloop.index }}" name="contact[Matière]" value="{{ m }}" data-ecru-devis="matiere" {% if forloop.first %}checked{% endif %}>
+            <label for="devis-mat-{{ forloop.index }}">{{ m }}</label>
+          {%- endfor -%}
         </div>
+      </fieldset>
+
+      <fieldset class="ecru-option ecru-devis__groupe">
+        <legend><span class="ecru-option__etape" aria-hidden="true">03</span>Quantité</legend>
+        <div class="ecru-option__choix">
+          {%- for q in quantites -%}
+            <input type="radio" id="devis-q-{{ q }}" name="contact[Quantité]" value="{% if forloop.last %}1000 et plus{% else %}{{ q }}{% endif %}" data-ecru-devis="quantite" data-q="{{ q }}" {% if q == '100' %}checked{% endif %}>
+            <label for="devis-q-{{ q }}">{% if forloop.last %}1 000 +{% else %}{{ q }}{% endif %}</label>
+          {%- endfor -%}
+        </div>
+      </fieldset>
+
+      <div class="ecru-devis__estimation" aria-live="polite">
+        <p class="ecru-devis__label">Estimation</p>
+        <p class="ecru-devis__montant" data-ecru-estimation>—</p>
+        <p class="ecru-champ__aide" data-ecru-estimation-detail></p>
       </div>
-      <div class="ecru-demande__ligne">
-        <div class="ecru-champ">
-          <label for="demande-tel">Téléphone</label>
-          <input id="demande-tel" type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone }}">
+
+      <fieldset class="ecru-option ecru-devis__groupe">
+        <legend><span class="ecru-option__etape" aria-hidden="true">04</span>Vos coordonnées</legend>
+        <div class="ecru-demande__ligne">
+          <div class="ecru-champ">
+            <label for="demande-nom">Nom <span aria-hidden="true">*</span></label>
+            <input id="demande-nom" type="text" name="contact[name]" autocomplete="name" required value="{{ form.name }}">
+          </div>
+          <div class="ecru-champ">
+            <label for="demande-email">E-mail <span aria-hidden="true">*</span></label>
+            <input id="demande-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email }}">
+          </div>
+        </div>
+        <div class="ecru-demande__ligne">
+          <div class="ecru-champ">
+            <label for="demande-commerce">Commerce</label>
+            <input id="demande-commerce" type="text" name="contact[Commerce]" autocomplete="organization">
+          </div>
+          <div class="ecru-champ">
+            <label for="demande-tel">Téléphone</label>
+            <input id="demande-tel" type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone }}">
+          </div>
         </div>
         <div class="ecru-champ">
-          <label for="demande-commerce">Commerce ou événement</label>
-          <input id="demande-commerce" type="text" name="contact[Commerce ou événement]" autocomplete="organization">
+          <label for="demande-message">Un détail à ajouter ?</label>
+          <textarea id="demande-message" name="contact[body]" rows="3" placeholder="Couleurs, délai, événement…">{{ form.body }}</textarea>
         </div>
-      </div>
-      <div class="ecru-demande__ligne">
-        <div class="ecru-champ">
-          <label for="demande-type">Type de carte</label>
-          <select id="demande-type" name="contact[Type de carte]">
-            <option>Fidélité</option>
-            <option>Cartes simples</option>
-            <option>Je ne sais pas encore</option>
-          </select>
-        </div>
-        <div class="ecru-champ">
-          <label for="demande-matiere">Matière</label>
-          <select id="demande-matiere" name="contact[Matière]">
-            <option>PVC</option>
-            <option>Métal</option>
-            <option>À conseiller</option>
-          </select>
-        </div>
-      </div>
-      <div class="ecru-demande__ligne">
-        <div class="ecru-champ">
-          <label for="demande-qte">Quantité estimée</label>
-          <input id="demande-qte" type="number" min="1" inputmode="numeric" name="contact[Quantité estimée]">
-        </div>
-        <div class="ecru-champ">
-          <label for="demande-date">Date souhaitée</label>
-          <input id="demande-date" type="date" name="contact[Date souhaitée]">
-        </div>
-      </div>
-      <div class="ecru-champ">
-        <label for="demande-message">Votre demande <span aria-hidden="true">*</span></label>
-        <textarea id="demande-message" name="contact[body]" rows="6" required placeholder="Couleurs, design, quantité, délai, événement…">{{ form.body }}</textarea>
-      </div>
-      <p class="ecru-champ__aide">* Champs obligatoires. Pour un fichier (logo, visuel), mentionnez-le : nous vous répondrons par e-mail.</p>
+      </fieldset>
+      <p class="ecru-champ__aide">* Obligatoire. Réponse par e-mail avec un devis précis. Votre logo pourra être envoyé en réponse.</p>
       <div class="ecru-actions">
         <button type="submit" class="ecru-bouton">{{ section.settings.button_label | escape }}</button>
       </div>
@@ -113,16 +133,69 @@
   </div>
 </section>
 
+<script type="application/json" id="ecru-devis-prix">
+  {
+    {%- for o in offres -%}
+      {%- assign oo = o | split: ':' -%}
+      {%- assign p = all_products[oo[0]] -%}
+      {{ oo[1] | json }}: {
+        {%- assign premier = true -%}
+        {%- for v in p.variants -%}
+          {%- if premier == false -%},{%- endif -%}
+          {{ v.option1 | json }}: {{ v.price }}
+          {%- assign premier = false -%}
+        {%- endfor -%}
+      }{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  }
+</script>
 <script>
   (function () {
-    var produit = new URLSearchParams(window.location.search).get('produit');
-    var champ = document.querySelector('[data-ecru-produit-source]');
-    if (produit && champ) champ.value = produit;
-    var type = document.getElementById('demande-type');
-    if (produit && type) {
-      if (/fid/i.test(produit)) type.value = 'Fidélité';
-      else if (/simple/i.test(produit)) type.value = 'Cartes simples';
+    var form = document.getElementById('ecru-demande-form');
+    if (!form) return;
+    var prix = {};
+    try { prix = JSON.parse(document.getElementById('ecru-devis-prix').textContent); } catch (e) {}
+    var argent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: {{ cart.currency.iso_code | json }}, maximumFractionDigits: 0 });
+    var argentPrecis = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: {{ cart.currency.iso_code | json }} });
+    var montant = form.querySelector('[data-ecru-estimation]');
+    var detail = form.querySelector('[data-ecru-estimation-detail]');
+    var champ = form.querySelector('[data-ecru-estimation-champ]');
+    function val(nom) {
+      var r = form.querySelector('[data-ecru-devis="' + nom + '"]:checked');
+      return r ? r : null;
     }
+    function maj() {
+      var type = val('type') && val('type').value;
+      var matiere = val('matiere') && val('matiere').value;
+      var q = val('quantite') ? parseInt(val('quantite').dataset.q, 10) : 0;
+      var grille = prix[type];
+      var texte = '';
+      var aide = '';
+      if (!grille || matiere === 'À conseiller') {
+        texte = 'Sur devis';
+        aide = 'Nous vous conseillons la meilleure option.';
+      } else if (q >= 1000) {
+        texte = 'Sur devis';
+        aide = 'Au-delà de 1 000 cartes, un prix dégressif vous est proposé.';
+      } else {
+        var unit = (grille[matiere] || grille.PVC) / 100;
+        texte = 'environ ' + argent.format(unit * q);
+        aide = q + ' cartes × ' + argentPrecis.format(unit) + ' · hors livraison' + (type === 'Fidélité' ? ' · + abonnement au programme' : '');
+      }
+      montant.textContent = texte;
+      detail.textContent = aide;
+      champ.value = texte + (aide ? ' (' + aide + ')' : '');
+    }
+    form.addEventListener('change', maj);
+    var produit = new URLSearchParams(window.location.search).get('produit');
+    var source = form.querySelector('[data-ecru-produit-source]');
+    if (produit && source) source.value = produit;
+    if (produit) {
+      var t = /fid/i.test(produit) ? 'Fidélité' : /simple/i.test(produit) ? 'Cartes simples' : /mesure/i.test(produit) ? 'Sur mesure' : '';
+      var r = t && form.querySelector('[data-ecru-devis="type"][value="' + t + '"]');
+      if (r) r.checked = true;
+    }
+    maj();
   })();
 </script>
 
@@ -132,10 +205,10 @@
   "tag": "div",
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Surtitre", "default": "Sur mesure" },
-    { "type": "text", "id": "heading", "label": "Titre", "default": "Demande particulière." },
-    { "type": "textarea", "id": "text", "label": "Texte", "default": "Un événement, une grande quantité, une finition à part ? Dites-nous tout." },
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Votre devis." },
+    { "type": "textarea", "id": "text", "label": "Texte", "default": "Trois choix, une estimation tout de suite, un devis précis par e-mail." },
     { "type": "textarea", "id": "points", "label": "Exemples (un par ligne)", "default": "Festivals et soirées\nGrandes quantités\nCouleurs et designs sur mesure\nFinitions spéciales" },
-    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Envoyer ma demande" },
+    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Recevoir mon devis" },
     { "type": "text", "id": "success", "label": "Message après envoi", "default": "Votre demande est bien partie. Nous revenons vers vous par e-mail." },
     { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
     { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 128 }

@@ -6,20 +6,22 @@
 {%- liquid
   assign m = metaobject
   assign actif = m.actif.value
-  assign fond = m.couleur.value | default: '#0d0d0c'
-  assign clair = fond | color_brightness
+  comment
+    Base noire et crème (l'allure ECRU) ; la couleur du commerce ne sert que d'accent, si elle se voit sur le noir
+  endcomment
+  assign fond = '#0d0d0c'
   assign encre = '#e9e4d8'
   assign doux = 'rgba(233,228,216,0.62)'
   assign ligne = 'rgba(233,228,216,0.18)'
-  if clair > 150
-    assign encre = '#121211'
-    assign doux = 'rgba(18,18,17,0.62)'
-    assign ligne = 'rgba(18,18,17,0.18)'
+  assign accent = m.couleur.value | default: '#e9e4d8'
+  assign clair = accent | color_brightness
+  if clair < 70
+    assign accent = '#e9e4d8'
   endif
 -%}
 <main
   class="ecru-commerce{% unless actif %} ecru-commerce--inactif{% endunless %}"
-  style="--fond: {{ fond }}; --encre: {{ encre }}; --doux: {{ doux }}; --ligne: {{ ligne }};"
+  style="--fond: {{ fond }}; --encre: {{ encre }}; --doux: {{ doux }}; --ligne: {{ ligne }}; --accent: {{ accent }};"
 >
   {%- if actif -%}
     <header class="ecru-commerce__tete">
@@ -88,6 +90,7 @@
   .ecru-commerce__fidelite {
     padding: 22px 22px 24px;
     border: 1px solid var(--ligne);
+    border-left: 3px solid var(--accent);
     border-radius: 14px;
   }
   .ecru-commerce__etiquette {
