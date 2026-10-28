@@ -475,7 +475,8 @@ export async function mount(el) {
   }
 
   const small = Math.min(window.innerWidth, window.innerHeight) < 820;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, small ? 2 : 1.75));
+  // Téléphones : moins de pixels, moins de mémoire graphique (un contexte perdu = carte figée)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, small ? 1.6 : 1.75));
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = SRGBColorSpace;
@@ -485,8 +486,8 @@ export async function mount(el) {
   stage.prepend(cvs);
 
   const scene = new Scene();
-  const pmrem = new PMREMGenerator(renderer);
-  const envStudio = pmrem.fromScene(studioScene(), 0.03).texture;
+  let pmrem = new PMREMGenerator(renderer);
+  let envStudio = pmrem.fromScene(studioScene(), 0.03).texture;
   let envChrome = null; // préparé à la première carte chromée
   const preparerChrome = () => envChrome || (envChrome = pmrem.fromScene(studioChrome(), 0.01).texture);
   scene.environment = envStudio;
@@ -1079,10 +1080,24 @@ export async function mount(el) {
   io.observe(el);
   document.addEventListener('visibilitychange', start);
 
+  // Le téléphone peut reprendre la mémoire graphique (autre onglet, deux cartes à l'écran…) :
+  // l'image fixe prend le relais, puis la carte 3D revient d'elle-même dès que le contexte est rendu.
   cvs.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
+    cancelAnimationFrame(raf);
+    raf = 0;
     el.classList.remove('is-ready');
     el.classList.add('is-fallback');
+  });
+  cvs.addEventListener('webglcontextrestored', () => {
+    pmrem = new PMREMGenerator(renderer);
+    envStudio = pmrem.fromScene(studioScene(), 0.03).texture;
+    envChrome = null;
+    applyLook({ ...current }).then(() => {
+      el.classList.remove('is-fallback');
+      el.classList.add('is-ready');
+      start();
+    });
   });
 
   start();

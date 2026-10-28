@@ -14,7 +14,22 @@
   assign lignes_moq = settings.ecru_moq | newline_to_br | split: '<br />'
   assign lignes_couleurs = settings.ecru_couleurs | newline_to_br | split: '<br />'
 
-  assign finish = 'metal'
+  comment
+    Sans option de matière (cartes simples) : PVC mat
+  endcomment
+  assign a_metal = false
+  for o in product.options_with_values
+    for ov in o.values
+      assign ovb = ov | downcase
+      if ovb contains 'métal' or ovb contains 'metal'
+        assign a_metal = true
+      endif
+    endfor
+  endfor
+  assign finish = 'mat'
+  if a_metal
+    assign finish = 'metal'
+  endif
   assign color = '#0d0d0c'
   for value in current.options
     assign v = value | downcase | strip
@@ -51,6 +66,7 @@
 
   assign palette = 'Noir:#0d0d0c|Graphite:#2a2926|Pierre:#8f8a80|Écru:#d6cfbf|Crème:#e9e4d8|Bordeaux:#5a1a22|Vert anglais:#1f3a2e|Bleu nuit:#1b2440' | split: '|'
   assign palette_marquage = 'Crème:#e9e4d8|Noir:#121211|Ton sur ton:#7d7b76|Or:#c2a165|Argent:#c9c8c4' | split: '|'
+  assign palette_page = 'Noir:#0d0d0c|Crème:#e9e4d8|Bleu nuit:#1b2440|Vert sapin:#1f3a2e|Bordeaux:#5a1a24|Terracotta:#b5532f|Sable:#d6cfbf|Pierre:#8f8a80' | split: '|'
   assign palette_fenetre = 'Ton sur ton:auto|Noir:#121211|Graphite:#3a3936|Crème:#e9e4d8|Or:#b8975a|Argent:#c9c8c4|Bordeaux:#5a1a22|Bleu nuit:#1b2440' | split: '|'
   assign modeles = 'editorial:Éditorial|minimal:Minimal|monogramme:Monogramme|signature:Signature|numero:Numéro|pierre:Pierre' | split: '|'
 -%}
@@ -66,10 +82,11 @@
       {%- comment -%} Points de vue : la grande carte (à vos réglages) se tourne vers l'angle choisi {%- endcomment -%}
       <div class="ecru-produit__vues" role="group" aria-label="Points de vue sur la carte">
         {%- assign vues = 'trois-quarts:Angle|recto:Recto|verso:Verso|profil:Profil' | split: '|' -%}
+        {%- assign suffixe_vue = '' -%}{%- unless a_metal -%}{%- assign suffixe_vue = '-pvc' -%}{%- endunless -%}
         {%- for v in vues -%}
           {%- assign vv = v | split: ':' -%}
           <button type="button" class="ecru-produit__vue" data-ecru-vue="{{ vv[0] }}" aria-pressed="false">
-            <span class="ecru-produit__vue-img"><img src="{{ 'ecru-vue-' | append: vv[0] | append: '.webp' | asset_url }}" alt="" width="160" height="120" loading="lazy" decoding="async"></span>
+            <span class="ecru-produit__vue-img"><img src="{{ 'ecru-vue-' | append: vv[0] | append: suffixe_vue | append: '.webp' | asset_url }}" alt="" width="160" height="120" loading="lazy" decoding="async"></span>
             <span>{{ vv[1] }}</span>
           </button>
         {%- endfor -%}
@@ -108,7 +125,7 @@
         {%- if settings.ecru_prix_a_definir -%}
           {%- render 'price', product: product, use_variant: true -%}
         {%- else -%}
-          <span class="ecru-produit__montant" data-ecru-prix>{{ current.price | money }}</span>
+          <span class="ecru-produit__montant" data-ecru-prix>{{ current.price | money_without_currency | append: ' €' }}</span>
           <span class="ecru-produit__unite">la carte</span>
         {%- endif -%}
       </div>
@@ -330,7 +347,7 @@
             {%- endfor -%}
             <button type="button" class="ecru-outil" data-ecru-lien-ajout>+ Ajouter un lien</button>
             <p class="ecru-champ__aide">
-              {%- if option_lien != blank -%}+ {{ option_lien.price | money }} par carte et par lien. {% endif -%}
+              {%- if option_lien != blank -%}+ {{ option_lien.price | money_without_currency | append: ' €' }} par carte et par lien. {% endif -%}
               Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à votre nom qui les réunit. Sans lien, la puce n’est pas programmée.
             </p>
           </fieldset>
@@ -351,7 +368,7 @@
                 <strong>Programme de fidélité</strong>
                 <span>Tampons ou points, avec vos propres récompenses. Le client scanne, vous validez. Résiliable à tout moment.</span>
               </span>
-              <span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>
+              <span class="ecru-interrupteur__prix">+ {{ abo.price | money_without_currency | append: ' €' }} / mois</span>
             </label>
             <div class="ecru-fidelite-details" data-ecru-fidelite-details hidden>
               <div class="ecru-fidelite-apercu">
@@ -370,7 +387,12 @@
                 </div>
                 <div class="ecru-fidelite-reglages">
                   <p class="ecru-fidelite-reglages__titre">La page de vos clients</p>
-                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte : la page ECRU, noire et crème, à votre logo.</p>
+                  <p class="ecru-champ__aide">Ce qu’ils voient en scannant leur carte : votre logo, votre couleur. Vous pourrez la changer à tout moment depuis votre espace.</p>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Couleur</span>
+                    {%- render 'ecru-palette', cible: 'page', teintes: palette_page, libre: '#b5532f', label: 'Couleur de votre page de fidélité' -%}
+                  </div>
+                  <input type="hidden" name="properties[Couleur page fidélité]" value="#0d0d0c" data-ecru-champ="page" disabled>
                   <div class="ecru-createur__ligne">
                     <span class="ecru-createur__label">Logo *</span>
                     <label for="{{ uid }}-logo" class="ecru-outil">PNG</label>

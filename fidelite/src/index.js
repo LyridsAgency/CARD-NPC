@@ -4,7 +4,7 @@
 //   /admin             création des cartes (CSV d'adresses à encoder) et des liens de connexion commerçant
 import { aleatoire, hacher, egal, creerSession, lireSession, lireCookie } from './securite.js';
 import { lireCommerce } from './shopify.js';
-import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper } from './pages.js';
+import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper, couleurValide } from './pages.js';
 
 const COOKIE = 'ecru_pro';
 const ANTI_DOUBLE = 8; // secondes : un double appui ne donne pas deux tampons
@@ -60,6 +60,7 @@ async function reglageDe(env, c) {
     apres: r.apres === 'termine' ? 'termine' : 'recommence',
     taux: lireTaux(r.taux ?? 1),
     cadeaux: lireCadeaux(r.cadeaux),
+    couleur: couleurValide(r.couleur) || couleurValide(c.couleur) || '#0d0d0c',
   };
 }
 
@@ -217,11 +218,12 @@ async function routesPro(env, requete, url) {
     const apres = f.get('apres') === 'termine' ? 'termine' : 'recommence';
     const taux = lireTaux(f.get('taux'));
     const cadeaux = lireCadeaux([0, 1, 2, 3, 4, 5].map((i) => ({ nom: f.get(`cadeau_nom_${i}`), points: f.get(`cadeau_points_${i}`) })));
+    const couleur = couleurValide(f.get('couleur') === 'libre' ? f.get('couleur_libre') : f.get('couleur')) || avant.couleur;
     await env.DB.prepare(
-      `INSERT INTO reglages (commerce, seuil, recompense, mode, apres, taux, cadeaux, modifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `INSERT INTO reglages (commerce, seuil, recompense, mode, apres, taux, cadeaux, couleur, modifie) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(commerce) DO UPDATE SET seuil = excluded.seuil, recompense = excluded.recompense, mode = excluded.mode, apres = excluded.apres,
-         taux = excluded.taux, cadeaux = excluded.cadeaux, modifie = excluded.modifie`
-    ).bind(commerce, seuil, recompense, mode, apres, taux, JSON.stringify(cadeaux), maintenantIso()).run();
+         taux = excluded.taux, cadeaux = excluded.cadeaux, couleur = excluded.couleur, modifie = excluded.modifie`
+    ).bind(commerce, seuil, recompense, mode, apres, taux, JSON.stringify(cadeaux), couleur, maintenantIso()).run();
     // Tampons et points ne se comptent pas pareil : changer de système remet les cartes à zéro
     let ok = 'Réglages enregistrés.';
     if (mode !== avant.mode) {

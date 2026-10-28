@@ -4180,11 +4180,17 @@ body::after {
   outline-offset: 3px;
 }
 @media (max-width: 989px) {
+  /* Les cinq vues tiennent sur la largeur : rien ne déborde */
   .ecru-produit__vues {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.6rem;
+    overflow: visible;
   }
   .ecru-produit__vue {
-    width: 7.2rem;
+    width: auto;
+    min-width: 0;
+    padding: 0.5rem 0.3rem 0.7rem;
   }
 }
 
@@ -4799,4 +4805,29 @@ body::after {
   .ecru-finitions .ecru-carte__vue {
     height: clamp(280px, 72vw, 420px);
   }
+}
+
+/* ----- Option fidélité : l'aperçu prend la couleur choisie pour la page ------------------- */
+.ecru-fidelite-apercu .ecru-apercu__ecran {
+  --fid-rgb: 233, 228, 216;
+  background: var(--fid-fond, #0d0d0c);
+  color: rgb(var(--fid-rgb));
+  transition: background-color 0.5s var(--ecru-ease), color 0.5s var(--ecru-ease);
+}
+.ecru-fidelite-apercu .ecru-apercu__petit,
+.ecru-fidelite-apercu .ecru-apercu__compte {
+  color: rgba(var(--fid-rgb), 0.65);
+}
+.ecru-fidelite-apercu .ecru-apercu__compte b {
+  color: rgb(var(--fid-rgb));
+}
+.ecru-fidelite-apercu .ecru-apercu__tampons i {
+  border-color: rgba(var(--fid-rgb), 0.4);
+}
+.ecru-fidelite-apercu .ecru-apercu__tampons i.is-plein {
+  background: rgb(var(--fid-rgb));
+  border-color: rgb(var(--fid-rgb));
+}
+.ecru-fidelite-apercu .ecru-apercu__lien {
+  border-bottom-color: rgba(var(--fid-rgb), 0.2);
 }

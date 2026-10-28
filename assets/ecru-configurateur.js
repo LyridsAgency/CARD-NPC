@@ -94,7 +94,7 @@
     var legende = root.querySelector('[data-ecru-legende]');
     var carte = root.querySelector('[data-ecru-carte]');
     var minimum = 1;
-    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto', accent: '#e9e4d8' };
+    var teintes = { fond: '#0d0d0c', relief: '#e9e4d8', fenetre: 'auto', page: '#0d0d0c' };
 
     // ---------- Éditeur : un nom et un logo, à placer librement ----------
     var editeur = form.querySelector('[data-ecru-editeur]');
@@ -147,7 +147,12 @@
 
     function apparence() {
       var options = choix();
-      var finish = 'metal';
+      // Sans choix de matière (cartes simples) : PVC
+      var finish = options.some(function (o) {
+        return /m[ée]tal/.test(bas(o));
+      })
+        ? 'metal'
+        : 'mat';
       var color = '#0d0d0c';
       options.forEach(function (o) {
         var v = bas(o);
@@ -781,17 +786,15 @@
         b.setAttribute('aria-checked', b.dataset.teinte === teinte ? 'true' : 'false');
       });
     }
-    // Aperçu de la page de fidélité : fond noir ECRU, logo et couleur du commerçant.
-    // Comme sur la vraie page, une couleur trop sombre pour se voir sur le noir est remplacée par le crème.
+    // Aperçu de la page de fidélité : la couleur choisie en fond, le texte crème ou noir pour rester lisible
+    // (même règle que la vraie page, fidelite/src/pages.js)
     var ecranFid = form.querySelector('[data-ecru-fid-ecran]');
     function majPageFidelite() {
-      var accent = teintes.accent || '#e9e4d8';
-      marquerTeinte('accent', accent);
+      var fond = teintes.page || '#0d0d0c';
+      marquerTeinte('page', fond);
       if (!ecranFid) return;
-      var visible = clarte(accent) > 70;
-      ecranFid.style.setProperty('--accent', visible ? accent : '#e9e4d8');
-      var note = form.querySelector('[data-ecru-fid-note]');
-      if (note) note.textContent = visible ? 'Votre couleur colore les tampons et la progression.' : 'Cette couleur se verrait mal sur le fond noir : le crème la remplace.';
+      ecranFid.style.setProperty('--fid-fond', fond);
+      ecranFid.style.setProperty('--fid-rgb', clarte(fond) > 150 ? '18, 18, 17' : '233, 228, 216');
     }
     function logoPageFidelite(f) {
       var zone = form.querySelector('[data-ecru-fid-logo]');
@@ -813,7 +816,7 @@
     }
     function choisirTeinte(cible, teinte) {
       teintes[cible] = teinte;
-      if (cible === 'accent') {
+      if (cible === 'page') {
         majPageFidelite();
         return;
       }
@@ -1233,6 +1236,10 @@
       // Il peut décocher : ce seront des cartes simples, avec leur lien.
       enRecommande = true;
       var avaitFidelite = !!p['Option fidélité'];
+      if (teinte(p['Couleur page fidélité'])) {
+        teintes.page = p['Couleur page fidélité'];
+        majPageFidelite();
+      }
       if (caseFidelite && (dejaAbonne || avaitFidelite)) {
         if (dejaAbonne) caseFidelite.value = 'Incluse dans mon abonnement' + (p._commande ? ' (recommande de ' + p._commande + ')' : '');
         caseFidelite.checked = true;

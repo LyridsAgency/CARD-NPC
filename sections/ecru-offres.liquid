@@ -46,7 +46,7 @@
               {%- elsif settings.ecru_prix_a_definir or produit == blank -%}
                 {{ settings.ecru_prix_texte | default: '[Prix à définir]' | escape }}
               {%- else -%}
-                Dès {{ produit.price_min | money }} <span class="ecru-prix__unite">la carte</span>
+                Dès {{ produit.price_min | money_without_currency | append: ' €' }} <span class="ecru-prix__unite">la carte</span>
               {%- endif -%}
             </span>
             {%- if block.settings.price_note != blank -%}
@@ -126,7 +126,7 @@
             "title": "Cartes simples",
             "text": "Une carte noire ou blanche. Un geste, un lien : votre site, votre menu, vos avis, vos réseaux.",
             "price_note": "Paiement unique",
-            "features": "Noir, blanc ou sur mesure\nUn lien au choix\nPVC ou métal\nSans application",
+            "features": "Noir ou blanc\nUn lien au choix\nPVC mat\nSans application",
             "button_label": "Choisir Cartes simples"
           }
         }

@@ -91,7 +91,7 @@
             <label for="devis-liens-{{ n }}">{% if n == 0 %}Aucun{% else %}{{ n }}{% endif %}</label>
           {%- endfor -%}
         </div>
-        <p class="ecru-champ__aide">Menu, avis Google, Instagram, site… {% if lien != blank %}+ {{ lien.price | money }} par carte et par lien.{% endif %}</p>
+        <p class="ecru-champ__aide">Menu, avis Google, Instagram, site… {% if lien != blank %}+ {{ lien.price | money_without_currency | append: ' €' }} par carte et par lien.{% endif %}</p>
       </fieldset>
 
       <fieldset class="ecru-option ecru-devis__groupe" data-ecru-devis-fidelite>
@@ -103,7 +103,7 @@
             <strong>Programme de fidélité</strong>
             <span data-ecru-devis-aide="fidelite">Tampons ou points, vos propres récompenses.</span>
           </span>
-          {%- if abo != blank -%}<span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>{%- endif -%}
+          {%- if abo != blank -%}<span class="ecru-interrupteur__prix">+ {{ abo.price | money_without_currency | append: ' €' }} / mois</span>{%- endif -%}
         </label>
       </fieldset>
 

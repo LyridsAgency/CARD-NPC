@@ -9,17 +9,27 @@ function clarte(hex) {
   return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000;
 }
 
-// Toujours la même allure ECRU, noire et crème, pour tous les commerces.
+// La page prend la couleur du commerce (choisie à la commande ou dans l'espace pro).
+// Le texte passe en crème ou en noir selon la clarté du fond : toujours lisible.
+export const COULEURS = [
+  ['#0d0d0c', 'Noir'],
+  ['#e9e4d8', 'Crème'],
+  ['#1b2440', 'Bleu nuit'],
+  ['#1f3a2e', 'Vert sapin'],
+  ['#5a1a24', 'Bordeaux'],
+  ['#b5532f', 'Terracotta'],
+  ['#d6cfbf', 'Sable'],
+  ['#8f8a80', 'Pierre'],
+];
+export function couleurValide(v) {
+  return /^#[0-9a-f]{6}$/i.test(v || '') ? v.toLowerCase() : null;
+}
 function teintes(accent) {
-  // Les couleurs ne se choisissent plus : toutes les pages sont noires et crème, seul le logo change
-  const a = '#e9e4d8';
-  return {
-    fond: '#0d0d0c',
-    encre: '#e9e4d8',
-    doux: 'rgba(233,228,216,.62)',
-    ligne: 'rgba(233,228,216,.18)',
-    plein: a,
-  };
+  const fond = couleurValide(accent) || '#0d0d0c';
+  const clair = clarte(fond) > 150;
+  const rgb = clair ? '18,18,17' : '233,228,216';
+  const encre = clair ? '#121211' : '#e9e4d8';
+  return { fond, encre, doux: `rgba(${rgb},.64)`, ligne: `rgba(${rgb},.2)`, plein: encre };
 }
 
 export function page({ titre, accent, corps }) {
@@ -80,6 +90,15 @@ input{width:100%;padding:14px 16px;border:1px solid ${t.ligne};border-radius:10p
 .option span{color:${t.doux};font-size:13px;line-height:1.45}
 .option span b{color:${t.encre};font-size:15px}
 .reglages:has(#mode-points:checked) .si-tampons,.reglages:has(#mode-tampons:checked) .si-points{display:none}
+.nuancier{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pastille{display:flex;align-items:center;gap:10px;margin:0;padding:10px 12px;border:1px solid ${t.ligne};border-radius:12px;cursor:pointer;color:${t.encre};font-size:14px}
+.pastille:has(input[type=radio]:checked){border-color:${t.encre}}
+.pastille input[type=radio]{position:absolute;opacity:0;width:1px;height:1px}
+.pastille span,.pastille input[type=color]{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid ${t.ligne};padding:0;background:none}
+.pastille input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.pastille input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
+.pastille i{font-style:normal}
+.pastille:has(input:focus-visible){outline:2px solid ${t.encre};outline-offset:2px}
 .cadeau{display:grid;grid-template-columns:1fr 92px;gap:8px}
 .cadeaux{list-style:none;margin:0;padding:0;border-top:1px solid ${t.ligne}}
 .cadeaux li{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid ${t.ligne};color:${t.doux}}
@@ -162,7 +181,7 @@ export function pageClient(c, carte, reglage) {
       : '';
     return page({
       titre: c.nom,
-      accent: c.couleur,
+      accent: (reglage && reglage.couleur) || c.couleur,
       corps: `${tete}
     <section aria-label="Vos points">
       <p class="compte"><b>${pts}</b><span>points</span></p>
@@ -188,7 +207,7 @@ export function pageClient(c, carte, reglage) {
     : `<div class="bloc"><p class="petit">Plus que ${reste} visite${reste > 1 ? 's' : ''}</p>${reglage.recompense ? `<p class="recompense">${echapper(reglage.recompense)}</p>` : ''}</div>`;
   return page({
     titre: c.nom,
-    accent: c.couleur,
+    accent: (reglage && reglage.couleur) || c.couleur,
     corps: `${tete}
     <section aria-label="Vos tampons">
       <p class="compte"><b>${carte.terminee ? seuil : n}</b><span>/ ${seuil}</span></p>
@@ -213,7 +232,7 @@ export function pagePro(c, carte, reglage, flash = '') {
     const offrables = reglage.cadeaux.map((x, i) => [x, i]).filter(([x]) => pts >= x.points);
     return page({
       titre: `${c.nom} · carte ${carte.code}`,
-      accent: c.couleur,
+      accent: (reglage && reglage.couleur) || c.couleur,
       corps: `${entete}
     <section aria-label="Points du client">
       <p class="compte"><b>${pts}</b><span>points</span></p>
@@ -243,7 +262,7 @@ export function pagePro(c, carte, reglage, flash = '') {
   const pct = Math.min(100, Math.round((carte.tampons / seuil) * 100));
   return page({
     titre: `${c.nom} · carte ${carte.code}`,
-    accent: c.couleur,
+    accent: (reglage && reglage.couleur) || c.couleur,
     corps: `${entete}
     <section aria-label="Niveau du client">
       <p class="compte"><b>${carte.terminee ? seuil : carte.tampons}</b><span>/ ${seuil}</span></p>
@@ -275,7 +294,7 @@ export function pageTableau(c, stats, reglage, flash = '', site = '') {
     .join('');
   return page({
     titre: `${c.nom} · tableau de bord`,
-    accent: c.couleur,
+    accent: (reglage && reglage.couleur) || c.couleur,
     corps: `<span class="badge">Espace commerçant</span>
     ${flash ? `<p class="flash" role="status">${echapper(flash)}</p>` : ''}
     <header>${enTete(c)}<p class="doux" style="margin-top:12px">Pour ajouter ${pts ? 'des points' : 'un tampon'}, scannez la carte du client avec ce téléphone.</p></header>
@@ -309,6 +328,12 @@ export function pageTableau(c, stats, reglage, flash = '', site = '') {
           <div><label for="taux">Points par euro dépensé</label><input id="taux" name="taux" type="text" inputmode="decimal" value="${String(reglage.taux).replace('.', ',')}"></div>
           <div><p class="doux" style="font-size:13px;margin:0 0 6px">Vos cadeaux et leur prix en points</p><div class="champs" style="gap:8px">${lignesCadeaux}</div></div>
         </div>
+        <fieldset class="choix"><legend class="doux">Couleur de votre page</legend>
+          <div class="nuancier">${COULEURS.map(([hex, nom]) => `<label class="pastille" title="${nom}"><input type="radio" name="couleur" value="${hex}"${(reglage.couleur || c.couleur || '#0d0d0c').toLowerCase() === hex ? ' checked' : ''}><span style="background:${hex}"></span><i>${nom}</i></label>`).join('')}
+            <label class="pastille" title="Autre couleur"><input type="radio" name="couleur" value="libre"${COULEURS.some(([h]) => h === (reglage.couleur || c.couleur || '#0d0d0c').toLowerCase()) ? '' : ' checked'}><input type="color" name="couleur_libre" value="${couleurValide(reglage.couleur || c.couleur) || '#0d0d0c'}" aria-label="Autre couleur"><i>Autre</i></label>
+          </div>
+          <p class="doux" style="font-size:13px">Vos clients la voient en scannant leur carte. Le texte s’adapte pour rester lisible.</p>
+        </fieldset>
         <p class="doux" style="font-size:13px">Changer de système remet les cartes à zéro.</p>
         <button class="plein" type="submit">Enregistrer</button>
       </form>

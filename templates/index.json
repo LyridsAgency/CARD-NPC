@@ -36,9 +36,9 @@
           "type": "offre",
           "settings": {
             "title": "Cartes simples",
-            "text": "Noir ou blanc. Un geste, un lien.",
+            "text": "PVC noir ou blanc. Un geste, un lien.",
             "price_note": "Paiement unique · dès 10 cartes",
-            "features": "Noir ou blanc\nPVC ou métal\nVos liens : menu, avis, réseaux…\nSans application",
+            "features": "Noir ou blanc\nPVC mat\nVos liens : menu, avis, réseaux…\nSans application",
             "button_label": "Choisir",
             "product": "cartes-simples"
           }
@@ -145,7 +145,7 @@
     "assortiments": {
       "type": "ecru-assortiments",
       "settings": {
-        "button_link": "/products/cartes-simples?variant=48429022216363",
+        "button_link": "/products/cartes-sur-mesure",
         "eyebrow": "Sur mesure",
         "heading": "À votre image.",
         "text": "Partez d’un modèle, mettez votre nom et votre logo."
@@ -238,7 +238,7 @@
         "eyebrow": "Votre prochain niveau",
         "heading": "Passez au niveau supérieur.",
         "text": "Plus d’image, plus d’avis, plus de clients qui reviennent.",
-        "publics": "Restaurants, Cafés, Salons, Barbiers, Boutiques, Clubs, Festivals"
+        "publics": ""
       },
       "blocks": {
         "a1": {

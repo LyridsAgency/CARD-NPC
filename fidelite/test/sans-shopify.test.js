@@ -63,7 +63,7 @@ test('fiche du commerce créée dans /admin, puis carte lisible', async () => {
   assert.match(page, /Maison Lune/);
   assert.match(page, /<span>\/ 5<\/span>/);
   assert.match(page, /Voir le menu/);
-  assert.doesNotMatch(page, /#b8975a/); // la couleur du commerce n'est plus utilisée : page ECRU noire et crème
+  assert.match(page, /background:#b8975a;color:#121211/); // la page prend la couleur du commerce, texte foncé sur fond clair
   const liste = await (await appel('/admin')).text();
   assert.match(liste, /maison-lune · 1 carte · actif/);
 });
@@ -93,10 +93,15 @@ test('liens non http refusés (pas de javascript:)', async () => {
   assert.doesNotMatch(await (await appel(`/c/${code}`)).text(), /javascript:/);
 });
 
-test('couleur trop sombre : accent crème, fond toujours noir', async () => {
+test('la page prend la couleur du commerce, texte lisible (crème sur foncé, noir sur clair)', async () => {
   await enregistrer({ commerce: 'sombre', nom: 'Sombre', couleur: '#1b2440', actif: 1 });
   const code = (await (await appel('/admin/cartes', { method: 'POST', body: form({ jeton: 'admin-test', commerce: 'sombre', nombre: 1 }) })).text()).trim().split('\n')[1].split(',')[1];
   const page = await (await appel(`/c/${code}`)).text();
-  assert.match(page, /background:#0d0d0c/);
+  assert.match(page, /background:#1b2440/);
   assert.match(page, /\.tampons li\.plein\{background:#e9e4d8/);
+  await enregistrer({ commerce: 'clair', nom: 'Clair', couleur: '#e9e4d8', actif: 1 });
+  const code2 = (await (await appel('/admin/cartes', { method: 'POST', body: form({ jeton: 'admin-test', commerce: 'clair', nombre: 1 }) })).text()).trim().split('\n')[1].split(',')[1];
+  const page2 = await (await appel(`/c/${code2}`)).text();
+  assert.match(page2, /background:#e9e4d8/);
+  assert.match(page2, /\.tampons li\.plein\{background:#121211/);
 });
