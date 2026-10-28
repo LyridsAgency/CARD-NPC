@@ -1,0 +1,94 @@
+{%- comment -%}
+  ECRU — Ouverture de la page Fidélité : la promesse, le prix, et un téléphone vivant
+  (les tampons se remplissent un à un jusqu'à la récompense, puis la carte repart).
+{%- endcomment -%}
+<section
+  class="ecru-section ecru-fid-hero"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur ecru-fid-hero__grille">
+    <div class="ecru-fid-hero__texte">
+      <h1 id="titre-{{ section.id }}" class="ecru-titre">
+        {%- assign lignes = section.settings.heading | split: '. ' -%}
+        {%- for l in lignes -%}
+          <span class="ecru-fid-hero__ligne{% if forloop.index > 1 %} ecru-fid-hero__ligne--creuse{% endif %}">{{ l | escape }}{% unless forloop.last %}.{% endunless %}</span>
+        {%- endfor -%}
+      </h1>
+      <p class="ecru-texte">{{ section.settings.text | escape }}</p>
+      <div class="ecru-actions">
+        <a class="ecru-bouton" href="{{ section.settings.button_link | default: '/products/cartes-sur-mesure?fidelite=1' }}">{{ section.settings.button_label | escape }}</a>
+        {%- if section.settings.button_2_label != blank -%}
+          <a class="ecru-bouton ecru-bouton--ligne" href="{{ section.settings.button_2_link | default: '/pages/mode-emploi' }}">{{ section.settings.button_2_label | escape }}</a>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.note != blank -%}
+        <p class="ecru-fid-hero__note">{{ section.settings.note | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="ecru-fid-hero__visuel" aria-hidden="true">
+      <img class="ecru-fid-hero__carte" src="{{ 'ecru-vue-trois-quarts.webp' | asset_url }}" alt="" width="1600" height="1200" loading="eager" decoding="async">
+      <div class="ecru-apercu__tel ecru-fid-hero__tel">
+        <div class="ecru-apercu__ecran ecru-apercu__ecran--client" data-ecru-fid-demo>
+          <span class="ecru-apercu__logo">{{ section.settings.commerce | escape }}</span>
+          <span class="ecru-apercu__petit">Content de vous revoir.</span>
+          <span class="ecru-apercu__compte"><b data-ecru-fid-n>6</b> / 10</span>
+          <span class="ecru-apercu__tampons">
+            {%- for i in (1..10) -%}<i{% if i <= 6 %} class="is-plein"{% endif %}></i>{%- endfor -%}
+          </span>
+          <span class="ecru-apercu__offre" data-ecru-fid-msg>Plus que 4 visites : {{ section.settings.recompense | escape }}.</span>
+          <span class="ecru-apercu__lien">Prendre rendez-vous</span>
+          <span class="ecru-apercu__lien">Laisser un avis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var ecran = document.querySelector('[data-ecru-fid-demo]');
+    if (!ecran || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var tampons = ecran.querySelectorAll('.ecru-apercu__tampons i');
+    var n = ecran.querySelector('[data-ecru-fid-n]');
+    var msg = ecran.querySelector('[data-ecru-fid-msg]');
+    var recompense = {{ section.settings.recompense | json }};
+    var compte = 6;
+    function afficher() {
+      tampons.forEach(function (t, i) {
+        t.classList.toggle('is-plein', i < compte);
+        t.classList.toggle('is-nouveau', i === compte - 1);
+      });
+      n.textContent = compte;
+      var reste = 10 - compte;
+      msg.textContent = reste ? 'Plus que ' + reste + (reste > 1 ? ' visites : ' : ' visite : ') + recompense + '.' : 'Récompense disponible : ' + recompense + '.';
+      ecran.classList.toggle('is-recompense', !reste);
+    }
+    setInterval(function () {
+      compte = compte >= 10 ? 1 : compte + 1;
+      afficher();
+    }, 2200);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Fidélité : ouverture",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre (deux phrases)", "default": "Ils reviennent. Naturellement." },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Ajouter l’option à ma carte" },
+    { "type": "url", "id": "button_link", "label": "Lien du bouton" },
+    { "type": "text", "id": "button_2_label", "label": "Second bouton", "default": "Lire le mode d’emploi" },
+    { "type": "url", "id": "button_2_link", "label": "Lien du second bouton" },
+    { "type": "text", "id": "note", "label": "Note sous les boutons" },
+    { "type": "text", "id": "commerce", "label": "Nom du commerce (exemple)", "default": "Maison Lune" },
+    { "type": "text", "id": "recompense", "label": "Récompense (exemple)", "default": "le dessert offert" },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "presets": [{ "name": "Fidélité : ouverture" }]
+}
+{% endschema %}

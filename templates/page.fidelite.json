@@ -1,0 +1,188 @@
+{
+  "sections": {
+    "hero": {
+      "type": "ecru-fidelite-hero",
+      "settings": {
+        "heading": "Ils reviennent. Naturellement.",
+        "text": "L’option fidélité transforme vos cartes sur mesure en programme de fidélité. Le client approche sa carte de son téléphone et voit sa récompense approcher. Vous validez son passage en scannant la même carte. Sans application, sans carte en papier.",
+        "button_label": "Ajouter l’option à ma carte",
+        "button_link": "/products/cartes-sur-mesure?fidelite=1",
+        "button_2_label": "Lire le mode d’emploi",
+        "button_2_link": "/pages/mode-emploi",
+        "note": "29 € par mois · sans engagement · résiliable à tout moment",
+        "commerce": "Maison Lune",
+        "recompense": "le dessert offert"
+      }
+    },
+    "etapes": {
+      "type": "ecru-etapes",
+      "settings": {
+        "eyebrow": "",
+        "heading": "Trois gestes. Rien à installer.",
+        "surface": true
+      },
+      "blocks": {
+        "e1": {
+          "type": "etape",
+          "settings": {
+            "title": "Le client scanne",
+            "text": "Il approche sa carte de son téléphone. Sa page s’ouvre : son nombre de passages, sa récompense, vos liens."
+          }
+        },
+        "e2": {
+          "type": "etape",
+          "settings": {
+            "title": "Vous validez",
+            "text": "Vous scannez la même carte avec votre téléphone. Un bouton : le tampon ou les points sont ajoutés."
+          }
+        },
+        "e3": {
+          "type": "etape",
+          "settings": {
+            "title": "Il revient",
+            "text": "Sa récompense approche, il le voit. Et vous suivez chaque mois vos visites et vos clients fidèles."
+          }
+        }
+      },
+      "block_order": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "systemes": {
+      "type": "ecru-fidelite-systemes",
+      "settings": {
+        "heading": "Tampons ou points. Vous choisissez.",
+        "text": "Les récompenses sont les vôtres. Vous les réglez depuis votre téléphone, et vous les changez quand vous voulez : toutes vos cartes suivent aussitôt.",
+        "titre_1": "Tampons",
+        "phrase_1": "Un passage, un tampon. Une récompense au bout.",
+        "points_1": "De 3 à 30 tampons, à vous de voir\nVotre récompense : la coupe, le dessert, le café…\nAprès la récompense, la carte recommence, ou s’arrête",
+        "titre_2": "Points",
+        "phrase_2": "Des points selon le montant, des cadeaux à vos prix.",
+        "points_2": "Les points gagnés par euro dépensé\nJusqu’à six cadeaux, chacun à son prix en points\nLe client choisit quand il en a assez",
+        "prix": "29 € par mois",
+        "prix_note": "Sans engagement · en plus des cartes sur mesure (dès 3,50 € la carte)",
+        "inclus": "La page de vos clients, à votre logo et à votre couleur\nVotre espace sur téléphone, pour vous et votre équipe\nVos liens : rendez-vous, avis, réseaux, menu\nLe suivi du mois : visites, clients venus, clients revenus",
+        "button_label": "Composer ma carte avec l’option",
+        "button_link": "/products/cartes-sur-mesure?fidelite=1"
+      }
+    },
+    "apercu": {
+      "type": "ecru-fidelite-apercu",
+      "settings": {
+        "partout": true,
+        "eyebrow": "",
+        "heading": "Une carte, deux regards."
+      }
+    },
+    "croissance": {
+      "type": "ecru-croissance",
+      "settings": {
+        "button_link": "/products/cartes-sur-mesure?fidelite=1"
+      },
+      "blocks": {
+        "e1": {
+          "type": "etude",
+          "settings": {
+            "chiffre": "+25 à 95 %",
+            "texte": "de bénéfices quand la fidélisation des clients augmente de 5 %.",
+            "source": "Frederick F. Reichheld, Bain & Company"
+          }
+        },
+        "e2": {
+          "type": "etude",
+          "settings": {
+            "chiffre": "60 à 70 %",
+            "texte": "de chances de vendre à un client déjà venu, contre 5 à 20 % pour un nouveau.",
+            "source": "Farris, Bendle, Pfeifer, Reibstein, « Marketing Metrics »"
+          }
+        }
+      },
+      "block_order": [
+        "e1",
+        "e2"
+      ]
+    },
+    "faq": {
+      "type": "ecru-faq",
+      "settings": {
+        "eyebrow": "",
+        "heading": "Vos questions.",
+        "contact_label": "Une autre question"
+      },
+      "blocks": {
+        "f1": {
+          "type": "question",
+          "settings": {
+            "question": "Qui choisit les récompenses ?",
+            "answer": "<p>Vous. Depuis votre espace, vous choisissez tampons ou points, vos récompenses et leur prix. Vous les changez quand vous voulez, et toutes vos cartes suivent aussitôt.</p>"
+          }
+        },
+        "f2": {
+          "type": "question",
+          "settings": {
+            "question": "Mes clients peuvent-ils s’ajouter des tampons ?",
+            "answer": "<p>Non. Seul un téléphone connecté à votre espace peut ajouter des tampons ou des points. Le client, lui, voit seulement où il en est.</p>"
+          }
+        },
+        "f3": {
+          "type": "question",
+          "settings": {
+            "question": "Faut-il une application ou une tablette ?",
+            "answer": "<p>Non. Votre téléphone suffit : vous ouvrez une fois votre lien de connexion, et il reste connecté. Vos collègues peuvent faire de même sur le leur.</p>"
+          }
+        },
+        "f4": {
+          "type": "question",
+          "settings": {
+            "question": "Puis-je ajouter l’option à des cartes simples ?",
+            "answer": "<p>L’option fidélité s’ajoute aux cartes sur mesure : chaque carte reçoit une adresse unique, propre à un client, et porte votre logo.</p>"
+          }
+        },
+        "q9": {
+          "type": "question",
+          "settings": {
+            "question": "Comment résilier l'abonnement Fidélité ?",
+            "answer": "<p>Depuis votre <a href=\"/account\">compte client</a>, rubrique Abonnements, quand vous voulez. Une fois l'abonnement arrêté, vos cartes n'ouvrent plus votre page : elles affichent « Ce programme n'est plus actif ».</p>"
+          }
+        },
+        "f5": {
+          "type": "question",
+          "settings": {
+            "question": "Comment ça se passe au quotidien ?",
+            "answer": "<p>Tout est expliqué dans le <a href=\"/pages/mode-emploi\">mode d’emploi</a> : la connexion, les réglages, la validation en caisse.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "f1",
+        "f2",
+        "f3",
+        "f4",
+        "q9",
+        "f5"
+      ]
+    },
+    "appel": {
+      "type": "ecru-appel",
+      "settings": {
+        "eyebrow": "Option fidélité",
+        "heading": "Faites-les revenir.",
+        "button_label": "Composer ma carte avec l’option",
+        "button_link": "/products/cartes-sur-mesure?fidelite=1",
+        "button_2_label": "Demander un devis",
+        "button_2_link": "/pages/demande-particuliere"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "etapes",
+    "systemes",
+    "apercu",
+    "croissance",
+    "faq",
+    "appel"
+  ]
+}

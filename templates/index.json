@@ -96,8 +96,8 @@
             "price_text": "+ 29 € / mois",
             "price_note": "Sans engagement · résiliable à tout moment",
             "features": "Tampons ou points, au choix\nVos récompenses, vos cadeaux, vos prix\nLe client voit sa progression d’un geste\nVous validez en scannant sa carte",
-            "button_label": "Ajouter à ma carte",
-            "link": "/products/cartes-sur-mesure?fidelite=1",
+            "button_label": "Découvrir l’option",
+            "link": "/pages/fidelite",
             "highlight": true
           }
         }

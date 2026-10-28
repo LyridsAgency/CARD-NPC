@@ -1,0 +1,93 @@
+{%- comment -%}
+  ECRU — Page Fidélité : tampons ou points (le commerçant choisit), puis ce qui est compris et le prix.
+{%- endcomment -%}
+<section
+  class="ecru-section ecru-fid-systemes{% if section.settings.surface %} ecru-section--surface{% endif %}"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete">
+      <h2 id="titre-{{ section.id }}" class="ecru-titre ecru-reveal">{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="ecru-texte ecru-reveal">{{ section.settings.text | escape }}</p>
+      {%- endif -%}
+    </header>
+
+    <div class="ecru-fid-systemes__duo">
+      {%- for i in (1..2) -%}
+        {%- liquid
+          if i == 1
+            assign titre = section.settings.titre_1
+            assign phrase = section.settings.phrase_1
+            assign points = section.settings.points_1 | newline_to_br | split: '<br />'
+          else
+            assign titre = section.settings.titre_2
+            assign phrase = section.settings.phrase_2
+            assign points = section.settings.points_2 | newline_to_br | split: '<br />'
+          endif
+        -%}
+        <article class="ecru-fid-systeme ecru-reveal" style="--d: {{ i | minus: 1 }}">
+          <div class="ecru-fid-systeme__signe" aria-hidden="true">
+            {%- if i == 1 -%}
+              {%- for k in (1..10) -%}<i{% if k <= 7 %} class="is-plein"{% endif %}></i>{%- endfor -%}
+            {%- else -%}
+              <b>240</b><span>points</span>
+            {%- endif -%}
+          </div>
+          <h3 class="ecru-titre ecru-titre--m">{{ titre | escape }}</h3>
+          <p class="ecru-texte">{{ phrase | escape }}</p>
+          <ul class="ecru-offre__liste" role="list">
+            {%- for p in points -%}
+              {%- assign pp = p | strip -%}
+              {%- if pp != blank -%}<li>{{ pp | escape }}</li>{%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </article>
+      {%- endfor -%}
+    </div>
+
+    <div class="ecru-fid-prix ecru-reveal">
+      <div class="ecru-fid-prix__montant">
+        <p class="ecru-titre ecru-titre--m">{{ section.settings.prix | escape }}</p>
+        <p class="ecru-fid-prix__note">{{ section.settings.prix_note | escape }}</p>
+      </div>
+      {%- assign inclus = section.settings.inclus | newline_to_br | split: '<br />' -%}
+      <ul class="ecru-offre__liste ecru-fid-prix__liste" role="list">
+        {%- for p in inclus -%}
+          {%- assign pp = p | strip -%}
+          {%- if pp != blank -%}<li>{{ pp | escape }}</li>{%- endif -%}
+        {%- endfor -%}
+      </ul>
+      <div class="ecru-actions">
+        <a class="ecru-bouton" href="{{ section.settings.button_link | default: '/products/cartes-sur-mesure?fidelite=1' }}">{{ section.settings.button_label | escape }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Fidélité : systèmes",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Tampons ou points. Vous choisissez." },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "titre_1", "label": "Système 1", "default": "Tampons" },
+    { "type": "text", "id": "phrase_1", "label": "Phrase 1", "default": "Un passage, un tampon. Une récompense au bout." },
+    { "type": "textarea", "id": "points_1", "label": "Points 1 (un par ligne)" },
+    { "type": "text", "id": "titre_2", "label": "Système 2", "default": "Points" },
+    { "type": "text", "id": "phrase_2", "label": "Phrase 2", "default": "Des points selon le montant, des cadeaux à vos prix." },
+    { "type": "textarea", "id": "points_2", "label": "Points 2 (un par ligne)" },
+    { "type": "text", "id": "prix", "label": "Prix", "default": "29 € par mois" },
+    { "type": "text", "id": "prix_note", "label": "Précision", "default": "Sans engagement · en plus des cartes sur mesure" },
+    { "type": "textarea", "id": "inclus", "label": "Compris (un par ligne)" },
+    { "type": "text", "id": "button_label", "label": "Bouton", "default": "Composer ma carte avec l’option" },
+    { "type": "url", "id": "button_link", "label": "Lien du bouton" },
+    { "type": "checkbox", "id": "surface", "label": "Fond légèrement plus clair", "default": false },
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "presets": [{ "name": "Fidélité : systèmes" }]
+}
+{% endschema %}
