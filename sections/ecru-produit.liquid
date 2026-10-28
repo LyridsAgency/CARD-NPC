@@ -186,6 +186,19 @@
                 {%- endfor -%}
               </div>
 
+              {%- if est_matiere -%}
+                {%- comment -%} Métal : finition satinée ou brossée (même prix), visible seulement si Métal est choisi {%- endcomment -%}
+                <div class="ecru-finition" data-ecru-finition hidden>
+                  <span class="ecru-finition__label">Finition du métal</span>
+                  <div class="ecru-option__choix">
+                    <input type="radio" id="{{ uid }}-fin-satine" name="properties[Finition métal]" value="Satiné" data-ecru-finition-choix="metal" checked disabled>
+                    <label for="{{ uid }}-fin-satine">Satiné</label>
+                    <input type="radio" id="{{ uid }}-fin-brosse" name="properties[Finition métal]" value="Brossé" data-ecru-finition-choix="brosse" disabled>
+                    <label for="{{ uid }}-fin-brosse">Brossé</label>
+                  </div>
+                </div>
+              {%- endif -%}
+
               {%- if est_couleur -%}
                 <p class="ecru-perso__note" data-ecru-note="standard">Carte vierge, sans écriture.</p>
 

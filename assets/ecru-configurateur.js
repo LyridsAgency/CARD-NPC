@@ -143,6 +143,9 @@
         if (v.indexOf('pvc') !== -1) finish = 'mat';
         if (data.couleurs[v]) color = data.couleurs[v];
       });
+      // Métal : satiné ou brossé, au choix
+      var brosse = form.querySelector('[data-ecru-finition-choix="brosse"]');
+      if (finish === 'metal' && brosse && brosse.checked) finish = 'brosse';
       var look = { finish: finish, elements: [] };
       if (modeDe(options) === 'design') {
         color = teintes.fond;
@@ -692,6 +695,17 @@
       if (legende) legende.textContent = sel.filter(Boolean).join(' · ');
       panneaux(modeDe(sel));
       majMoq(sel);
+      // La finition ne concerne que le métal
+      var finition = form.querySelector('[data-ecru-finition]');
+      if (finition) {
+        var estMetal = sel.some(function (o) {
+          return /m[ée]tal/i.test(o || '');
+        });
+        finition.hidden = !estMetal;
+        finition.querySelectorAll('input').forEach(function (r) {
+          r.disabled = !estMetal;
+        });
+      }
       if (!v) {
         bouton.disabled = true;
         bouton.textContent = 'Indisponible';
@@ -906,6 +920,7 @@
     });
 
     form.addEventListener('change', function (e) {
+      if (e.target.dataset.ecruFinitionChoix) rendre(true);
       if (e.target.dataset.position) {
         maj();
         rendre(true);

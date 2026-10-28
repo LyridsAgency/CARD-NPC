@@ -4336,3 +4336,19 @@ body::after {
 .ecru-police--condensee .ecru-police__aa { font-family: 'ECRU Bebas', sans-serif; }
 .ecru-police--geometrique .ecru-police__aa { font-family: 'ECRU Grotesk', sans-serif; font-weight: 500; }
 .ecru-police--signature .ecru-police__aa { font-family: 'ECRU Script', cursive; }
+
+/* Finition du métal : satiné ou brossé */
+.ecru-finition {
+  margin-top: 1.6rem;
+}
+.ecru-finition[hidden] {
+  display: none;
+}
+.ecru-finition__label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+}
