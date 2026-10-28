@@ -646,7 +646,7 @@
     function libererCarte() {
       if (surCarte && modeEdition) edition(false);
       if (carte) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: 'auto' } }));
-      if (typeof marquerVue === 'function') marquerVue('auto');
+      if (typeof marquerVue === 'function') marquerVue('');
     }
     if (fieldsetFid)
       ['pointerdown', 'focusin'].forEach(function (t) {
@@ -1021,6 +1021,11 @@
         }
         if (surCarte && modeEdition) edition(false);
         carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: b.dataset.ecruVue } }));
+        // 360° : un tour puis la carte reste libre ; aucune vue ne reste « choisie »
+        if (b.dataset.ecruVue === 'tour')
+          setTimeout(function () {
+            marquerVue('');
+          }, 1800);
       });
     });
     if (carte)

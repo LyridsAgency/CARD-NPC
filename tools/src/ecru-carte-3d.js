@@ -858,6 +858,13 @@ export async function mount(el) {
   const VUES = { recto: 0, verso: Math.PI, profil: 1.25, 'trois-quarts': -0.6 };
   el.addEventListener('ecru:view', (e) => {
     const v = e.detail && e.detail.view;
+    // « tour » : un tour complet, demandé par le visiteur (joué même avec les animations réduites)
+    if (v === 'tour') {
+      state.view = null;
+      state.tour = { de: state.yaw, t0: t, duree: 1.7 };
+    } else {
+      state.tour = null;
+    }
     state.view = v in VUES ? VUES[v] : null;
     // Un choix de vue l'emporte tout de suite sur l'élan ou la pause d'après un geste
     state.vel = 0;
@@ -920,7 +927,16 @@ export async function mount(el) {
     state.ed += ((state.edition ? 1 : 0) - state.ed) * (1 - Math.exp(-dt * 6));
     state.pitch0 += ((state.edition ? pitchFace : -0.05) - state.pitch0) * (1 - Math.exp(-dt * 6));
     let cibleEdition = 0;
-    if (state.edition) {
+    if (state.tour && !state.edition) {
+      const k = Math.min(1, (t - state.tour.t0) / state.tour.duree);
+      const doux = 1 - Math.pow(1 - k, 3);
+      state.yaw = state.tour.de + doux * Math.PI * 2;
+      state.px = state.py = 0;
+      if (k >= 1) {
+        state.tour = null;
+        state.libreApres = t + 0.6;
+      }
+    } else if (state.edition) {
       const tour = Math.PI * 2;
       const face = state.edition === 'verso' ? Math.PI : 0;
       cibleEdition = face + Math.round((state.yaw - face) / tour) * tour;
