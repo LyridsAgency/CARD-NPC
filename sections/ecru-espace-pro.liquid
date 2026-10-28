@@ -1,0 +1,117 @@
+{%- comment -%}
+  ECRU — Espace pro : le commerçant connecté retrouve sa carte (statut, adresse encodée, aperçu),
+  son abonnement (géré dans le compte client Shopify) et peut demander une modification de sa page.
+  La fiche du commerçant est l'entrée « Commerce ECRU » de handle client-<ID client>.
+{%- endcomment -%}
+{%- liquid
+  assign fiche = nil
+  if customer
+    assign cle = 'client-' | append: customer.id
+    assign fiche = metaobjects.ecru_commerce[cle]
+  endif
+  assign contact = settings.ecru_contact_link | default: '/pages/demande-particuliere'
+-%}
+<section
+  class="ecru-section ecru-pro"
+  style="--pad-top: {{ section.settings.padding_top }}px; --pad-bottom: {{ section.settings.padding_bottom }}px;"
+  aria-labelledby="titre-{{ section.id }}"
+>
+  <div class="ecru-conteneur">
+    <header class="ecru-entete">
+      <p class="ecru-surtitre">Espace pro</p>
+      <h1 id="titre-{{ section.id }}" class="ecru-titre ecru-titre--m">
+        {%- if customer -%}Bonjour {{ customer.first_name | default: customer.name | escape }}.{%- else -%}Votre espace commerçant.{%- endif -%}
+      </h1>
+      {%- unless customer -%}
+        <p class="ecru-texte">Connectez-vous avec l’adresse e-mail utilisée pour votre commande : vous retrouvez votre carte, votre page et votre abonnement.</p>
+        <div class="ecru-actions">
+          <a class="ecru-bouton" href="{{ routes.account_login_url }}">Se connecter</a>
+          <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.all_products_collection_url }}">Découvrir les cartes</a>
+        </div>
+      {%- endunless -%}
+    </header>
+
+    {%- if customer -%}
+      {%- if fiche != blank -%}
+        {%- assign actif = fiche.actif.value -%}
+        {%- capture adresse -%}{{ fiche.adresse_carte.value | default: '' }}{%- endcapture -%}
+        {%- if adresse == blank -%}{%- capture adresse -%}{{ request.origin }}{{ fiche.system.url }}{%- endcapture -%}{%- endif -%}
+        <div class="ecru-pro__grille">
+          <article class="ecru-pro__bloc">
+            <p class="ecru-pro__label">Votre programme</p>
+            <p class="ecru-pro__valeur">{{ fiche.nom.value | escape }}</p>
+            <p class="ecru-pro__statut{% if actif %} is-actif{% endif %}">
+              <i aria-hidden="true"></i>{% if actif %}Actif : vos cartes ouvrent votre page{% else %}Suspendu : vos cartes affichent un message de fin{% endif %}
+            </p>
+            <div class="ecru-actions">
+              <a class="ecru-bouton" href="{{ fiche.system.url }}" target="_blank" rel="noopener">Voir ma page</a>
+            </div>
+          </article>
+
+          <article class="ecru-pro__bloc">
+            <p class="ecru-pro__label">Adresse de vos cartes</p>
+            <p class="ecru-pro__adresse" data-ecru-adresse>{{ adresse | escape }}</p>
+            <p class="ecru-champ__aide">C’est l’adresse écrite dans vos puces NFC. Elle ne change jamais : seule la page derrière évolue.</p>
+            <div class="ecru-actions">
+              <button type="button" class="ecru-bouton ecru-bouton--ligne" data-ecru-copier>Copier l’adresse</button>
+            </div>
+          </article>
+
+          <article class="ecru-pro__bloc">
+            <p class="ecru-pro__label">Votre page</p>
+            <ul class="ecru-pro__liste" role="list">
+              <li><span>Récompense</span><span>{{ fiche.recompense.value | default: '—' | escape }}</span></li>
+              <li><span>Menu</span><span>{% if fiche.lien_menu.value != blank %}Oui{% else %}—{% endif %}</span></li>
+              <li><span>Avis</span><span>{% if fiche.lien_avis.value != blank %}Oui{% else %}—{% endif %}</span></li>
+              <li><span>Réseaux</span><span>{% if fiche.lien_reseaux.value != blank %}Oui{% else %}—{% endif %}</span></li>
+              <li><span>Site</span><span>{% if fiche.lien_site.value != blank %}Oui{% else %}—{% endif %}</span></li>
+            </ul>
+            <div class="ecru-actions">
+              <a class="ecru-bouton ecru-bouton--ligne" href="{{ contact }}?produit={{ 'Modification de ma page — ' | append: fiche.nom.value | url_encode }}">Demander une modification</a>
+            </div>
+          </article>
+
+          <article class="ecru-pro__bloc">
+            <p class="ecru-pro__label">Abonnement et commandes</p>
+            <p class="ecru-texte">Factures, commandes, et gestion de l’abonnement (pause ou résiliation) se trouvent dans votre compte client.</p>
+            <div class="ecru-actions">
+              <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.account_url }}">Mon compte</a>
+            </div>
+          </article>
+        </div>
+      {%- else -%}
+        <div class="ecru-pro__vide">
+          <p class="ecru-texte">Aucune carte Fidélité n’est encore liée à votre compte. Votre espace se remplit après votre première commande Fidélité.</p>
+          <div class="ecru-actions">
+            <a class="ecru-bouton" href="{{ routes.root_url }}products/carte-fidelite">Créer mes cartes Fidélité</a>
+            <a class="ecru-bouton ecru-bouton--ligne" href="{{ routes.account_url }}">Mon compte</a>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('[data-ecru-copier]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = document.querySelector('[data-ecru-adresse]');
+      if (!t || !navigator.clipboard) return;
+      navigator.clipboard.writeText(t.textContent.trim()).then(function () {
+        b.textContent = 'Adresse copiée';
+      });
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Espace pro ECRU",
+  "tag": "div",
+  "settings": [
+    { "type": "range", "id": "padding_top", "label": "Marge haute", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge basse", "min": 0, "max": 160, "step": 8, "unit": "px", "default": 96 }
+  ],
+  "presets": [{ "name": "Espace pro ECRU" }]
+}
+{% endschema %}

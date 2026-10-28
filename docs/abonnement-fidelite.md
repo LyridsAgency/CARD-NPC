@@ -20,7 +20,8 @@
     "fields": [
       { "key": "nom", "value": "{{subscriptionContract.customer.displayName}}" },
       { "key": "actif", "value": "true" },
-      { "key": "client_id", "value": "{{subscriptionContract.customer.id}}" }
+      { "key": "client_id", "value": "{{subscriptionContract.customer.id}}" },
+      { "key": "adresse_carte", "value": "https://VOTRE-DOMAINE/pages/carte/client-{{subscriptionContract.customer.legacyResourceId}}" }
     ]
   }
 }
@@ -32,6 +33,13 @@
 3. Branche « vrai » : **Send Admin API request** → `metaobjectUpsert` avec `{ "key": "actif", "value": "true" }`.
 4. Branche « faux » : même action avec `{ "key": "actif", "value": "false" }`.
    (Même `handle` que ci-dessus, sans le champ `nom` pour ne pas écraser le nom du commerce.)
+
+Remplacer `VOTRE-DOMAINE` par le domaine définitif (ex. `ecru.fr`), jamais par l'adresse en `.myshopify.com`.
+
+## Espace pro
+- Page `/pages/espace-pro` (lien dans le pied de page) : le commerçant se connecte avec l'e-mail de sa commande.
+- Il voit le statut de son programme, l'adresse de ses cartes, sa page, et accède à son compte (factures, pause, résiliation).
+- Les modifications de page passent par « Demander une modification » (formulaire), puis on met à jour sa fiche Commerce ECRU.
 
 ## À la réception d'une commande Fidélité
 - Compléter l'entrée `client-<ID>` : logo (fourni à la commande, propriété « Logo »), couleur, récompense, liens.
