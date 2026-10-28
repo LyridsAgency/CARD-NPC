@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS reglages (
   apres TEXT,                         -- recommence | termine
   taux REAL,                          -- points par euro
   cadeaux TEXT,                       -- JSON [{"nom":…,"points":…}]
-  couleur TEXT,                       -- couleur de la page (#rrggbb), choisie par le commerçant
   modifie TEXT NOT NULL
 );
 

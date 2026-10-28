@@ -218,14 +218,6 @@ test('tableau de bord : statistiques et réglages de la récompense', async () =
   const client = await (await appel(`/c/${codes[2]}`)).text();
   assert.match(client, /<span>\/ 8<\/span>/);
 
-  // Le patron choisit la couleur de sa page : une couleur du nuancier, puis une couleur libre
-  await appel('/pro/reglages', { method: 'POST', cookie, origin: BASE, body: form({ seuil: 8, recompense: 'Un café offert', couleur: '#1f3a2e' }) });
-  assert.match(await (await appel(`/c/${codes[2]}`)).text(), /background:#1f3a2e/);
-  await appel('/pro/reglages', { method: 'POST', cookie, origin: BASE, body: form({ seuil: 8, recompense: 'Un café offert', couleur: 'libre', couleur_libre: '#F2C94C' }) });
-  assert.match(await (await appel(`/c/${codes[2]}`)).text(), /background:#f2c94c;color:#121211/);
-  // Valeur invalide : la couleur précédente est gardée
-  await appel('/pro/reglages', { method: 'POST', cookie, origin: BASE, body: form({ seuil: 8, recompense: 'Un café offert', couleur: 'red;}' }) });
-  assert.match(await (await appel(`/c/${codes[2]}`)).text(), /background:#f2c94c/);
 });
 
 test('tableau de bord sans connexion : refusé', async () => {

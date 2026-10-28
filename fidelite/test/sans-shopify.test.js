@@ -105,3 +105,24 @@ test('la page prend la couleur du commerce, texte lisible (crème sur foncé, no
   assert.match(page2, /background:#e9e4d8/);
   assert.match(page2, /\.tampons li\.plein\{background:#121211/);
 });
+
+test('le patron choisit la couleur de sa page depuis son espace', async () => {
+  await enregistrer({ commerce: 'cafe', nom: 'Café', couleur: '#0d0d0c', actif: 1 });
+  const code = (await (await appel('/admin/cartes', { method: 'POST', body: form({ jeton: 'admin-test', commerce: 'cafe', nombre: 1 }) })).text()).trim().split('\n')[1].split(',')[1];
+  const r = await appel('/admin/acces', { method: 'POST', body: form({ jeton: 'admin-test', commerce: 'cafe' }) });
+  const lien = (await r.text()).match(/\/pro\/connexion\?commerce=[^<"\s]+/)[0].replace(/&amp;/g, '&');
+  const cookie = (await appel(lien)).headers.get('Set-Cookie').split(';')[0];
+  const reglages = (champs) => appel('/pro/reglages', { method: 'POST', body: form({ seuil: 10, recompense: 'Un café', ...champs }), headers: { cookie, origin: BASE } });
+  // Une couleur du nuancier
+  await reglages({ couleur: '#1f3a2e' });
+  assert.match(await (await appel(`/c/${code}`)).text(), /background:#1f3a2e/);
+  // Une couleur libre, claire : le texte passe en noir
+  await reglages({ couleur: 'libre', couleur_libre: '#F2C94C' });
+  assert.match(await (await appel(`/c/${code}`)).text(), /background:#f2c94c;color:#121211/);
+  // Valeur invalide : la couleur précédente est gardée
+  await reglages({ couleur: 'red;}' });
+  assert.match(await (await appel(`/c/${code}`)).text(), /background:#f2c94c/);
+  // Le tableau de bord montre le nuancier, la couleur en cours cochée
+  const tableau = await (await appel('/pro', { headers: { cookie } })).text();
+  assert.match(tableau, /Couleur de votre page/);
+});
