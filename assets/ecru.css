@@ -4283,3 +4283,9 @@ body::after {
     transition: none;
   }
 }
+.ecru-produit__vue[data-ecru-vue='profil'] img {
+  transform: scale(2.6);
+}
+.ecru-produit__vue[data-ecru-vue='profil']:hover img {
+  transform: scale(2.8);
+}

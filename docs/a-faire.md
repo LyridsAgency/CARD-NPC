@@ -1,13 +1,19 @@
 # Ce qu'il reste à faire (ECRU)
 
 ## Avant d'ouvrir la boutique
-1. **Devise en EUR** et fuseau Europe/Paris — Paramètres → Général.
+1. **Devise en EUR** et fuseau Europe/Paris — Paramètres → Général. Format des prix : Paramètres → Marchés
+   (ou Général → Devise → Modifier le format) : `{{amount_with_comma_separator}} €` pour afficher « 2,50 € »
+   partout (certaines pages affichent encore « €2,50 »).
 2. **Nom de la boutique** « ECRU » — Paramètres → Général.
 3. **Nom de domaine** (ex. ecru.fr) — Paramètres → Domaines. Indispensable avant d'encoder des cartes.
 4. **Forfait Shopify** (Basic) — nécessaire pour retirer le mot de passe et encaisser.
 5. **Paiements** : activer Shopify Payments — Paramètres → Paiements.
 6. **Livraison** : zones et tarifs — Paramètres → Expédition et livraison.
-7. **Pages légales** : CGV, remboursement, expédition — Paramètres → Politiques.
+7. **Pages légales** : CGV, remboursement, expédition, mentions légales (nom, adresse, SIRET) —
+   Paramètres → Politiques. Shopify propose des modèles à compléter.
+7b. **Cookies** : Paramètres → Confidentialité des clients → Bannière de cookies : activer les régions
+   (Union européenne, Royaume-Uni), puis « Plus d'actions → Retirer la bannière » pour utiliser celle d'ECRU,
+   assortie au site. Sans cela, c'est la bannière de Shopify qui s'affiche (la nôtre s'efface alors).
 8. **Abonnement Fidélité** : dans Subscriptions, créer le plan mensuel (sans remise) avec le produit
    « Abonnement Fidélité » (29 €).
 9. **Vérifier les prix** : simple PVC 2,50 € / métal 9,90 € ; sur mesure PVC 3,50 € / métal 12,90 € ;
