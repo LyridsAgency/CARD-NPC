@@ -1504,8 +1504,8 @@
         "type": "textarea",
         "id": "ecru_moq",
         "label": "Minimum de commande (MOQ) par option",
-        "default": "Noir: 10\nBlanc: 10\nSur mesure: 100",
-        "info": "Une option par ligne, au format « Option: quantité » (ex. Noir, Blanc, Sur mesure, PVC, Métal). Le plus grand minimum des options choisies s'applique."
+        "default": "Noir: 10\nBlanc: 10\nSur mesure: 100\nFidélité: 100",
+        "info": "Une option par ligne, au format « Option: quantité » (ex. Noir, Blanc, Sur mesure, PVC, Métal). « Fidélité » s'applique aux produits qui portent le tag fidelite. Le plus grand minimum des options choisies s'applique."
       },
       {
         "type": "text",

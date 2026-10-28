@@ -28,6 +28,20 @@
       endif
     endfor
   endfor
+  assign est_fidelite = false
+  if product.tags contains 'fidelite'
+    assign est_fidelite = true
+  endif
+  comment
+    MOQ propre au produit : ligne « Fidélité: 100 » (accents ignorés) pour les produits taggés fidelite
+  endcomment
+  assign moq_produit = 0
+  for l in lignes_moq
+    assign k = l | split: ':' | first | strip | downcase | replace: 'é', 'e'
+    if k != blank and product.tags contains k
+      assign moq_produit = l | split: ':' | last | strip | plus: 0
+    endif
+  endfor
   assign ink = '#e9e4d8'
   assign c = color | color_brightness
   if c > 150
@@ -67,6 +81,9 @@
 
       <div class="ecru-produit__prix">
         {%- render 'price', product: product, use_variant: true -%}
+        {%- unless settings.ecru_prix_a_definir -%}
+          <span class="ecru-produit__unite">la carte</span>
+        {%- endunless -%}
       </div>
 
       {%- form 'product', product, id: 'form-produit', class: 'ecru-produit__form', novalidate: 'novalidate', data-ecru-form: '' -%}
@@ -210,7 +227,7 @@
                 </div>
               {%- endif -%}
 
-              {%- if forloop.last -%}
+              {%- if forloop.last and est_fidelite == false -%}
                 <p class="ecru-option__aide">
                   Minimum de commande :
                   <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
@@ -219,6 +236,56 @@
             </fieldset>
           {%- endfor -%}
         {%- endunless -%}
+
+        {%- if est_fidelite -%}
+          {%- assign etape = etape | plus: 1 -%}
+          <fieldset class="ecru-option ecru-option--fidelite">
+            <legend>
+              <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
+              Votre carte
+            </legend>
+            <p class="ecru-perso__note">La même base élégante pour tous : vous choisissez la couleur, nous y posons votre logo.</p>
+            <div class="ecru-panneau ecru-createur" data-ecru-panneau="fidelite">
+              <div class="ecru-editeur is-fixe" data-ecru-editeur aria-label="Aperçu de votre carte de fidélité" role="img">
+                <div class="ecru-editeur__symbole" aria-hidden="true"></div>
+                <div class="ecru-editeur__nfc" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 7a7 7 0 0 1 0 10M11.5 4.5a11 11 0 0 1 0 15M4.5 9.5a3.5 3.5 0 0 1 0 5"/></svg></div>
+              </div>
+              <div class="ecru-createur__ligne">
+                <span class="ecru-createur__label">Couleur</span>
+                {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
+              </div>
+              <div class="ecru-createur__ligne">
+                <span class="ecru-createur__label">Logo</span>
+                <input
+                  id="{{ uid }}-logo"
+                  class="ecru-outil__fichier"
+                  type="file"
+                  name="properties[Logo]"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  data-ecru-fichier
+                >
+                <label for="{{ uid }}-logo" class="ecru-outil">Ajouter</label>
+                <span class="ecru-fichier__nom" data-ecru-fichier-nom></span>
+                <button type="button" class="ecru-outil ecru-outil--discret" data-ecru-logo-retirer hidden>Retirer</button>
+              </div>
+              <p class="ecru-champ__aide">PNG ou SVG transparent de préférence. Pas de logo sous la main ? Envoyez-le après la commande, nous vous écrivons.</p>
+              <input type="hidden" name="properties[Couleur]" value="#0d0d0c" data-ecru-champ="fond">
+              <input type="hidden" name="properties[Maquette]" value="" data-ecru-maquette>
+              <input type="hidden" name="properties[_maquette]" value="" data-ecru-maquette-json>
+            </div>
+            {%- if section.settings.abonnement != blank -%}
+              {%- assign abo = section.settings.abonnement -%}
+              <p class="ecru-abonnement">
+                <span>Programme de fidélité</span>
+                <strong>{{ abo.price | money }} / mois</strong>
+              </p>
+            {%- endif -%}
+            <p class="ecru-option__aide">
+              Minimum de commande :
+              <strong data-ecru-moq>{{ moq_texte | escape }}</strong>
+            </p>
+          </fieldset>
+        {%- endif -%}
 
         {%- if section.settings.show_perso and product.tags contains 'simple' -%}
           {%- assign etape = etape | plus: 1 -%}
@@ -267,6 +334,9 @@
         <a class="ecru-bouton ecru-bouton--ligne ecru-produit__contact" href="{{ contact }}?produit={{ product.title | url_encode }}">
           {{- section.settings.contact_label | escape -}}
         </a>
+        {%- unless settings.ecru_prix_a_definir -%}
+          <p class="ecru-produit__total" aria-live="polite" data-ecru-total></p>
+        {%- endunless -%}
         <p class="ecru-produit__erreur" role="status" aria-live="polite" data-ecru-statut></p>
         <ul class="ecru-produit__rassurance" role="list">
           <li>Aperçu 3D avant de commander</li>
@@ -333,6 +403,14 @@
         {%- endfor -%}
       },
       "moqTexte": {{ moq_texte | json }},
+      "moqProduit": {{ moq_produit }},
+      "devise": {{ cart.currency.iso_code | json }},
+      "fidelite": {{ est_fidelite }},
+      {%- if est_fidelite and section.settings.abonnement != blank -%}
+        {%- assign abo = section.settings.abonnement -%}
+        {%- assign plan = abo.selling_plan_groups.first.selling_plans.first -%}
+        "abonnement": { "id": {{ abo.selected_or_first_available_variant.id }}, "plan": {{ plan.id | default: 'null' }} },
+      {%- endif -%}
       "ajout": {{ section.settings.add_label | json }}
     }
   </script>
@@ -347,6 +425,7 @@
   "class": "section-ecru-produit",
   "settings": [
     { "type": "header", "content": "Commande" },
+    { "type": "product", "id": "abonnement", "label": "Produit d'abonnement (offre Fidélité)", "info": "Ajouté au panier avec les cartes Fidélité, avec sa formule mensuelle (Shopify Subscriptions)." },
     { "type": "checkbox", "id": "show_perso", "label": "Demander le lien (produits avec le tag « simple »)", "default": true },
     { "type": "text", "id": "add_label", "label": "Ajouter au panier", "default": "Ajouter au panier" },
     { "type": "text", "id": "contact_label", "label": "Demande particulière", "default": "Demande particulière" },

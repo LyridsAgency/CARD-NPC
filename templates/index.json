@@ -70,8 +70,8 @@
             "title": "Fidélité",
             "badge": "Le programme complet",
             "text": "La carte et tout ce qui la fait vivre : programme de fidélité, récompenses, suivi.",
-            "price_note": "Cartes + abonnement mensuel",
-            "features": "Cartes au nom de vos clients\nProgramme de fidélité clé en main\nRécompenses modifiables à tout moment\nRapport chaque mois\nSans application",
+            "price_note": "+ abonnement au programme, 29 € / mois",
+            "features": "Cartes à votre logo et vos couleurs\nProgramme de fidélité clé en main\nRécompenses modifiables à tout moment\nRapport chaque mois\nSans application",
             "button_label": "Choisir Fidélité",
             "highlight": true,
             "product": "carte-fidelite"
@@ -141,14 +141,14 @@
           "type": "question",
           "settings": {
             "question": "Y a-t-il un minimum de commande ?",
-            "answer": "<p>10 cartes pour le noir et le blanc, vierges. 100 cartes pour le sur mesure.</p>"
+            "answer": "<p>10 cartes pour le noir et le blanc, vierges. 100 cartes pour le sur mesure et pour l'offre Fidélité.</p>"
           }
         },
         "q7": {
           "type": "question",
           "settings": {
             "question": "Quelle différence entre Fidélité et Cartes simples ?",
-            "answer": "<p>Fidélité, c'est le programme complet : cartes, récompenses, suivi et rapport mensuel, avec un abonnement. Cartes simples, c'est une carte qui ouvre le lien de votre choix.</p>"
+            "answer": "<p>Fidélité, c'est le programme complet : des cartes à votre logo et à vos couleurs, les récompenses, le suivi et un rapport chaque mois, avec un abonnement mensuel. Cartes simples, c'est une carte qui ouvre le lien de votre choix.</p>"
           }
         },
         "q8": {

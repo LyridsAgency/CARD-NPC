@@ -2,7 +2,9 @@
   "sections": {
     "main": {
       "type": "ecru-produit",
-      "settings": {},
+      "settings": {
+        "abonnement": "abonnement-fidelite"
+      },
       "blocks": {},
       "block_order": []
     }

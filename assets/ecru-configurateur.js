@@ -88,6 +88,14 @@
     var fichier = form.querySelector('[data-ecru-fichier]');
     var logoRetirer = form.querySelector('[data-ecru-logo-retirer]');
     var elements = [{ id: 'nom', t: 'text', v: champNom ? champNom.value : '', x: 0.66, y: 0.62, s: 0.09, f: 'display', a: 'center' }];
+    // Fidélité : une base commune, seuls la couleur et le logo changent
+    var BASE_FIDELITE = [
+      { id: 'nom', t: 'text', v: 'Votre logo', x: 0.66, y: 0.45, s: 0.075, f: 'display', a: 'center', provisoire: true },
+      { id: 'texte1', t: 'text', v: 'Carte de fidélité', x: 0.95, y: 0.88, s: 0.04, f: 'body', a: 'right' },
+    ];
+    if (data.fidelite) elements = BASE_FIDELITE.map(function (e) {
+      return Object.assign({}, e);
+    });
     // Deux faces : « elements » est toujours la face en cours d'édition
     var face = 'recto';
     var faces = { recto: elements, verso: [] };
@@ -99,6 +107,7 @@
     var modeleApplique = false;
 
     function modeDe(options) {
+      if (data.fidelite) return 'fidelite';
       var m = 'standard';
       options.forEach(function (o) {
         var v = bas(o);
@@ -129,7 +138,14 @@
         if (data.couleurs[v]) color = data.couleurs[v];
       });
       var look = { finish: finish, elements: [] };
-      if (modeDe(options) === 'design') {
+      if (modeDe(options) === 'fidelite') {
+        color = teintes.fond;
+        look.ink = inkPour(color);
+        look.verso = [];
+        look.elements = visibles('recto').map(function (e) {
+          return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: e.a || 'center', k: e.k };
+        });
+      } else if (modeDe(options) === 'design') {
         color = teintes.fond;
         look.ink = teintes.relief;
         var pourLa3d = function (e) {
@@ -171,7 +187,7 @@
     function dessinerEditeur() {
       if (!editeur) return;
       editeur.style.setProperty('--fond', teintes.fond);
-      editeur.style.setProperty('--marquage', teintes.relief);
+      editeur.style.setProperty('--marquage', data.fidelite ? inkPour(teintes.fond) : teintes.relief);
       var vis = visibles();
       editeur.querySelectorAll('[data-el]').forEach(function (n) {
         if (!vis.some((e) => e.id === n.dataset.el)) n.remove();
@@ -243,7 +259,13 @@
         return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3), f: e.f, a: e.a };
       };
       var verso = visibles('verso');
-      lisible.value = 'Recto : ' + (visibles('recto').map(resume).join(' ; ') || 'vierge') + (verso.length ? ' | Verso : ' + verso.map(resume).join(' ; ') : '');
+      lisible.value = data.fidelite
+        ? 'Base Fidélité, couleur ' + teintes.fond.toUpperCase() + (liste('recto').some(function (e) {
+            return e.t === 'logo';
+          })
+            ? ', logo joint'
+            : ', logo à fournir')
+        : 'Recto : ' + (visibles('recto').map(resume).join(' ; ') || 'vierge') + (verso.length ? ' | Verso : ' + verso.map(resume).join(' ; ') : '');
       brut.value = JSON.stringify({ recto: visibles('recto').map(brutDe), verso: verso.map(brutDe) });
     }
 
@@ -316,6 +338,9 @@
       faces.recto = sansLogo(liste('recto'));
       faces.verso = sansLogo(liste('verso'));
       elements = faces[face];
+      if (data.fidelite && !elements.some(function (e) {
+        return e.provisoire;
+      })) elements.unshift(Object.assign({}, BASE_FIDELITE[0]));
       if (fichier) fichier.value = '';
       form.querySelector('[data-ecru-fichier-nom]').textContent = '';
       if (logoRetirer) logoRetirer.hidden = true;
@@ -324,7 +349,7 @@
       rendre(false);
     }
 
-    if (editeur) {
+    if (editeur && champNom) {
       champNom.addEventListener('input', function () {
         var e = element(selection);
         if (!e || e.t !== 'text') {
@@ -341,6 +366,8 @@
         dessinerEditeur();
         rendreBientot();
       });
+    }
+    if (editeur && champTaille) {
       champTaille.addEventListener('input', function () {
         var e = element(selection);
         if (!e) return;
@@ -348,6 +375,8 @@
         dessinerEditeur();
         rendreBientot();
       });
+    }
+    if (editeur) {
       editeur.addEventListener('pointerdown', function (ev) {
         if (ev.target === editeur) selectionner(null);
       });
@@ -365,7 +394,14 @@
         if (logoRetirer) logoRetirer.hidden = false;
         masquerLogo(URL.createObjectURL(f)).then(function (m) {
           if (!m) return;
-          elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.66, y: 0.36, s: 0.26 });
+          if (data.fidelite) {
+            elements = elements.filter(function (e) {
+              return !e.provisoire;
+            });
+            elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.66, y: 0.45, s: 0.36 });
+          } else {
+            elements.push({ id: 'logo', t: 'logo', u: m.url, ratio: m.ratio, x: 0.66, y: 0.36, s: 0.26 });
+          }
           selectionner('logo');
           rendre(true);
         });
@@ -394,6 +430,10 @@
     function majMoq(options) {
       minimum = 1;
       var defini = false;
+      if (data.moqProduit > 0) {
+        minimum = data.moqProduit;
+        defini = true;
+      }
       options.forEach(function (o) {
         var q = data.moq[bas(o)];
         if (q > 0) {
@@ -405,6 +445,20 @@
       quantite.min = minimum;
       if ((parseInt(quantite.value, 10) || 0) < minimum) quantite.value = minimum;
     }
+
+    // Total : prix de la carte × quantité (+ abonnement mensuel pour l'offre Fidélité)
+    var totalEl = form.querySelector('[data-ecru-total]');
+    var argent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: data.devise || 'EUR' });
+    function majTotal() {
+      if (!totalEl) return;
+      var v = variants.find(function (x) {
+        return String(x.id) === String(input.value);
+      });
+      if (!v) return;
+      var q = parseInt(quantite.value, 10) || 0;
+      totalEl.textContent = 'Total : ' + argent.format((v.price * q) / 100) + ' pour ' + q + ' cartes';
+    }
+    quantite.addEventListener('input', majTotal);
 
     function maj() {
       var sel = choix();
@@ -439,6 +493,7 @@
         return;
       }
       input.value = v.id;
+      majTotal();
       bouton.disabled = !v.available;
       bouton.textContent = v.available ? data.ajout : 'Indisponible';
       statut.textContent = '';
@@ -562,6 +617,7 @@
     form.querySelectorAll('[data-ecru-qte]').forEach(function (b) {
       b.addEventListener('click', function () {
         quantite.value = Math.max(minimum, (parseInt(quantite.value, 10) || minimum) + parseInt(b.dataset.ecruQte, 10));
+        majTotal();
       });
     });
     form.addEventListener('submit', function (e) {
@@ -569,7 +625,31 @@
         e.preventDefault();
         quantite.value = minimum;
         statut.textContent = 'Minimum de commande : ' + minimum + ' cartes.';
+        return;
       }
+      // Fidélité : les cartes et l'abonnement mensuel partent ensemble au panier
+      var abo = data.abonnement;
+      if (!abo || !abo.plan || !window.fetch) return;
+      e.preventDefault();
+      bouton.disabled = true;
+      var racine = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
+      fetch(racine + 'cart/add.js', { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+        .then(function (r) {
+          if (!r.ok) throw r;
+          return fetch(racine + 'cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ items: [{ id: abo.id, quantity: 1, selling_plan: abo.plan }] }),
+          });
+        })
+        .then(function (r) {
+          if (!r.ok) throw r;
+          window.location.href = racine + 'cart';
+        })
+        .catch(function () {
+          bouton.disabled = false;
+          statut.textContent = 'L’ajout au panier n’a pas abouti. Réessayez.';
+        });
     });
 
     // ---------- Retourner la carte ----------

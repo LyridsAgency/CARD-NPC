@@ -44,7 +44,7 @@
               {%- if settings.ecru_prix_a_definir or produit == blank -%}
                 {{ settings.ecru_prix_texte | default: '[Prix à définir]' | escape }}
               {%- else -%}
-                {{ produit.price | money }}
+                Dès {{ produit.price_min | money }} <span class="ecru-prix__unite">la carte</span>
               {%- endif -%}
             </span>
             {%- if block.settings.price_note != blank -%}
