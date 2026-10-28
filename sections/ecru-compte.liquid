@@ -1,6 +1,8 @@
 {%- comment -%}
   ECRU — Page « Votre compte » : deux portes, le client (commandes, comptes clients Shopify) et le commerçant
   (espace pro de l'option fidélité). La connexion client se fait par un code reçu par e-mail : pas de mot de passe.
+  Connecté : « Vos cartes » liste les cartes déjà commandées. « Recommander » rouvre la fiche produit avec tout
+  le design repris (paramètre ?recommande= : variante, quantité, propriétés de la ligne, en base64 url).
 {%- endcomment -%}
 {%- assign pro = settings.ecru_fidelite_url | append: '/pro' -%}
 <section
@@ -49,6 +51,48 @@
         </div>
       </article>
     </div>
+
+    {%- if customer -%}
+      {%- assign deja = '' -%}
+      {%- capture cartes_commandees -%}
+        {%- for order in customer.orders -%}
+          {%- for li in order.line_items -%}
+            {%- if li.product == blank -%}{%- continue -%}{%- endif -%}
+            {%- unless li.product.handle contains 'carte' -%}{%- continue -%}{%- endunless -%}
+            {%- comment -%} Une même carte commandée plusieurs fois : seule la plus récente est proposée {%- endcomment -%}
+            {%- assign cle = li.variant_id | append: '|' | append: li.properties['_maquette'] | append: li.properties['Lien'] -%}
+            {%- if deja contains cle -%}{%- continue -%}{%- endif -%}
+            {%- assign deja = deja | append: cle | append: '§' -%}
+            {%- capture props -%}{ {%- for p in li.properties -%}{%- if p.last != blank -%}{{ p.first | json }}:{{ p.last | json }},{%- endif -%}{%- endfor -%}"_commande":{{ order.name | json }} }{%- endcapture -%}
+            {%- capture charge -%}{"v":{{ li.variant_id }},"q":{{ li.quantity }},"p":{{ props }}}{%- endcapture -%}
+            <li class="ecru-recommander__ligne">
+              <div class="ecru-recommander__info">
+                <p class="ecru-recommander__titre">{{ li.product.title | escape }}{% unless li.variant.title == 'Default Title' %} · {{ li.variant.title | escape }}{% endunless %}</p>
+                <p class="ecru-recommander__detail">
+                  {{ li.quantity }} cartes · commande {{ order.name }} du {{ order.created_at | date: '%d/%m/%Y' }}
+                  {%- if li.properties['Finition métal'] != blank %} · {{ li.properties['Finition métal'] | escape }}{% endif -%}
+                  {%- if li.properties['Option fidélité'] != blank %} · avec fidélité{% endif -%}
+                </p>
+                {%- if li.properties['Design'] != blank -%}
+                  <p class="ecru-recommander__detail">{{ li.properties['Design'] | escape }}</p>
+                {%- endif -%}
+              </div>
+              <a class="ecru-bouton" href="{{ li.product.url }}?variant={{ li.variant_id }}&recommande={{ charge | base64_url_safe_encode }}">Recommander</a>
+            </li>
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      <section class="ecru-recommander" id="recommander" aria-labelledby="recommander-{{ section.id }}">
+        <h2 id="recommander-{{ section.id }}" class="ecru-titre ecru-titre--s">Vos cartes</h2>
+        {%- if cartes_commandees != blank -%}
+          <p class="ecru-texte">Même design, mêmes liens, même quantité : tout est déjà réglé. Vous pouvez encore tout changer avant de valider. Avec l’option fidélité, votre abonnement continue : il n’est pas facturé une seconde fois.</p>
+          <ul class="ecru-recommander__liste" role="list">{{ cartes_commandees }}</ul>
+        {%- else -%}
+          <p class="ecru-texte">Vos cartes commandées apparaîtront ici, prêtes à être recommandées en un geste.</p>
+          <div class="ecru-actions"><a class="ecru-bouton ecru-bouton--ligne" href="/products/cartes-sur-mesure">Composer ma carte</a></div>
+        {%- endif -%}
+      </section>
+    {%- endif -%}
   </div>
 </section>
 

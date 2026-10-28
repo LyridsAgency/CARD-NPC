@@ -73,6 +73,8 @@
       img.onerror = function () {
         resolve(null);
       };
+      // Logo d'une commande passée (cdn.shopify.com) : lu sans « salir » le canevas
+      if (/^https?:/.test(url)) img.crossOrigin = 'anonymous';
       img.src = url;
     });
   }
@@ -111,6 +113,15 @@
     }
     var selection = null;
     var modeleApplique = false;
+    // Recommande : logo de la commande d'origine (champ caché) et abonnement fidélité déjà en cours
+    var logoAncien = null;
+    var dejaAbonne = false;
+    function oublierLogoAncien() {
+      if (!logoAncien) return;
+      logoAncien.remove();
+      logoAncien = null;
+      if (fichier) fichier.name = 'properties[Logo]';
+    }
 
     function modeDe(options) {
       if (data.surMesure) return 'design';
@@ -479,6 +490,7 @@
       });
     }
     function retirerLogo() {
+      oublierLogoAncien();
       elements = sansLogo(elements);
       faces.recto = sansLogo(liste('recto'));
       faces.verso = sansLogo(liste('verso'));
@@ -529,6 +541,7 @@
         });
       fichier.addEventListener('change', function () {
         var f = fichier.files && fichier.files[0];
+        oublierLogoAncien();
         faces.recto = sansLogo(liste('recto'));
         faces.verso = sansLogo(liste('verso'));
         elements = faces[face];
@@ -614,7 +627,8 @@
       var q = parseInt(quantite.value, 10) || 0;
       var texte = 'Total : ' + argent.format((unite * q) / 100) + ' pour ' + q + ' cartes';
       if (n) texte += ' (dont ' + n + (n > 1 ? ' liens' : ' lien') + ')';
-      if (avecFidelite() && data.mois) texte += ' + ' + argent.format(data.mois / 100) + ' / mois';
+      if (avecFidelite() && dejaAbonne) texte += ' · fidélité déjà active, rien à repayer';
+      else if (avecFidelite() && data.mois) texte += ' + ' + argent.format(data.mois / 100) + ' / mois';
       totalEl.textContent = texte;
     }
     quantite.addEventListener('input', majTotal);
@@ -953,7 +967,7 @@
         return;
       }
       // Option fidélité : le logo est indispensable pour la page de fidélité
-      if (avecFidelite() && !(fichier && fichier.files && fichier.files.length)) {
+      if (avecFidelite() && !logoAncien && !(fichier && fichier.files && fichier.files.length)) {
         e.preventDefault();
         statut.textContent = 'Ajoutez votre logo pour l’option fidélité : il s’affiche sur la page de vos clients.';
         var l = form.querySelector('label[for="' + (fichier && fichier.id) + '"]');
@@ -971,7 +985,7 @@
       var abo = data.abonnement;
       // Option fidélité : l'abonnement mensuel part toujours avec les cartes.
       // Sans formule d'abonnement configurée (Shopify Subscriptions), le premier mois est ajouté, clairement indiqué.
-      if (avecFidelite() && abo && abo.id)
+      if (avecFidelite() && !dejaAbonne && abo && abo.id)
         extras.push(
           abo.plan
             ? { id: abo.id, quantity: 1, selling_plan: abo.plan }
@@ -1071,6 +1085,146 @@
     var modeleDemande = new URLSearchParams(window.location.search).get('modele');
     if (modeleDemande && MODELES[modeleDemande] && modeDe(choix()) === 'design') appliquerModele(modeleDemande);
     else if (modeDe(choix()) !== 'standard') rendre(false);
+    recommander(new URLSearchParams(window.location.search).get('recommande'));
+
+    // ---------- Recommande : la commande d'origine, reprise à l'identique ----------
+    // ?recommande= (page « Votre compte ») : { v: variante, q: quantité, p: propriétés de la ligne }, en base64 url
+    function lire(code) {
+      try {
+        var b = atob(code.replace(/-/g, '+').replace(/_/g, '/'));
+        var octets = new Uint8Array(b.length);
+        for (var i = 0; i < b.length; i++) octets[i] = b.charCodeAt(i);
+        return JSON.parse(new TextDecoder().decode(octets));
+      } catch (e) {
+        return null;
+      }
+    }
+    function teinte(v) {
+      return /^#[0-9a-f]{6}$/i.test(v || '') ? v : null;
+    }
+    function recommander(code) {
+      var r = code && lire(code);
+      if (!r || !r.p) return;
+      var p = r.p;
+      // Finition du métal
+      var fin = p['Finition métal'] && [].find.call(form.querySelectorAll('[data-ecru-finition-choix]'), function (x) {
+        return x.value === p['Finition métal'];
+      });
+      if (fin && !fin.disabled) fin.checked = true;
+      // Couleurs et design (sur mesure)
+      if (modeDe(choix()) === 'design') {
+        modeleApplique = true;
+        if (teinte(p._Couleur)) poser('fond', p._Couleur);
+        if (teinte(p._Marquage)) poser('relief', p._Marquage);
+        poser('fenetre', teinte(p['_Fenêtre NFC']) || 'auto');
+        var maquette = null;
+        try {
+          maquette = JSON.parse(p._maquette || 'null');
+        } catch (e) {}
+        if (maquette) {
+          changerFace('recto', true);
+          var repris = function (l, f) {
+            var n = 0;
+            return (l || [])
+              .filter(function (e) {
+                return e && (e.t === 'text' || e.t === 'logo') && isFinite(e.x) && isFinite(e.y) && isFinite(e.s);
+              })
+              .map(function (e) {
+                var c = { t: e.t, x: +e.x, y: +e.y, s: +e.s, f: e.f === 'body' ? 'body' : 'display', a: e.a || 'center' };
+                if (e.t === 'text') {
+                  c.v = String(e.v || '');
+                  if (POLICES[e.p]) c.p = e.p;
+                  c.id = f === 'recto' && n === 0 ? 'nom' : f + '-texte' + n;
+                  n++;
+                } else c.id = 'logo';
+                return c;
+              });
+          };
+          var recto = repris(maquette.recto, 'recto');
+          var verso = repris(maquette.verso, 'verso');
+          // Le logo de la commande (fichier déjà envoyé à Shopify) : gardé tel quel, sauf si un nouveau est choisi
+          // (fichiers Shopify uniquement : cdn.shopify.com ou /cdn/shop/ de la boutique)
+          var urlLogo = /^(https:\/\/cdn\.shopify\.com\/|\/cdn\/shop\/)/.test(p.Logo || '') ? p.Logo : null;
+          var avecLogo = function (e) {
+            return e.t !== 'logo' || urlLogo;
+          };
+          elements = faces.recto = recto.filter(avecLogo);
+          faces.verso = verso.filter(avecLogo);
+          var champ = elements.find(function (e) {
+            return e.t === 'text';
+          });
+          if (champNom && champ) champNom.value = champ.v;
+          if (urlLogo && fichier) {
+            logoAncien = document.createElement('input');
+            logoAncien.type = 'hidden';
+            logoAncien.name = 'properties[Logo]';
+            logoAncien.value = urlLogo;
+            fichier.removeAttribute('name');
+            fichier.insertAdjacentElement('afterend', logoAncien);
+            form.querySelector('[data-ecru-fichier-nom]').textContent = 'Logo de votre commande';
+            if (logoRetirer) logoRetirer.hidden = false;
+            var zone = form.querySelector('[data-ecru-fid-logo]');
+            if (zone) {
+              var img = new Image();
+              img.alt = '';
+              img.src = urlLogo;
+              zone.textContent = '';
+              zone.appendChild(img);
+              zone.classList.add('a-logo');
+            }
+            masquerLogo(urlLogo).then(function (m) {
+              if (!m) return;
+              ['recto', 'verso'].forEach(function (f) {
+                liste(f).forEach(function (e) {
+                  if (e.t !== 'logo') return;
+                  e.u = m.url;
+                  e.ratio = m.ratio;
+                });
+              });
+              dessinerEditeur();
+              rendre(false);
+            });
+          }
+        }
+        majAssortiments();
+        dessinerEditeur();
+      }
+      // Liens
+      ['Lien', 'Lien 2', 'Lien 3', 'Lien 4'].forEach(function (cle) {
+        var c = form.querySelector('[name="properties[' + cle + ']"]');
+        if (!c || !p[cle]) return;
+        c.value = p[cle];
+        c.disabled = false;
+        var bloc = c.closest('[data-ecru-lien-sup]');
+        if (bloc) bloc.hidden = false;
+      });
+      if (ajoutLien && !form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
+      // Fidélité : l'abonnement en cours continue, il n'est pas ajouté au panier une seconde fois
+      var avaitFidelite = !!p['Option fidélité'];
+      if (caseFidelite && avaitFidelite) {
+        dejaAbonne = !!data.dejaAbonne;
+        if (dejaAbonne) {
+          caseFidelite.value = 'Déjà abonné' + (p._commande ? ' (commande ' + p._commande + ')' : '');
+          var prixFid = form.querySelector('.ecru-interrupteur__prix');
+          if (prixFid) prixFid.textContent = 'Déjà actif';
+        }
+        caseFidelite.checked = true;
+        majFidelite();
+      }
+      // Quantité
+      var q = parseInt(r.q, 10);
+      if (q > 0) quantite.value = Math.max(minimum, q);
+      majTotal();
+      rendre(true);
+      // Ce qui a été repris, dit simplement en haut du formulaire
+      var note = document.createElement('p');
+      note.className = 'ecru-recommande';
+      note.setAttribute('role', 'status');
+      note.textContent =
+        'Recommande' + (p._commande ? ' de la commande ' + p._commande : '') + ' : tout est repris à l’identique. Changez ce que vous voulez, puis ajoutez au panier.' +
+        (avaitFidelite && dejaAbonne ? ' Votre abonnement fidélité continue : il n’est pas facturé une seconde fois.' : '');
+      form.insertBefore(note, form.firstChild);
+    }
   }
 
   function initAll() {

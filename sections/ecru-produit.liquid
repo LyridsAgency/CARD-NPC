@@ -501,6 +501,17 @@
         {%- assign abo = section.settings.abonnement -%}
         {%- assign plan = abo.selling_plan_groups.first.selling_plans.first -%}
         "abonnement": { "id": {{ abo.selected_or_first_available_variant.id }}, "plan": {{ plan.id | default: 'null' }} },
+        {%- comment -%} Client déjà abonné (une commande passée contient l'abonnement) : une recommande ne le refacture pas {%- endcomment -%}
+        {%- assign deja_abonne = false -%}
+        {%- if customer -%}
+          {%- for o in customer.orders -%}
+            {%- for li in o.line_items -%}
+              {%- if li.product_id == abo.id -%}{%- assign deja_abonne = true -%}{%- break -%}{%- endif -%}
+            {%- endfor -%}
+            {%- if deja_abonne -%}{%- break -%}{%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        "dejaAbonne": {{ deja_abonne }},
       {%- endif -%}
       "ajout": {{ section.settings.add_label | json }}
     }

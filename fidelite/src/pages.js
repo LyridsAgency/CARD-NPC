@@ -263,7 +263,8 @@ export function pagePro(c, carte, reglage, flash = '') {
   });
 }
 
-export function pageTableau(c, stats, reglage, flash = '') {
+export function pageTableau(c, stats, reglage, flash = '', site = '') {
+  const compte = site ? `${site.replace(/\/$/, '')}/pages/compte#recommander` : '';
   const pts = reglage.mode === 'points';
   const lignesCadeaux = [0, 1, 2, 3, 4, 5]
     .map((i) => {
@@ -312,6 +313,15 @@ export function pageTableau(c, stats, reglage, flash = '') {
         <button class="plein" type="submit">Enregistrer</button>
       </form>
     </section>
+    ${
+      compte
+        ? `<section aria-label="Vos cartes" class="bloc">
+      <p class="petit">Plus de cartes</p>
+      <p class="doux" style="margin-top:6px">Même design, mêmes réglages : vos nouvelles cartes rejoignent ce programme. Votre abonnement continue, rien à repayer.</p>
+      <a class="bouton" style="margin-top:14px" href="${echapper(compte)}">Commander à nouveau mes cartes</a>
+    </section>`
+        : ''
+    }
     <a class="bouton" href="/pro/deconnexion">Se déconnecter de ce téléphone</a>
     ${pied}`,
   });

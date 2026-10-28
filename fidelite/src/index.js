@@ -233,7 +233,7 @@ async function routesPro(env, requete, url) {
     return rediriger('/pro?ok=' + encodeURIComponent(ok));
   }
   if (chemin === '/pro') {
-    return html(pageTableau(c, await statistiques(env, commerce), await reglageDe(env, c), url.searchParams.get('ok') || ''));
+    return html(pageTableau(c, await statistiques(env, commerce), await reglageDe(env, c), url.searchParams.get('ok') || '', env.SITE_URL));
   }
   return html(pageInconnue(), 404);
 }

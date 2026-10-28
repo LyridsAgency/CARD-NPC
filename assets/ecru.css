@@ -4726,3 +4726,64 @@ body::after {
     transition: none;
   }
 }
+
+/* ----- Recommander : les cartes déjà commandées, reprises en un geste --------- */
+.ecru-recommander {
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-recommander > .ecru-texte {
+  max-width: 62ch;
+  margin-top: 12px;
+}
+.ecru-recommander__liste {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--ecru-border);
+}
+.ecru-recommander__ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--ecru-border);
+}
+.ecru-recommander__info {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.ecru-recommander__titre {
+  margin: 0;
+  font-family: 'Archivo Black', var(--font-heading-family), sans-serif;
+  font-size: 1.7rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.ecru-recommander__detail {
+  margin: 6px 0 0;
+  color: var(--ecru-muted);
+  font-size: 1.4rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+/* Fiche produit : bandeau « recommande » au-dessus des options */
+.ecru-recommande {
+  position: relative;
+  margin: 0 0 28px;
+  padding: 16px 18px 16px 22px;
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+.ecru-recommande::before {
+  content: '';
+  position: absolute;
+  inset: 10px auto 10px 0;
+  width: 2px;
+  background: var(--ecru-chrome);
+}
