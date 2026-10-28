@@ -10,9 +10,14 @@
 7. **Pages légales** : CGV, remboursement, expédition — Paramètres → Politiques.
 8. **Abonnement Fidélité** : dans Subscriptions, créer le plan mensuel (sans remise) avec le produit
    « Abonnement Fidélité » (29 €).
-9. **Vérifier les prix** (PVC simple 2,50 €, sur mesure / fidélité 2,90 €, métal 14,90 / 15,90 €) et donner le
-   prix fournisseur du métal pour l'ajuster.
-10. **Publier le thème** (le dire à Claude) puis retirer le mot de passe — Boutique en ligne → Préférences.
+9. **Vérifier les prix** : simple PVC 2,50 € / métal 14,90 € ; sur mesure PVC 3,50 € / métal 17,90 € ;
+   option lien 0,20 € par carte et par lien (produit caché « Option lien ») ; option fidélité 29 €/mois.
+   Le produit « Carte Fidélité » est passé en brouillon : la fidélité est maintenant une option du sur mesure
+   (l'ancienne adresse redirige).
+10. **Mettre à jour puis publier le thème** : demander à Claude d'envoyer la dernière version sur
+    « ECRU — site complet », puis « Publier », puis retirer le mot de passe — Boutique en ligne → Préférences.
+10b. **Mode d'emploi** : page `/pages/mode-emploi` (lien dans le pied de page) et PDF imprimable
+    `docs/mode-emploi-ecru.pdf`, à glisser dans les colis.
 
 ## Serveur des cartes Fidélité (Cloudflare, en ligne)
 11. **Remplacer la clé Cloudflare** envoyée dans le chat — My Profile → API Tokens.
@@ -31,3 +36,7 @@
 17. **Klaviyo** : synchroniser les inscrits « Restez dans le cercle ».
 18. **Avis clients** (Judge.me) quand les premiers vrais avis arrivent.
 19. Remplacer les noms d'exemple des modèles (Maison Lune, Club Marceau…) par de vrais clients, avec leur accord.
+
+## Prospection
+17. **For Guys (Argentan)** : mail prêt dans `docs/prospection/` (HTML, texte, image, conseils anti-spam).
+    Avant l'envoi : votre nom, téléphone, et une boîte mail sur votre domaine avec SPF/DKIM/DMARC.
