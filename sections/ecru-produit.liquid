@@ -250,6 +250,19 @@
                     <label class="ecru-createur__label" for="{{ uid }}-nom">Texte</label>
                     <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" name="properties[Nom]" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom>
                   </div>
+                  <div class="ecru-createur__ligne ecru-createur__ligne--polices">
+                    <span class="ecru-createur__label" id="{{ uid }}-police-label">Police</span>
+                    <div class="ecru-polices" role="radiogroup" aria-labelledby="{{ uid }}-police-label">
+                      {%- assign polices = 'affiche:Affiche|moderne:Moderne|elegante:Élégante|classique:Classique|condensee:Condensée|geometrique:Géométrique|signature:Signature' | split: '|' -%}
+                      {%- for p in polices -%}
+                        {%- assign pp = p | split: ':' -%}
+                        <button type="button" class="ecru-police ecru-police--{{ pp[0] }}" role="radio" aria-checked="false" data-ecru-police="{{ pp[0] }}">
+                          <span class="ecru-police__aa" aria-hidden="true">Aa</span>
+                          <span class="ecru-police__nom">{{ pp[1] }}</span>
+                        </button>
+                      {%- endfor -%}
+                    </div>
+                  </div>
                   <div class="ecru-createur__ligne">
                     <span class="ecru-createur__label">Logo</span>
                     <input
@@ -483,6 +496,17 @@
   </script>
 </section>
 
+{%- if est_sur_mesure -%}
+  {%- comment -%} Polices des cartes : mêmes noms que la 3D (ecru-carte-3d.js, POLICES) {%- endcomment -%}
+  <style>
+    @font-face { font-family: 'ECRU Playfair'; src: url({{ 'ecru-police-playfair.woff2' | asset_url }}) format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'ECRU Cormorant'; src: url({{ 'ecru-police-cormorant.woff2' | asset_url }}) format('woff2'); font-weight: 500; font-style: italic; font-display: swap; }
+    @font-face { font-family: 'ECRU Bebas'; src: url({{ 'ecru-police-bebas.woff2' | asset_url }}) format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'ECRU Grotesk'; src: url({{ 'ecru-police-grotesk.woff2' | asset_url }}) format('woff2'); font-weight: 500; font-display: swap; }
+    @font-face { font-family: 'ECRU Script'; src: url({{ 'ecru-police-script.woff2' | asset_url }}) format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Archivo Black'; src: url({{ 'archivo-black.woff2' | asset_url }}) format('woff2'); font-weight: 400; font-display: swap; }
+  </style>
+{%- endif -%}
 <script src="{{ 'ecru-configurateur.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}

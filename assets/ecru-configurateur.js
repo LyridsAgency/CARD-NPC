@@ -7,6 +7,20 @@
   // Modèles prêts à personnaliser (mêmes réglages que les rendus assets/ecru-modele-*.webp)
   var MODELES = {"editorial":{"titre":"Éditorial","fond":"#0d0d0c","relief":"#e9e4d8","elements":[{"t":"text","v":"ECRU","x":0.37,"y":0.8,"s":0.24,"f":"display","a":"left","k":-0.01},{"t":"text","v":"Cartes NFC","x":0.37,"y":0.14,"s":0.045,"f":"body","a":"left"}]},"minimal":{"titre":"Minimal","fond":"#e9e4d8","relief":"#121211","elements":[{"t":"text","v":"ECRU","x":0.95,"y":0.86,"s":0.06,"f":"body","a":"right","k":0.3},{"t":"text","v":"N° 001","x":0.95,"y":0.14,"s":0.045,"f":"body","a":"right"}]},"monogramme":{"titre":"Monogramme","fond":"#0d0d0c","relief":"#7d7b76","elements":[{"t":"text","v":"E","x":1.03,"y":0.8,"s":1.3,"f":"display","a":"right","k":-0.01},{"t":"text","v":"ECRU","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left","k":0.3}]},"signature":{"titre":"Signature","fond":"#d6cfbf","relief":"#2e2c28","elements":[{"t":"text","v":"ECRU","x":0.655,"y":0.47,"s":0.1,"f":"display","a":"center","k":0.12},{"t":"text","v":"Un geste. Tout s’ouvre.","x":0.655,"y":0.6,"s":0.042,"f":"body","a":"center"}]},"numero":{"titre":"Numéro","fond":"#2a2926","relief":"#e9e4d8","elements":[{"t":"text","v":"Nº7","x":0.95,"y":0.66,"s":0.42,"f":"display","a":"right","k":-0.01},{"t":"text","v":"ECRU","x":0.37,"y":0.14,"s":0.05,"f":"body","a":"left","k":0.3}]},"pierre":{"titre":"Pierre","fond":"#8f8a80","relief":"#121211","elements":[{"t":"text","v":"ECRU","x":0.37,"y":0.16,"s":0.085,"f":"display","a":"left","k":0.04},{"t":"text","v":"Cartes NFC","x":0.37,"y":0.28,"s":0.045,"f":"body","a":"left"},{"t":"text","v":"Sur mesure","x":0.95,"y":0.86,"s":0.04,"f":"body","a":"right"}]}};
 
+  // Polices des cartes : mêmes définitions que la 3D (tools/src/ecru-carte-3d.js, POLICES)
+  var POLICES = {
+    affiche: { nom: 'Affiche', famille: '"Archivo Black", sans-serif', graisse: 400, majuscules: true, k: 0.12 },
+    moderne: { nom: 'Moderne', famille: 'Inter, sans-serif', graisse: 500, majuscules: false, k: 0.04 },
+    elegante: { nom: 'Élégante', famille: '"ECRU Playfair", serif', graisse: 600, majuscules: false, k: 0.01 },
+    classique: { nom: 'Classique', famille: '"ECRU Cormorant", serif', graisse: 500, style: 'italic', majuscules: false, k: 0.01 },
+    condensee: { nom: 'Condensée', famille: '"ECRU Bebas", sans-serif', graisse: 400, majuscules: true, k: 0.06 },
+    geometrique: { nom: 'Géométrique', famille: '"ECRU Grotesk", sans-serif', graisse: 500, majuscules: false, k: 0 },
+    signature: { nom: 'Signature', famille: '"ECRU Script", cursive', graisse: 400, majuscules: false, k: 0 },
+  };
+  function policeDe(e) {
+    return POLICES[e.p] ? e.p : e.f === 'body' ? 'moderne' : 'affiche';
+  }
+
   function bas(v) {
     return String(v || '').trim().toLowerCase();
   }
@@ -134,7 +148,7 @@
         color = teintes.fond;
         look.ink = teintes.relief;
         var pourLa3d = function (e) {
-          return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, a: e.a || 'center', k: e.k };
+          return { t: e.t, v: e.v, u: e.u, x: e.x, y: e.y, s: e.s, f: e.f, p: e.p, a: e.a || 'center', k: e.k };
         };
         look.elements = visibles('recto').map(pourLa3d);
         look.verso = visibles('verso').map(pourLa3d);
@@ -206,10 +220,13 @@
           n.style.setProperty('--ratio', e.ratio || 1);
           n.setAttribute('aria-label', 'Logo, position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer, + et − pour la taille.');
         } else {
-          var titre = e.f !== 'body';
-          n.classList.toggle('ecru-editeur__el--titre', titre);
-          contenu.textContent = titre ? e.v.toUpperCase() : e.v;
-          n.style.letterSpacing = (e.k != null ? e.k : titre ? 0.12 : 0.04) + 'em';
+          var pol = POLICES[policeDe(e)];
+          n.classList.remove('ecru-editeur__el--titre');
+          n.style.fontFamily = pol.famille;
+          n.style.fontWeight = pol.graisse;
+          n.style.fontStyle = pol.style || 'normal';
+          contenu.textContent = pol.majuscules ? e.v.toUpperCase() : e.v;
+          n.style.letterSpacing = (e.k != null ? e.k : pol.k) + 'em';
           n.dataset.align = e.a || 'center';
           n.setAttribute('aria-label', 'Texte « ' + e.v + ' », position ' + pct(e.x) + ' / ' + pct(e.y) + '. Glisser ou flèches pour déplacer, + et − pour la taille.');
         }
@@ -224,7 +241,36 @@
       dessinerEditeur();
     }
 
+    var boutonsPolice = form.querySelectorAll('[data-ecru-police]');
+    // La police s'applique au texte sélectionné, sinon au premier texte de la face
+    function texteCible() {
+      var e = element(selection);
+      if (e && e.t === 'text') return e;
+      return visibles().find(function (x) {
+        return x.t === 'text';
+      });
+    }
+    function marquerPolice() {
+      if (!boutonsPolice) return;
+      var e = texteCible();
+      var cle = e ? policeDe(e) : '';
+      boutonsPolice.forEach(function (b) {
+        b.setAttribute('aria-checked', b.dataset.ecruPolice === cle ? 'true' : 'false');
+      });
+    }
+    boutonsPolice.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var e = texteCible();
+        if (!e) return;
+        e.p = b.dataset.ecruPolice;
+        delete e.k;
+        dessinerEditeur();
+        rendre(true);
+      });
+    });
+
     function majReglages() {
+      marquerPolice();
       if (!reglages) return;
       var e = element(selection);
       var ok = e && visibles().indexOf(e) !== -1;
@@ -246,10 +292,10 @@
       if (!lisible) return;
       var resume = function (e) {
         var pos = 'position ' + pct(e.x) + ' / ' + pct(e.y) + ', taille ' + Math.round(e.s * 100);
-        return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Texte « ' + e.v + ' » (' + pos + ')';
+        return e.t === 'logo' ? 'Logo (' + pos + ')' : 'Texte « ' + e.v + ' » en ' + POLICES[policeDe(e)].nom + ' (' + pos + ')';
       };
       var brutDe = function (e) {
-        return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3), f: e.f, a: e.a };
+        return { t: e.t, v: e.t === 'text' ? e.v : undefined, x: +e.x.toFixed(3), y: +e.y.toFixed(3), s: +e.s.toFixed(3), f: e.f, p: e.t === 'text' ? policeDe(e) : undefined, a: e.a };
       };
       var verso = visibles('verso');
       var fen = teintes.fenetre !== 'auto' ? ', fenêtre NFC ' + teintes.fenetre.toUpperCase() : '';

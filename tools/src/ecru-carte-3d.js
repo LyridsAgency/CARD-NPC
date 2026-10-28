@@ -27,6 +27,18 @@ import {
 } from 'three';
 
 // Dimensions réelles (cm) : 85,6 × 54 mm, rayon ISO 3,18 mm. Épaisseur légèrement accentuée pour la lire.
+// Polices des cartes : clé → famille, graisse, casse et interlettrage par défaut.
+// « affiche » et « moderne » sont les polices du site ; les autres viennent de assets/ecru-police-*.woff2.
+export const POLICES = {
+  affiche: { famille: 'Archivo Black', graisse: '400', majuscules: true, k: 0.12, secours: 'sans-serif' },
+  moderne: { famille: 'Inter', graisse: '500', majuscules: false, k: 0.04, secours: 'sans-serif' },
+  elegante: { famille: 'ECRU Playfair', graisse: '600', majuscules: false, k: 0.01, secours: 'serif', fichier: true },
+  classique: { famille: 'ECRU Cormorant', graisse: '500', style: 'italic', majuscules: false, k: 0.01, secours: 'serif', fichier: true },
+  condensee: { famille: 'ECRU Bebas', graisse: '400', majuscules: true, k: 0.06, secours: 'sans-serif', fichier: true },
+  geometrique: { famille: 'ECRU Grotesk', graisse: '500', majuscules: false, k: 0, secours: 'sans-serif', fichier: true },
+  signature: { famille: 'ECRU Script', graisse: '400', majuscules: false, k: 0, secours: 'cursive', fichier: true },
+};
+
 const W = 8.56;
 const H = 5.4;
 const R = 0.318;
@@ -383,6 +395,14 @@ export async function mount(el) {
   const bodyUrl = el.dataset.fontBody;
   const family = 'Archivo Black';
   const bodyFamily = 'Inter';
+  // Polices au choix pour l'écriture des cartes (fichiers dans assets/, chargés seulement si utilisés)
+  let adressesPolices = {};
+  try {
+    adressesPolices = JSON.parse(el.dataset.polices || '{}');
+  } catch (e) {
+    adressesPolices = {};
+  }
+  const chargees = new Map();
 
   let renderer;
   try {
@@ -506,8 +526,32 @@ export async function mount(el) {
   let current = {};
 
   let lookId = 0;
+  // Une promesse par police : un dessin attend toujours la police qu'il utilise, même déjà en cours de chargement
+  function chargerPolices(els) {
+    const cles = [...new Set(els.map((e) => e.p).filter((p) => POLICES[p] && POLICES[p].fichier))];
+    return Promise.all(
+      cles.map((p) => {
+        if (!chargees.has(p)) {
+          const def = POLICES[p];
+          const url = adressesPolices[p];
+          chargees.set(
+            p,
+            !url || !document.fonts
+              ? Promise.resolve()
+              : new FontFace(def.famille, `url(${url})`, { weight: def.graisse, style: def.style || 'normal' })
+                  .load()
+                  .then((f) => document.fonts.add(f))
+                  .catch(() => {})
+          );
+        }
+        return chargees.get(p);
+      })
+    );
+  }
+
   async function applyLook(look) {
     const id = ++lookId;
+    await chargerPolices([...(look.elements || []), ...(look.verso || [])]);
     // Les logos se chargent avant de redessiner ; seule la dernière demande est appliquée
     const images = new Map();
     const urls = [...(look.elements || []), ...(look.verso || [])].filter((e) => e.t === 'logo' && e.u).map((e) => e.u);
@@ -533,10 +577,10 @@ export async function mount(el) {
         ctx.drawImage(lm, x - lm.width / 2, y - lm.height / 2);
       } else if (el.v) {
         const txt = String(el.v).slice(0, 40);
-        const display = el.f !== 'body';
-        ctx.font = display ? `${size}px "${family}", sans-serif` : `500 ${size}px "${bodyFamily}", sans-serif`;
+        const def = POLICES[el.p] || (el.f === 'body' ? POLICES.moderne : POLICES.affiche);
+        ctx.font = `${def.style === 'italic' ? 'italic ' : ''}${def.graisse} ${size}px "${def.famille}", ${def.secours}`;
         const align = el.a || 'center';
-        drawSpaced(ctx, display ? txt.toUpperCase() : txt, x, y, size, el.k ?? (display ? 0.12 : 0.04), align);
+        drawSpaced(ctx, def.majuscules ? txt.toUpperCase() : txt, x, y, size, el.k ?? def.k, align);
       }
     });
   }

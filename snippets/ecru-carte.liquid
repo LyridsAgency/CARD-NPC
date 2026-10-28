@@ -34,6 +34,7 @@
   data-module="{{ 'ecru-carte-3d.js' | asset_url }}"
   data-font="{{ 'archivo-black.woff2' | asset_url }}"
   data-font-body="{{ 'inter-500.woff2' | asset_url }}"
+  data-polices='{"elegante":{{ 'ecru-police-playfair.woff2' | asset_url | json }},"classique":{{ 'ecru-police-cormorant.woff2' | asset_url | json }},"condensee":{{ 'ecru-police-bebas.woff2' | asset_url | json }},"geometrique":{{ 'ecru-police-grotesk.woff2' | asset_url | json }},"signature":{{ 'ecru-police-script.woff2' | asset_url | json }}}'
   data-elements="{{ elements | default: '[]' | escape }}"
   data-inlay="{{ inlay | default: 'carre' }}"
   data-color="{{ color | default: '#0d0d0c' }}"

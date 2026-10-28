@@ -4289,3 +4289,49 @@ body::after {
 .ecru-produit__vue[data-ecru-vue='profil']:hover img {
   transform: scale(2.8);
 }
+
+/* Polices des cartes : chaque bouton s'affiche dans sa police */
+.ecru-polices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.ecru-police {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  min-width: 7.2rem;
+  padding: 0.8rem 1rem 0.7rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ecru-muted);
+  cursor: pointer;
+  transition: border-color 0.4s var(--ecru-ease), color 0.4s var(--ecru-ease);
+}
+.ecru-police:hover,
+.ecru-police[aria-checked='true'] {
+  border-color: var(--ecru-text);
+  color: var(--ecru-text);
+}
+.ecru-police:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 3px;
+}
+.ecru-police__aa {
+  font-size: 2.2rem;
+  line-height: 1.1;
+}
+.ecru-police__nom {
+  font-family: var(--font-body-family);
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ecru-police--affiche .ecru-police__aa { font-family: 'Archivo Black', sans-serif; }
+.ecru-police--moderne .ecru-police__aa { font-family: Inter, var(--font-body-family), sans-serif; font-weight: 500; }
+.ecru-police--elegante .ecru-police__aa { font-family: 'ECRU Playfair', serif; font-weight: 600; }
+.ecru-police--classique .ecru-police__aa { font-family: 'ECRU Cormorant', serif; font-style: italic; font-weight: 500; }
+.ecru-police--condensee .ecru-police__aa { font-family: 'ECRU Bebas', sans-serif; }
+.ecru-police--geometrique .ecru-police__aa { font-family: 'ECRU Grotesk', sans-serif; font-weight: 500; }
+.ecru-police--signature .ecru-police__aa { font-family: 'ECRU Script', cursive; }
