@@ -27,6 +27,7 @@ Il faut seulement un compte Cloudflare (gratuit) et votre nom de domaine.
 2. Dans ce dossier : `npm install`, puis `npx wrangler login`.
 3. Créer la base : `npx wrangler d1 create ecru-fidelite` → recopier l'identifiant affiché dans `wrangler.toml`
    (`database_id`), puis `npx wrangler d1 execute ecru-fidelite --remote --file=schema.sql`.
+   Base déjà créée avant les points : `npx wrangler d1 execute ecru-fidelite --remote --file=migrations/0002_points.sql` (une seule fois, déjà fait sur la base actuelle).
 4. (Facultatif, plus tard) Jeton Shopify : application **Headless** → jeton public Storefront API,
    puis `npx wrangler secret put SHOPIFY_STOREFRONT_TOKEN`. Sans lui, les commerces se gèrent dans /admin.
 5. Secrets :
@@ -44,6 +45,14 @@ Il faut seulement un compte Cloudflare (gratuit) et votre nom de domaine.
    - « Accès commerçant » : génère le lien de connexion à envoyer au commerçant. Il l'ouvre une fois sur le
      téléphone de la caisse (et ceux de son équipe) : ce téléphone devient « commerçant » pour ses cartes.
 3. Tester une carte avant l'envoi : scanner avec un téléphone client, puis avec le téléphone du commerce.
+
+## Récompenses : c'est le commerçant qui décide
+Dans son tableau de bord (`/pro`), le commerçant choisit :
+- **Tampons** : nombre de tampons, récompense, et si la carte **recommence** ou **s'arrête** après la récompense
+  (il la relance en la scannant) ;
+- **Points** : points par euro dépensé et jusqu'à 6 cadeaux avec leur prix en points. Au scan, il tape le montant
+  de l'achat ; les cadeaux atteints s'affichent avec un bouton « Offrir ».
+Changer de système remet les compteurs des cartes à zéro. La récompense saisie dans /admin n'est qu'une valeur de départ.
 
 ## Arrêt automatique (avec un forfait Shopify)
 Dans Shopify Flow, sur « Subscription contract updated » : action **Send HTTP request**

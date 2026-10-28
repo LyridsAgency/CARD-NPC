@@ -297,16 +297,12 @@
               <span class="ecru-interrupteur__piste" aria-hidden="true"></span>
               <span class="ecru-interrupteur__texte">
                 <strong>Programme de fidélité</strong>
-                <span>Tampons et récompenses : le client scanne, vous validez. Résiliable à tout moment.</span>
+                <span>Tampons ou points, avec vos propres récompenses. Le client scanne, vous validez. Résiliable à tout moment.</span>
               </span>
               <span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>
             </label>
             <div class="ecru-fidelite-details" data-ecru-fidelite-details hidden>
-              <div class="ecru-champ">
-                <label for="{{ uid }}-recompense">Récompense</label>
-                <input id="{{ uid }}-recompense" type="text" name="properties[Récompense]" maxlength="80" placeholder="10 visites : le dessert offert" disabled>
-              </div>
-              <p class="ecru-champ__aide">Votre logo est nécessaire : il s’affiche sur la page de fidélité de vos clients. Les liens ci-dessus y apparaissent aussi.</p>
+              <p class="ecru-champ__aide">Tampons ou points, récompenses et cadeaux : vous réglez tout vous-même depuis votre espace, et vous changez quand vous voulez. Votre logo est nécessaire : il s’affiche sur la page de vos clients, avec les liens ci-dessus.</p>
             </div>
           </fieldset>
         {%- endif -%}

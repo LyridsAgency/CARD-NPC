@@ -101,7 +101,7 @@
           <span class="ecru-interrupteur__piste" aria-hidden="true"></span>
           <span class="ecru-interrupteur__texte">
             <strong>Programme de fidélité</strong>
-            <span data-ecru-devis-aide="fidelite">Tampons et récompenses, sur les cartes sur mesure.</span>
+            <span data-ecru-devis-aide="fidelite">Tampons ou points, vos propres récompenses.</span>
           </span>
           {%- if abo != blank -%}<span class="ecru-interrupteur__prix">+ {{ abo.price | money }} / mois</span>{%- endif -%}
         </label>
@@ -209,7 +209,7 @@
       // La fidélité s'ajoute au sur mesure
       caseFid.disabled = cle !== 'mesure';
       if (caseFid.disabled) caseFid.checked = false;
-      aideFid.textContent = caseFid.disabled ? 'Disponible avec les cartes sur mesure.' : 'Tampons et récompenses : le client scanne, vous validez.';
+      aideFid.textContent = caseFid.disabled ? 'Disponible avec les cartes sur mesure.' : 'Tampons ou points, vos propres récompenses. Le client scanne, vous validez.';
       aideType.textContent = cle === 'mesure' ? 'Votre couleur, votre texte, votre logo. Dès ' + moq + ' cartes.' : 'Noire ou blanche, sans marquage. Dès ' + moq + ' cartes.';
 
       var unite = (prix[cle] && (prix[cle][matiere] || Object.values(prix[cle])[0])) || 0;
