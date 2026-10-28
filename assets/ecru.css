@@ -4353,7 +4353,7 @@ body::after {
   color: var(--ecru-muted);
 }
 
-/* Logo ECRU (assets/ecru-logo.svg) : trait géométrique, couleur du texte */
+/* Logo ECRU (assets/ecru-logo.svg) : « ECRU » en Archivo Black espacé, vectorisé, couleur du texte */
 .ecru-logo {
   display: inline-flex;
   align-items: center;
@@ -4361,12 +4361,12 @@ body::after {
 }
 .ecru-logo svg {
   display: block;
-  width: 8.4rem;
+  width: 7rem;
   height: auto;
 }
 @media (max-width: 749px) {
   .ecru-logo svg {
-    width: 7.2rem;
+    width: 6.4rem;
   }
 }
 
