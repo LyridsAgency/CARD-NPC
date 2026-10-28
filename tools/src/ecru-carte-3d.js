@@ -688,6 +688,7 @@ export async function mount(el) {
     tx: 0,
     ty: 0,
     hover: false,
+    lecture: false,
     presentUntil: 0,
     view: null,
     gyro: false,
@@ -695,6 +696,7 @@ export async function mount(el) {
     vel: 0,
     libreApres: 0,
   };
+  el.__ecruEtat = state; // lecture seule, pour les tests
   const SPIN = 0.2; // rad/s : un tour en ~31 s
 
   const onMove = (e) => {
@@ -719,6 +721,8 @@ export async function mount(el) {
     state.drag = { x: e.clientX, yaw: state.yaw, lx: e.clientX, lt: performance.now() };
     state.view = null;
     state.vel = 0;
+    state.presentUntil = 0;
+    state.lecture = false; // la main prend le relais : plus de retour automatique de face
     el.classList.add('is-grabbing');
   });
   window.addEventListener('pointermove', (e) => {
@@ -776,7 +780,7 @@ export async function mount(el) {
     if (detail.present) state.presentUntil = t + 4;
     applyLook({ ...current, ...detail });
   });
-  el.addEventListener('ecru:avantages', (e) => (state.hover = !!e.detail));
+  el.addEventListener('ecru:avantages', (e) => (state.lecture = !!e.detail));
   // Points de vue : recto, verso, profil ; 'auto' relance la rotation
   const VUES = { recto: 0, verso: Math.PI, profil: 1.25 };
   el.addEventListener('ecru:view', (e) => {
@@ -813,10 +817,12 @@ export async function mount(el) {
       const tour = Math.PI * 2;
       const target = state.view + Math.round((state.yaw - state.view) / tour) * tour;
       state.yaw += (target - state.yaw) * (1 - Math.exp(-dt * 2.6));
-    } else if (state.hover || t < state.presentUntil) {
-      // Au survol : la carte se pose de face pour lire les avantages
+    } else if (state.lecture || t < state.presentUntil) {
+      // Avantages ouverts ou choix récent : la carte se pose de face
       const target = Math.round(state.yaw / (Math.PI * 2)) * Math.PI * 2;
       state.yaw += (target - state.yaw) * (1 - Math.exp(-dt * 2.2));
+    } else if (state.hover) {
+      // Sous la souris, la carte reste où on l'a laissée : on peut la faire tourner à la main
     } else if (!still) {
       state.yaw += SPIN * dt;
     }
