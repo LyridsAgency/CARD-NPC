@@ -4775,3 +4775,28 @@ body::after {
 .ecru-chiffre__valeur {
   white-space: nowrap;
 }
+
+/* ----- Transitions entre les pages : un fondu court (navigateurs récents) ---- */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: var(--ecru-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+/* Mobile : la carte d'abord, puis les finitions à toucher juste en dessous */
+@media (max-width: 989px) {
+  .ecru-finitions__visuel {
+    order: -1;
+    margin: 0 calc(var(--ecru-gutter) * -1);
+  }
+  .ecru-finitions .ecru-carte__vue {
+    height: clamp(280px, 72vw, 420px);
+  }
+}

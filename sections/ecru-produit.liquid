@@ -514,6 +514,10 @@
       "ajout": {{ section.settings.add_label | json }}
     }
   </script>
+  {%- comment -%} Données produit pour Google (prix, disponibilité) : résultats enrichis {%- endcomment -%}
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
 </section>
 
 {%- if est_sur_mesure -%}

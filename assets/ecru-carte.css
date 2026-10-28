@@ -58,7 +58,9 @@
 }
 /* L'image de secours est cadrée carte = 62,5 % de sa largeur */
 .ecru-carte__affiche-img {
-  width: calc(var(--ecru-card-w) / 0.625);
+  /* Même cadrage que la 3D (FIT 0,74 de la largeur, FIT_H 0,52 de la hauteur × 85,6/54), calculé avant
+     que le script ne le précise : l'image ne saute pas au chargement */
+  width: calc(var(--ecru-card-w, min(74cqw, 82.42cqh)) / 0.625);
   max-width: none;
   height: auto;
 }
