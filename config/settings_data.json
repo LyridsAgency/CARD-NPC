@@ -192,6 +192,7 @@
         }
       },
       "ecru_prix_a_definir": false,
+      "ecru_fidelite_url": "https://ecru-fidelite.ecru-fidelite.workers.dev",
       "ecru_prix_texte": "[Prix à définir]",
       "ecru_nom_marque": "ECRU",
       "ecru_moq": "Noir: 10\nBlanc: 10\nSur mesure: 100\nFidélité: 100",

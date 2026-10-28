@@ -5,8 +5,8 @@ compatibility_date = "2025-01-01"
 
 [vars]
 # Adresse publique du service (celle écrite dans les puces) : un sous-domaine de VOTRE domaine
-PUBLIC_URL = "https://carte.ecru.fr"
-SITE_URL = "https://ecru.fr"
+PUBLIC_URL = "https://ecru-fidelite.ecru-fidelite.workers.dev"
+SITE_URL = "https://st9vcv-0w.myshopify.com"
 SHOP_DOMAIN = "st9vcv-0w.myshopify.com"
 
 # Secrets à définir avec « npx wrangler secret put NOM » (jamais dans ce fichier) :
@@ -17,4 +17,4 @@ SHOP_DOMAIN = "st9vcv-0w.myshopify.com"
 [[d1_databases]]
 binding = "DB"
 database_name = "ecru-fidelite"
-database_id = "A_REMPLACER_APRES_npx_wrangler_d1_create"
+database_id = "5fe0047a-c4e0-40e8-9eb7-6529c23b5bfa"
