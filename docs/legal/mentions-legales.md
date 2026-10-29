@@ -9,10 +9,8 @@ Le site ECRU est édité par :
 - **Raison sociale / nom :** Hamafarage Sardar (nom commercial : ECRU)
 - **Forme juridique :** [Entrepreneur individuel / micro-entreprise / SAS / SARL…]
 - **Capital social :** [montant, si société]
-- **Adresse du siège :** 3 rue de Fleure, Sarceaux [code postal à confirmer], France
-- **SIRET :** [en cours d'obtention : à compléter dès réception]
+- **Adresse du siège :** 3 rue de Fleuré, 61200 Sarceaux, France
 - **RCS ou RNE :** [ville d'immatriculation et numéro, ou « Registre national des entreprises »]
-- **N° de TVA intracommunautaire :** [en cours : à compléter] *(si vous êtes en franchise en base : « TVA non applicable, article 293 B du CGI »)*
 - **E-mail :** ecrustudio36@gmail.com
 - **Téléphone :** 07 49 74 55 98
 - **Directeur de la publication :** Hamafarage Sardar
