@@ -1,18 +1,21 @@
-# Prospection : For Guys Barbershop (Argentan)
+# Prospection : barbershops de Normandie
 
-**Destinataire** : For Guys Barbershop, 7 rue Saint-Martin, 61200 Argentan.
-Adresse e-mail publiée sur leur site : contact@forguys.fr (à vérifier sur forguysbarbershop.fr avant l'envoi).
+Cinq mails prêts, un par salon, tous signés « ECRU » avec l'adresse **ecrustudio35@gmail.com** : aucun nom, adresse postale ni numéro de téléphone.
 
-**Objet** : `Une carte pour For Guys`
-Autres options : `For Guys, votre carte en métal` · `Une maquette pour For Guys`
+| Salon | Ville | Fichiers |
+|---|---|---|
+| For Guys Barbershop (7 rue Saint-Martin) | Argentan | `for-guys.html` · `.txt` · `-carte-et-page.jpg` |
+| Le Masle Barber | Caen | `le-masle-barber.*` |
+| CV Diffusion Barbershop | Caen | `cv-diffusion.*` |
+| Zepek Lbaz Barber | Caen | `zepek-lbaz.*` |
+| My Barber | Rouen | `my-barber.*` |
 
-**Fichiers**
-- `for-guys.html` : le mail mis en forme (une image, hébergée sur le CDN de Shopify).
-- `for-guys.txt` : la même chose en texte simple.
-- `for-guys-carte-et-page.jpg` : l'image, si vous préférez l'insérer à la main.
+Objet de chaque mail : `Une carte pour <nom du salon>`.
+Adresses e-mail des salons : à chercher sur leur fiche Planity, Instagram ou site, puis à vérifier avant l'envoi.
 
-Avant l'envoi, remplacez `[Prénom]`, `[Prénom Nom]`, `[Téléphone]` et `[adresse du site]`.
-Tant que la boutique est protégée par un mot de passe, retirez la ligne du site plutôt que d'envoyer un lien qui bloque.
+**Fichiers** : le `.html` est le mail mis en forme (l'image est référencée par son nom de fichier : insérez-la à la main dans votre messagerie), le `.txt` est la version texte, le `.jpg` est l'image (carte à gauche, page client à droite).
+
+Aucun mail n'est envoyé depuis ce dépôt : l'envoi se fait depuis votre boîte.
 
 ## Pour ne pas finir en spam
 
