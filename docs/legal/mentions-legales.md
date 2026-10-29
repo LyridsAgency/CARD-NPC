@@ -6,16 +6,16 @@
 
 Le site ECRU est édité par :
 
-- **Raison sociale / nom :** [Nom et prénom, ou dénomination de la société]
+- **Raison sociale / nom :** Hamafarage Sardar (nom commercial : ECRU)
 - **Forme juridique :** [Entrepreneur individuel / micro-entreprise / SAS / SARL…]
 - **Capital social :** [montant, si société]
-- **Adresse du siège :** [adresse complète]
-- **SIRET :** [numéro à 14 chiffres]
+- **Adresse du siège :** 3 rue de Fleure, Sarceaux [code postal à confirmer], France
+- **SIRET :** [en cours d'obtention : à compléter dès réception]
 - **RCS ou RNE :** [ville d'immatriculation et numéro, ou « Registre national des entreprises »]
-- **N° de TVA intracommunautaire :** [FR…] *(ou : « TVA non applicable, article 293 B du CGI » si vous êtes en franchise en base)*
-- **E-mail :** [adresse de contact]
-- **Téléphone :** [numéro]
-- **Directeur de la publication :** [nom et prénom]
+- **N° de TVA intracommunautaire :** [en cours : à compléter] *(si vous êtes en franchise en base : « TVA non applicable, article 293 B du CGI »)*
+- **E-mail :** ecrustudio36@gmail.com
+- **Téléphone :** 07 49 74 55 98
+- **Directeur de la publication :** Hamafarage Sardar
 
 ## Hébergement
 
@@ -34,13 +34,13 @@ Les logos, textes et images que vous envoyez pour personnaliser vos cartes reste
 
 ## Données personnelles
 
-- **Responsable du traitement :** [nom de l'éditeur ci-dessus].
+- **Responsable du traitement :** Hamafarage Sardar (ECRU).
 - **Données collectées :** identité, adresse de livraison et de facturation, e-mail, téléphone, contenu de la commande (textes, logo, liens), données de fidélité de vos clients que vous enregistrez via le service.
 - **Finalités :** traiter et livrer les commandes, gérer votre compte et l'abonnement, faire fonctionner les pages de liens et la fidélité, respecter nos obligations légales et comptables, répondre à vos demandes. Avec votre accord : vous envoyer des informations commerciales.
 - **Bases légales :** exécution du contrat, obligation légale, intérêt légitime, consentement.
 - **Durée de conservation :** le temps de la relation commerciale, puis la durée légale de conservation (par exemple 10 ans pour les pièces comptables). Les données de prospection sont conservées 3 ans après le dernier contact.
 - **Destinataires :** ECRU, ses sous-traitants techniques (Shopify, Cloudflare, transporteurs, prestataires de paiement, fabricants de cartes pour les informations nécessaires à la fabrication). Certains sont situés hors de l'Union européenne, avec des garanties appropriées (clauses contractuelles types).
-- **Vos droits :** accès, rectification, effacement, limitation, opposition, portabilité, et directives sur le sort de vos données après décès. Pour les exercer : [adresse e-mail]. Vous pouvez aussi saisir la CNIL (www.cnil.fr).
+- **Vos droits :** accès, rectification, effacement, limitation, opposition, portabilité, et directives sur le sort de vos données après décès. Pour les exercer : ecrustudio36@gmail.com. Vous pouvez aussi saisir la CNIL (www.cnil.fr).
 
 ## Cookies
 
