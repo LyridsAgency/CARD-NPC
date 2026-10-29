@@ -9,6 +9,10 @@ Cinq mails prêts, un par salon, tous signés « ECRU » avec l'adresse **ecrust
 | CV Diffusion Barbershop | Caen | `cv-diffusion.*` |
 | Zepek Lbaz Barber | Caen | `zepek-lbaz.*` |
 | My Barber | Rouen | `my-barber.*` |
+| Soul Barber Shop | Rouen | `soul-barber-carte-et-page.jpg` |
+| Vintage Barbershop | Le Havre | `vintage-barbershop-carte-et-page.jpg` |
+| Nicolas Legrix Barbershop | Le Havre | `nicolas-legrix-carte-et-page.jpg` |
+| Barbier Laoui | Évreux | `barbier-laoui-carte-et-page.jpg` |
 
 Objet de chaque mail : `Une carte pour <nom du salon>`.
 Adresses e-mail des salons : à chercher sur leur fiche Planity, Instagram ou site, puis à vérifier avant l'envoi.
