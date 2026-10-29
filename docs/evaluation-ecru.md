@@ -1,55 +1,56 @@
-# Évaluation du projet ECRU
+# Évaluation de ce qui est fait (ECRU)
 
 Date : 2026-10-29
 
+Cette évaluation porte uniquement sur le travail réalisé à ce jour : le site, le configurateur, la fidélité,
+la boutique et les documents. Les éléments pas encore faits (fournisseur métal, juridique, avis, domaine)
+sont listés à part et ne sont pas notés.
+
 ## Verdict
 
-Le produit et le site sont avancés. La chaîne d'approvisionnement ne l'est pas encore : aucun fournisseur
-n'a confirmé la gamme métal complète avec des prix. Le projet est prêt à être mis en ligne côté vitrine,
-mais la fabrication et la marge restent non validées.
+Le travail réalisé est solide : le site est complet, cohérent visuellement et les parcours d'achat ont été
+testés. Les principaux défauts connus ont été corrigés. Ce qui limite la note, c'est qu'une partie du travail
+n'est pas encore visible des clients (thème non publié) et que certains résultats n'ont été testés qu'en aperçu.
 
-## Évaluation par domaine
+**Note d'ensemble sur l'existant : 7,5 / 10.**
 
-| Domaine | Note | Commentaire |
+## Notes par réalisation
+
+| Réalisation | Note | Commentaire |
 |---|---|---|
-| Identité de marque | 8/10 | Noir et crème, nom court, ton cohérent, interface en français. |
-| Site et expérience d'achat | 7/10 | Carte 3D, configurateur, fidélité, compte client. Nombreuses fonctions, mais le thème « mise à jour 17 » n'est pas encore publié. |
-| Offre et prix | 6/10 | Gamme claire (3 produits + options). Pas de calcul de marge : les prix ne sont pas confrontés aux coûts réels. |
-| Fabrication (métal) | 3/10 | Aucun fournisseur n'a confirmé satiné, brossé, chrome miroir et irisé avec des prix. Le fournisseur le plus réactif n'a pas répondu sur le fond. |
-| Fidélité (abonnement) | 6/10 | Serveur déployé et testé. Le plan d'abonnement reste à créer dans Shopify, et l'arrêt automatique des cartes n'est pas branché. |
-| Preuve sociale | 2/10 | Aucun avis client réel. La section est cachée tant qu'elle est vide. Les chiffres de vente sont sourcés, mais ce sont des études générales, pas des résultats ECRU. |
-| Juridique et administratif | 3/10 | Pages légales, SIRET, nom de domaine et forfait Shopify à finaliser. Indispensable avant de vendre. |
-| Prospection | 4/10 | Un mail prêt pour un seul prospect (For Guys, Argentan). Pas encore de plan de prospection suivi. |
-
-**Moyenne indicative : 4,9 / 10.** Le site est en bonne voie, mais le projet n'est pas encore vendable de bout en bout.
+| Identité visuelle (noir et crème) | 8/10 | Cohérente sur le site, les documents et la planche fournisseur. |
+| Carte 3D d'accueil | 8/10 | PVC et métal, trois finitions, rotation fluide, artefacts de pixels corrigés. Rendu du brossé amélioré. |
+| Configurateur de carte | 7/10 | Logo, couleurs, polices, liens, taille du logo ; recommande en un clic. Dense : l'éditeur reste chargé. |
+| Fidélité (serveur et pages) | 7/10 | Worker déployé, 25 tests passent, pages de liens et couleurs personnalisables. Branchement Shopify Flow pas fait. |
+| Boutique : prix et livraison | 7/10 | Livraison France corrigée et vérifiée par un ajout au panier ; 4,90 € offerts dès 100 €. Marges non calculées. |
+| Contenu et chiffres de vente | 7/10 | Chiffres sourcés, aucun avis inventé. Ce sont des études générales, pas des résultats ECRU. |
+| Accueil et ordre des sections | 7/10 | Ordre logique revu, textes allégés, chiffres mis en avant. |
+| Documents (mode d'emploi, planche, notes) | 8/10 | Planche fournisseur claire, message type, suivi et notes de projet. |
+| Qualité technique | 7/10 | Bugs bloquants corrigés (métal barré, carte figée, barre de progression). Tests Playwright et Worker, mais pas de tests sur le thème publié. |
 
 ## Points forts
 
-1. **Produit différenciant :** la carte 3D et le configurateur donnent une vraie présence visuelle.
-2. **Offre lisible :** trois produits et des options, sans jargon.
-3. **Fidélité :** une vraie valeur récurrente (29 €/mois) qui peut stabiliser le chiffre d'affaires.
-4. **Rigueur des sources :** les chiffres de vente cités sont sourcés et l'équipe refuse d'inventer des avis.
+1. **Parcours d'achat complet** : de la carte 3D au panier, avec réachat simplifié.
+2. **Corrections sérieuses** : chaque bug signalé a été reproduit puis vérifié.
+3. **Pas de fausses preuves** : aucun avis, chiffre ou client inventé.
+4. **Documentation** : le projet peut être repris sans tout redemander.
 
-## Risques
+## Faiblesses de l'existant
 
-1. **Fabrication :** sans fournisseur confirmé pour le métal, on ne peut ni tenir les prix affichés ni les délais annoncés.
-2. **Marge :** les prix (ex. métal 12,90 €, sur mesure 3,50 €) n'ont pas été confrontés au coût réel d'une carte, des puces, de la gravure et du port. Une carte métal à 12,90 € peut être déficitaire si le coût unitaire est proche de ce montant.
-3. **Minimums de commande :** les fournisseurs demandent 200 à 500 pièces. Le lancement avec 100 cartes personnalisées n'est pas acquis, et ces minimums immobilisent du stock.
-4. **Puces :** une puce NFC mal choisie ou non verrouillée peut être copiée ou ne pas se lire à travers la carte.
-5. **Confiance :** sans avis réels, la conversion sera probablement faible. Le risque est d'avoir un site bien fait et peu de clients.
-6. **Dépendance à une seule personne :** la publication du thème et les réglages Shopify dépendent d'une action manuelle de ta part.
+1. **Éditeur chargé** : l'utilisateur l'a déjà signalé ; même allégé en onglets, il reste dense.
+2. **Testé en aperçu seulement** : la « mise à jour 17 » n'est pas publiée, donc pas validée sur la vraie boutique.
+3. **Rendu 3D du brossé** : visible au gros plan, discret à taille réduite sur la planche.
+4. **Fidélité** : dépend de réglages que seule la personne peut faire (plan d'abonnement, Flow).
+5. **Prix** : fixés sans coût réel connu.
 
-## Recommandations, par ordre
+## Pas encore fait (non noté)
 
-1. **Calculer la marge réelle par produit** : coût carte + puce + gravure + emballage + port, puis prix de vente. Cela décide si les prix tiennent.
-2. **Trancher le fournisseur métal** : demander un échantillon d'une finition (satiné ou brossé) avant toute commande, et un prix par palier écrit.
-3. **Publier la « mise à jour 17 »** et retirer le mot de passe, pour que le site soit visible et testable.
-4. **Lancer les pages légales, le domaine et Shopify Payments** : sans ces trois éléments, aucune vente n'est possible.
-5. **Obtenir les premiers avis** : proposer la carte gratuitement ou à prix réduit à quelques commerçants test, en échange d'un avis honnête.
-6. **Faire une prospection suivie** : une liste de 20 commerces, un suivi par statut, et mesurer les réponses avant d'élargir.
+Fournisseur métal confirmé, pages légales, nom de domaine, forfait et paiements Shopify, avis clients réels,
+prospection suivie.
 
-## Ce qu'il ne faut pas faire pour l'instant
+## Prochaines étapes conseillées
 
-- Ne pas lancer de campagne publicitaire tant que la fabrication métal n'est pas confirmée.
-- Ne pas afficher de chiffres de clients ou d'avis avant qu'ils soient réels.
-- Ne pas commander de grosses quantités avant d'avoir vendu les premières cartes.
+1. Publier la « mise à jour 17 » et tester la boutique en vrai (parcours complet, mobile et ordinateur).
+2. Alléger encore l'éditeur de carte d'après un test sur téléphone.
+3. Calculer la marge par produit avant de communiquer les prix.
+4. Obtenir un échantillon de finition métal avant de promettre la gamme.
