@@ -11,7 +11,7 @@ Le site ECRU est édité par :
 - **Capital social :** [montant, si société]
 - **Adresse du siège :** 3 rue de Fleuré, 61200 Sarceaux, France
 - **RCS ou RNE :** [ville d'immatriculation et numéro, ou « Registre national des entreprises »]
-- **E-mail :** ecrustudio36@gmail.com
+- **E-mail :** ecrustudio35@gmail.com
 - **Téléphone :** 07 49 74 55 98
 - **Directeur de la publication :** Hamafarage Sardar
 
@@ -38,7 +38,7 @@ Les logos, textes et images que vous envoyez pour personnaliser vos cartes reste
 - **Bases légales :** exécution du contrat, obligation légale, intérêt légitime, consentement.
 - **Durée de conservation :** le temps de la relation commerciale, puis la durée légale de conservation (par exemple 10 ans pour les pièces comptables). Les données de prospection sont conservées 3 ans après le dernier contact.
 - **Destinataires :** ECRU, ses sous-traitants techniques (Shopify, Cloudflare, transporteurs, prestataires de paiement, fabricants de cartes pour les informations nécessaires à la fabrication). Certains sont situés hors de l'Union européenne, avec des garanties appropriées (clauses contractuelles types).
-- **Vos droits :** accès, rectification, effacement, limitation, opposition, portabilité, et directives sur le sort de vos données après décès. Pour les exercer : ecrustudio36@gmail.com. Vous pouvez aussi saisir la CNIL (www.cnil.fr).
+- **Vos droits :** accès, rectification, effacement, limitation, opposition, portabilité, et directives sur le sort de vos données après décès. Pour les exercer : ecrustudio35@gmail.com. Vous pouvez aussi saisir la CNIL (www.cnil.fr).
 
 ## Cookies
 
