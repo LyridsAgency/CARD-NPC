@@ -64,8 +64,8 @@
       <fieldset class="ecru-option ecru-devis__groupe">
         <legend><span class="ecru-option__etape" aria-hidden="true">01</span>La carte</legend>
         <div class="ecru-option__choix">
-          <input type="radio" id="devis-type-1" name="contact[Carte]" value="Vierge (noire ou blanche)" data-ecru-devis="type" data-cle="simple">
-          <label for="devis-type-1">Vierge</label>
+          <input type="radio" id="devis-type-1" name="contact[Carte]" value="Simple (PVC noir ou blanc)" data-ecru-devis="type" data-cle="simple">
+          <label for="devis-type-1">Simple</label>
           <input type="radio" id="devis-type-2" name="contact[Carte]" value="Sur mesure" data-ecru-devis="type" data-cle="mesure" checked>
           <label for="devis-type-2">Sur mesure</label>
         </div>
@@ -195,6 +195,11 @@
     }
     function maj() {
       var cle = choisi('type').dataset.cle;
+      // Cartes simples : PVC uniquement
+      form.querySelectorAll('[data-ecru-devis="matiere"]').forEach(function (r) {
+        r.disabled = cle === 'simple' && r.value !== 'PVC';
+        if (r.disabled && r.checked) form.querySelector('[data-ecru-devis="matiere"][value="PVC"]').checked = true;
+      });
       var matiere = choisi('matiere').value;
       var liens = parseInt(choisi('liens').value, 10) || 0;
       var moq = prix.moq[cle];
@@ -210,8 +215,9 @@
       caseFid.disabled = cle !== 'mesure';
       if (caseFid.disabled) caseFid.checked = false;
       aideFid.textContent = caseFid.disabled ? 'Disponible avec les cartes sur mesure.' : 'Tampons ou points, vos propres récompenses. Le client scanne, vous validez.';
-      aideType.textContent = cle === 'mesure' ? 'Votre couleur, votre texte, votre logo. Dès ' + moq + ' cartes.' : 'Noire ou blanche, sans marquage. Dès ' + moq + ' cartes.';
+      aideType.textContent = cle === 'mesure' ? 'Votre couleur, votre texte, votre logo. Dès ' + moq + ' cartes.' : 'PVC noir ou blanc, sans marquage. Dès ' + moq + ' cartes.';
 
+      // Prix par matière (sur mesure) ; une seule matière pour les simples : leur premier prix
       var unite = (prix[cle] && (prix[cle][matiere] || Object.values(prix[cle])[0])) || 0;
       var html = ligne(q + ' cartes ' + matiere + ' × ' + argentPrecis.format(unite / 100), argent.format((q * unite) / 100));
       var total = q * unite;

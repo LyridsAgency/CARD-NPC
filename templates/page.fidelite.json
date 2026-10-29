@@ -63,7 +63,7 @@
         "points_2": "Les points gagnés par euro dépensé\nJusqu’à six cadeaux, chacun à son prix en points\nLe client choisit quand il en a assez",
         "prix": "29 € par mois",
         "prix_note": "Sans engagement · s’ajoute aux cartes sur mesure (dès 100 cartes, à partir de 3,50 € la carte)",
-        "inclus": "La page de vos clients, à votre logo et à votre couleur\nVotre espace sur téléphone, pour vous et votre équipe\nVos liens : rendez-vous, avis, réseaux, menu\nLe suivi du mois : visites, clients venus, clients revenus",
+        "inclus": "La page de vos clients, à votre logo et à vos couleurs\nVotre espace sur téléphone, pour vous et votre équipe\nVos liens : rendez-vous, avis, réseaux, menu\nLe suivi du mois : visites, clients venus, clients revenus",
         "button_label": "Composer ma carte avec l’option",
         "button_link": "/products/cartes-sur-mesure?fidelite=1"
       }
@@ -179,8 +179,8 @@
   "order": [
     "hero",
     "etapes",
-    "systemes",
     "apercu",
+    "systemes",
     "croissance",
     "faq",
     "appel"

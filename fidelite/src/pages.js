@@ -171,11 +171,11 @@ function nuancier(nom, legende, liste, choisie, aide) {
 }
 function nuanciers({ fond, accent, taille }) {
   return (
+    nuancier('couleur', 'Fond de votre page', COULEURS, fond, '') +
+    nuancier('accent', 'Couleur des tampons', ACCENTS, accent || 'auto', 'Une couleur de tampons trop proche du fond est remplacée, pour rester visible.') +
     `<div><label for="taille_logo">Taille de votre logo</label>
           <input id="taille_logo" class="curseur" type="range" name="taille_logo" min="${TAILLE_LOGO.min}" max="${TAILLE_LOGO.max}" step="10" value="${taille}">
-          <p class="doux" style="font-size:13px;display:flex;justify-content:space-between;margin:4px 0 0"><span>Petit</span><span>Actuellement ${taille} %</span><span>Grand</span></p></div>` +
-    nuancier('couleur', 'Fond de votre page', COULEURS, fond, '') +
-    nuancier('accent', 'Couleur des tampons', ACCENTS, accent || 'auto', 'Vos clients voient ces deux couleurs en scannant leur carte. Le texte s’adapte pour rester lisible ; une couleur de tampons trop proche du fond est remplacée.')
+          <p class="doux" style="font-size:13px;display:flex;justify-content:space-between;margin:4px 0 0"><span>Petit</span><span>Actuellement ${taille} %</span><span>Grand</span></p></div>`
   );
 }
 
@@ -376,6 +376,7 @@ export function pageTableau(c, stats, reglage, flash = '', site = '') {
         <fieldset class="choix"><legend class="doux">Votre système</legend>
           <label class="option"><input type="radio" name="mode" value="tampons" id="mode-tampons"${pts ? '' : ' checked'}><span><b>Tampons</b>Un passage, un tampon. Une récompense au bout.</span></label>
           <label class="option"><input type="radio" name="mode" value="points" id="mode-points"${pts ? ' checked' : ''}><span><b>Points</b>Des points selon le montant, des cadeaux à vos prix.</span></label>
+          <p class="doux" style="font-size:13px">Changer de système remet les cartes à zéro.</p>
         </fieldset>
         <div class="si-tampons champs">
           <div><label for="seuil">Tampons nécessaires</label><input id="seuil" name="seuil" type="number" min="3" max="30" value="${reglage.seuil}" inputmode="numeric"></div>
@@ -389,8 +390,9 @@ export function pageTableau(c, stats, reglage, flash = '', site = '') {
           <div><label for="taux">Points par euro dépensé</label><input id="taux" name="taux" type="text" inputmode="decimal" value="${String(reglage.taux).replace('.', ',')}"></div>
           <div><p class="doux" style="font-size:13px;margin:0 0 6px">Vos cadeaux et leur prix en points</p><div class="champs" style="gap:8px">${lignesCadeaux}</div></div>
         </div>
+        <p class="petit" style="margin-top:12px">Votre page</p>
+        <p class="doux" style="font-size:13px;margin-top:-8px">Ce que vos clients voient en scannant leur carte.</p>
         ${nuanciers(lireCouleurs(reglage.couleur || c.couleur))}
-        <p class="doux" style="font-size:13px">Changer de système remet les cartes à zéro.</p>
         <button class="plein" type="submit">Enregistrer</button>
       </form>
     </section>

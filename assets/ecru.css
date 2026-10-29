@@ -4735,9 +4735,9 @@ body::after {
 
 /* ----- Recommander : les cartes déjà commandées, reprises en un geste --------- */
 .ecru-recommander {
-  margin-top: 64px;
-  padding-top: 48px;
-  border-top: 1px solid var(--ecru-border);
+  margin: 0 0 64px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--ecru-border);
 }
 .ecru-recommander > .ecru-texte {
   max-width: 62ch;

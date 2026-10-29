@@ -121,10 +121,10 @@
         }
       },
       "block_order": [
+        "q7",
         "q1",
         "q2",
         "q6",
-        "q7",
         "q9"
       ]
     },
@@ -377,10 +377,10 @@
     "defilement",
     "niveau",
     "demo",
+    "offres",
     "assortiments",
     "finitions",
     "fidelite",
-    "offres",
     "avis",
     "faq",
     "appel"
