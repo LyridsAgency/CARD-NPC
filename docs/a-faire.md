@@ -84,6 +84,8 @@
 
 ## Livraison et disponibilité (corrigé le 29/10)
 25. La boutique ne livrait qu'aux États-Unis : en France, les cartes apparaissaient « Indisponible » (Métal barré).
-    Ajouté : zone « France et Europe » (FR, BE, DE, ES, IT, PT, PL, CH, GB) à 4,90 €, livraison activée dans le
-    marché EUROPE, et cartes vendables sans stock déclaré (fabriquées à la commande). À ajuster si besoin :
+    Corrigé : entrepôt « Emplacement de la boutique » à Sarceaux (il était vide, réglé sur les États-Unis),
+    livraison « Livraison suivie » 4,90 € (2 à 5 jours) dans le marché EUROPE rattachée à l'entrepôt, catalogue
+    « Europe — tous les produits », cartes vendables sans stock déclaré. Vérifié : ajout au panier depuis la France OK.
+    La livraison vers les États-Unis n'existe plus (elle dépendait de l'ancien entrepôt américain). À ajuster si besoin :
     Paramètres → Expédition et livraison.
