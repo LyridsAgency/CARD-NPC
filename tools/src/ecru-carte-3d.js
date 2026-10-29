@@ -199,6 +199,9 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
     acc = acc * 0.35 + (rand() - 0.5) * 0.8;
     rows[y] = acc;
   }
+  // Stries de longueur finie : chaque ligne a sa propre phase le long de x
+  const phase = new Float32Array(h);
+  for (let y = 0; y < h; y++) phase[y] = rand() * 6.283;
   const [br, bg, bb] = base;
   const [ir, ig, ib] = ink;
   for (let y = 0; y < h; y++) {
@@ -209,12 +212,13 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
       const m = md[i] / 255;
       const s = sd[i] / 255;
       const g = brushed
-        ? row * 0.9 + (rand() - 0.5) * 0.25
+        ? row * 1.1 + Math.sin(x * 0.011 + phase[y]) * 0.35 * row + (rand() - 0.5) * 0.3
         : metal
         ? (rand() - 0.5) * 0.12
         : (rand() - 0.5) * 0.6 + coarse[cy + ((x / 3) | 0)];
       const n = nd ? nd[i] / 255 : 0;
-      const grain = 1 + g * (metal ? 0.035 : 0.1);
+      // Brossé : stries franches (couleur et brillance varient d'une ligne à l'autre), comme un acier brossé réel
+      const grain = 1 + g * (brushed ? 0.3 : metal ? 0.035 : 0.1);
       const gb = grain * (1 - n * (metal ? inlayShade : 0.08));
       // Couleur : matière grainée, fenêtre NFC un peu plus sombre (ou de la couleur choisie), encre sur le relief
       let cr = br * gb;
@@ -231,7 +235,7 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
       cd[i + 3] = 255;
       // G = rugosité, B = métal
       od[i] = 255;
-      let rough = (brushed ? 0.3 : metal ? polish : 0.82) + g * (metal ? 0.035 : 0.1) - (ed ? (ed[i] / 255) * 0.12 : 0);
+      let rough = (brushed ? 0.34 : metal ? polish : 0.82) + g * (brushed ? 0.22 : metal ? 0.035 : 0.1) - (ed ? (ed[i] / 255) * 0.12 : 0);
       rough = rough * (1 - n) + 0.62 * n;
       od[i + 1] = rough * 255 * (1 - m) + (metal ? inkRough : 0.4) * 255 * m;
       od[i + 2] = metal ? 255 * metalAmt * (1 - m) * (1 - n) + inkMetal * 255 * m : 255 * m * 0.55;
@@ -239,7 +243,7 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
       // Relief : grain + texte surélevé (ou gravé si relief < 0)
       const e = ed ? ed[i] / 255 : 0;
       const joint = ng ? Math.min(1, Math.abs(ng[i] / 255 - n) * 4) : 0;
-      const v = 128 + g * (metal ? 9 : 26) + relief * (s * 0.55 + m * 0.45) * 110 - e * 38 - n * 10 - joint * 26;
+      const v = 128 + g * (brushed ? 30 : metal ? 9 : 26) + relief * (s * 0.55 + m * 0.45) * 110 - e * 38 - n * 10 - joint * 26;
       bd[i] = bd[i + 1] = bd[i + 2] = v;
       bd[i + 3] = 255;
     }
@@ -266,7 +270,7 @@ function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = f
     iridescenceIOR: 1.8,
     iridescenceThicknessRange: [180, 980],
     iridescenceThicknessMap: irise ? epaisseurIrisee() : null,
-    anisotropy: brushed ? 0.75 : 0,
+    anisotropy: brushed ? 0.9 : 0,
     specularIntensity: metal ? 1 : 0.6,
     color: 0xffffff,
     map: tex.map,
@@ -282,7 +286,7 @@ function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = f
     polygonOffset: true,
     polygonOffsetFactor: -2,
     polygonOffsetUnits: -4,
-    clearcoat: chrome ? (teinte ? 0.15 : 1) : brushed ? 0.35 : metal ? 0.08 : 0.1,
+    clearcoat: chrome ? (teinte ? 0.15 : 1) : brushed ? 0 : metal ? 0.08 : 0.1,
     clearcoatRoughness: chrome ? 0.04 : brushed ? 0.3 : 0.5,
   });
 }
