@@ -24,6 +24,20 @@ const REQUETE = `query Commerce($h: MetaobjectHandleInput!) {
 function lien(u) {
   return /^https?:\/\//.test(u || '') ? u : null;
 }
+// Un lien de la fiche peut porter le nom de son bouton, choisi par le commerçant : « Nom|https://… »
+export function lireLien(v) {
+  const brut = String(v || '');
+  const i = brut.lastIndexOf('|');
+  const nom = i > 0 ? brut.slice(0, i).trim().slice(0, 40) : '';
+  const url = lien(i > 0 ? brut.slice(i + 1).trim() : brut.trim());
+  return url ? { nom, url } : null;
+}
+export function ecrireLien(nom, url) {
+  const u = lien(String(url || '').trim());
+  if (!u) return null;
+  const n = String(nom || '').replace(/\|/g, ' ').trim().slice(0, 40);
+  return n ? `${n}|${u}` : u;
+}
 // Nom du bouton selon l'adresse (même règle que l'aperçu du site, assets/ecru-configurateur.js) ;
 // sinon le libellé du champ
 const SITES = [
@@ -51,14 +65,17 @@ export function normaliser(r) {
     accroche: r.accroche || '',
     recompense: r.recompense || '',
     seuil: Math.min(30, Math.max(3, parseInt(r.seuil, 10) || 10)),
+    // [nom du bouton, adresse] : le nom choisi par le commerçant, sinon déduit de l'adresse
     liens: [
-      ['Voir le menu', lien(r.lien_menu)],
-      ['Laisser un avis', lien(r.lien_avis)],
-      ['Nous suivre', lien(r.lien_reseaux)],
-      ['Notre site', lien(r.lien_site)],
+      ['Voir le menu', lireLien(r.lien_menu)],
+      ['Laisser un avis', lireLien(r.lien_avis)],
+      ['Nous suivre', lireLien(r.lien_reseaux)],
+      ['Notre site', lireLien(r.lien_site)],
     ]
       .filter((l) => l[1])
-      .map(([t, u]) => [nommerLien(u, t), u]),
+      .map(([t, l]) => [l.nom || nommerLien(l.url, t), l.url]),
+    // Les quatre emplacements tels quels (formulaires de l'admin et de l'espace pro)
+    emplacements: [r.lien_menu, r.lien_avis, r.lien_reseaux, r.lien_site].map((v) => lireLien(v) || { nom: '', url: '' }),
     logo: lien(r.logo) || '',
   };
 }

@@ -1162,15 +1162,41 @@
       }
     }
     var apercuLiens = form.querySelector('[data-ecru-liens-apercu]');
+    // Liens remplis, avec le nom de leur bouton : celui choisi, sinon déduit de l'adresse
+    function liensSaisis() {
+      return [].map
+        .call(form.querySelectorAll('[data-ecru-liens] input[type=url]:not([disabled])'), function (c) {
+          var champNom = c.parentNode.querySelector('[data-ecru-nom-lien]');
+          var url = c.value.trim();
+          if (champNom) champNom.placeholder = url ? nommerLien(url) : 'Nom du bouton';
+          return { url: url, nom: (champNom && champNom.value.trim()) || nommerLien(url) };
+        })
+        .filter(function (l) {
+          return l.url;
+        });
+    }
+    // Aperçu fidélité : les vrais liens du client, sous sa progression
+    function majLiensFidelite(liens) {
+      var zone = form.querySelector('[data-ecru-fid-liens]');
+      if (!zone || !liens.length) return;
+      zone.textContent = '';
+      liens.forEach(function (l) {
+        var e = document.createElement('span');
+        e.className = 'ecru-apercu__lien';
+        e.textContent = l.nom;
+        zone.appendChild(e);
+      });
+    }
     function majApercuLiens() {
       if (!apercuLiens) return;
-      var urls = [].map
-        .call(form.querySelectorAll('[data-ecru-liens] input[type=url]:not([disabled])'), function (c) {
-          return c.value.trim();
-        })
-        .filter(Boolean);
-      apercuLiens.hidden = urls.length < 2;
-      if (urls.length < 2) return;
+      var liens = liensSaisis();
+      var urls = liens.map(function (l) {
+        return l.url;
+      });
+      majLiensFidelite(liens);
+      // Avec la fidélité, la carte ouvre la page de fidélité : les liens y sont (aperçu du téléphone fidélité)
+      apercuLiens.hidden = urls.length < 2 || avecFidelite();
+      if (apercuLiens.hidden) return;
       var ecran = apercuLiens.querySelector('[data-ecru-liens-ecran]');
       var fond = teintes.page || '#0d0d0c';
       var accent = teintes.tampons && teintes.tampons !== 'auto' && Math.abs(clarte(teintes.tampons) - clarte(fond)) > 55 ? teintes.tampons : null;
@@ -1189,13 +1215,14 @@
       urls.forEach(function (u, i) {
         var b = document.createElement('span');
         b.className = 'ecru-liens-apercu__bouton' + (i === 0 ? ' is-plein' : '');
-        b.textContent = nommerLien(u);
+        b.textContent = liens[i].nom;
         liste.appendChild(b);
       });
     }
     form.addEventListener('input', function (e) {
-      if (e.target.type === 'url') majApercuLiens();
+      if (e.target.type === 'url' || 'ecruNomLien' in e.target.dataset) majApercuLiens();
     });
+    if (caseFidelite) caseFidelite.addEventListener('change', majApercuLiens);
     form.addEventListener('click', function (e) {
       if (e.target.closest('[data-cible="page"], [data-cible="tampons"]')) setTimeout(majApercuLiens, 0);
     });
@@ -1208,7 +1235,9 @@
         if (!suivant) return;
         suivant.hidden = false;
         var champ = suivant.querySelector('input');
-        champ.disabled = false;
+        suivant.querySelectorAll('input').forEach(function (x) {
+          x.disabled = false;
+        });
         champ.focus();
         if (!form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
         majApercuLiens();
@@ -1382,6 +1411,11 @@
         if (!c || !p[cle]) return;
         c.value = p[cle];
         c.disabled = false;
+        var n = form.querySelector('[name="properties[Nom ' + cle.toLowerCase() + ']"]');
+        if (n) {
+          n.disabled = false;
+          n.value = p['Nom ' + cle.toLowerCase()] || '';
+        }
         var bloc = c.closest('[data-ecru-lien-sup]');
         if (bloc) bloc.hidden = false;
       });

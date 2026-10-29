@@ -72,8 +72,10 @@
 ## Cartes à plusieurs liens (sans fidélité)
 23. Une carte avec 2 liens ou plus ouvre la page **https://ecru-fidelite.ecru-fidelite.workers.dev/l/<commerce>**
     (plus tard : carte.<votre-domaine>/l/<commerce>). Dans /admin → « Fiche du commerce » : nom, logo, couleur,
-    et ses liens dans l'ordre de la commande (le premier est mis en avant). Le nom des boutons se déduit de
-    l'adresse (Instagram, Avis Google, Prendre rendez-vous…). Programmez cette adresse sur ses cartes.
+    et ses liens dans l'ordre de la commande (le premier est mis en avant), avec le « Nom lien » de la commande
+    comme nom de bouton (vide : déduit de l'adresse). Programmez cette adresse sur ses cartes.
+    Avec l'option fidélité, la carte programmée est celle de fidélité : les mêmes boutons apparaissent sous sa
+    progression. Le commerçant peut ensuite changer ses liens et leurs noms dans son espace pro (« Vos liens »).
 
 ## Page de connexion des clients (Shopify)
 24. Paramètres → Paiement → Personnaliser (« Checkout et comptes ») → Paramètres de marque : logo ECRU,

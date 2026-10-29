@@ -408,6 +408,9 @@ export function pageTableau(c, stats, reglage, flash = '', site = '') {
           <div><label for="taux">Points par euro dépensé</label><input id="taux" name="taux" type="text" inputmode="decimal" value="${String(reglage.taux).replace('.', ',')}"></div>
           <div><p class="doux" style="font-size:13px;margin:0 0 6px">Vos cadeaux et leur prix en points</p><div class="champs" style="gap:8px">${lignesCadeaux}</div></div>
         </div>
+        <p class="petit" style="margin-top:12px">Vos liens</p>
+        <p class="doux" style="font-size:13px;margin-top:-8px">Les boutons de votre page, dans cet ordre. Vous choisissez leur nom.</p>
+        <div class="champs" style="gap:8px">${(c.emplacements || []).map((l, i) => `<div class="cadeau" style="grid-template-columns:1fr 1.4fr"><input name="nom_${['lien_menu', 'lien_avis', 'lien_reseaux', 'lien_site'][i]}" maxlength="40" value="${echapper(l.nom)}" placeholder="${['Voir le menu', 'Laisser un avis', 'Nous suivre', 'Notre site'][i]}" aria-label="Nom du bouton ${i + 1}"><input name="${['lien_menu', 'lien_avis', 'lien_reseaux', 'lien_site'][i]}" type="url" value="${echapper(l.url)}" placeholder="https://" aria-label="Lien ${i + 1}"></div>`).join('')}</div>
         <p class="petit" style="margin-top:12px">Votre page</p>
         <p class="doux" style="font-size:13px;margin-top:-8px">Ce que vos clients voient en scannant leur carte.</p>
         ${nuanciers(lireCouleurs(reglage.couleur || c.couleur))}
@@ -472,10 +475,8 @@ export function pageAdmin(resultat = '', commerces = []) {
       <div><label for="accroche">Message d’accueil</label><input id="accroche" name="accroche" maxlength="120" placeholder="Bon retour parmi nous."></div>
       <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" placeholder="Le dessert offert"></div>
       <div><label for="seuil">Tampons pour la récompense</label><input id="seuil" name="seuil" type="number" min="3" max="30" value="10"></div>
-      <div><label for="lm">Lien menu</label><input id="lm" name="lien_menu" type="url"></div>
-      <div><label for="la">Lien avis</label><input id="la" name="lien_avis" type="url"></div>
-      <div><label for="lr">Lien réseaux</label><input id="lr" name="lien_reseaux" type="url"></div>
-      <div><label for="ls">Lien site</label><input id="ls" name="lien_site" type="url"></div>
+      <p class="doux" style="font-size:13px">Liens dans l'ordre de la commande (le premier est mis en avant), avec le nom choisi par le client pour chaque bouton.</p>
+      ${['lien_menu', 'lien_avis', 'lien_reseaux', 'lien_site'].map((col, i) => `<div class="cadeau" style="grid-template-columns:1fr 1.4fr"><input name="nom_${col}" maxlength="40" placeholder="Nom du bouton ${i + 1}" aria-label="Nom du bouton ${i + 1}"><input name="${col}" type="url" placeholder="Lien ${i + 1}" aria-label="Lien ${i + 1}"></div>`).join('')}
       <label style="display:flex;gap:10px;align-items:center;font-size:15px"><input type="checkbox" name="actif" value="1" checked style="width:auto"> Abonnement actif (décocher pour arrêter ses cartes)</label>
       <button class="plein" type="submit">Enregistrer le commerce</button>
     </form>

@@ -336,20 +336,27 @@
               <span class="ecru-option__etape" aria-hidden="true">0{{ etape }}</span>
               Liens
             </legend>
+            {%- comment -%} Chaque lien a le nom de son bouton (page de liens, page fidélité), choisi par le client {%- endcomment -%}
             <div class="ecru-champ">
               <label for="{{ uid }}-lien">Lien principal</label>
-              <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
+              <div class="ecru-lien-ligne">
+                <input id="{{ uid }}-lien" type="url" name="properties[Lien]" placeholder="https://votre-site.fr" inputmode="url">
+                <input type="text" name="properties[Nom lien]" maxlength="40" placeholder="Nom du bouton" aria-label="Nom du bouton du lien principal" data-ecru-nom-lien>
+              </div>
             </div>
             {%- for i in (2..4) -%}
               <div class="ecru-champ" data-ecru-lien-sup hidden>
                 <label for="{{ uid }}-lien-{{ i }}">Lien {{ i }}</label>
-                <input id="{{ uid }}-lien-{{ i }}" type="url" name="properties[Lien {{ i }}]" placeholder="Menu, avis, Instagram…" inputmode="url" disabled>
+                <div class="ecru-lien-ligne">
+                  <input id="{{ uid }}-lien-{{ i }}" type="url" name="properties[Lien {{ i }}]" placeholder="Menu, avis, Instagram…" inputmode="url" disabled>
+                  <input type="text" name="properties[Nom lien {{ i }}]" maxlength="40" placeholder="Nom du bouton" aria-label="Nom du bouton du lien {{ i }}" data-ecru-nom-lien disabled>
+                </div>
               </div>
             {%- endfor -%}
             <button type="button" class="ecru-outil" data-ecru-lien-ajout>+ Ajouter un lien</button>
             <p class="ecru-champ__aide">
               {%- if option_lien != blank -%}+ {{ option_lien.price | money_without_currency | replace: '.', ' ' | append: ' €' }} par carte et par lien. {% endif -%}
-              Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à votre nom qui les réunit. Sans lien, la puce n’est pas programmée.
+              Un lien : la carte l’ouvre directement. Plusieurs, ou avec l’option fidélité : vos liens deviennent des boutons sur votre page, avec le nom que vous leur donnez. Sans lien, la puce n’est pas programmée.
             </p>
             {%- comment -%} Aperçu de la page de liens (fidelite/src/pages.js, pageLiens), visible dès deux liens {%- endcomment -%}
             <div class="ecru-liens-apercu" data-ecru-liens-apercu hidden>
@@ -392,8 +399,7 @@
                       {%- for i in (1..10) -%}<i{% if i <= 7 %} class="is-plein"{% endif %}></i>{%- endfor -%}
                     </span>
                     <span class="ecru-apercu__offre">Plus que 3 visites : votre récompense.</span>
-                    <span class="ecru-apercu__lien">Prendre rendez-vous</span>
-                    <span class="ecru-apercu__lien">Laisser un avis</span>
+                    <span class="ecru-apercu__liens" data-ecru-fid-liens><span class="ecru-apercu__lien">Prendre rendez-vous</span><span class="ecru-apercu__lien">Laisser un avis</span></span>
                   </div>
                 </div>
                 <div class="ecru-fidelite-reglages">

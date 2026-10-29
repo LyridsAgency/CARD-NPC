@@ -5021,3 +5021,17 @@ body::after {
     margin: 0.8rem auto 0;
   }
 }
+/* Lien + nom de son bouton, côte à côte */
+.ecru-lien-ligne {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 0.8rem;
+}
+@media (max-width: 749px) {
+  .ecru-lien-ligne {
+    grid-template-columns: 1fr;
+  }
+}
+.ecru-apercu__liens {
+  display: contents;
+}

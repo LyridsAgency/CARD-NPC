@@ -170,3 +170,18 @@ test('page de liens : une carte à plusieurs liens ouvre la page du commerce, à
   await enregistrer({ commerce: 'sans-liens', nom: 'Sans liens', actif: 1 });
   assert.equal((await appel('/l/sans-liens')).status, 404);
 });
+
+test('noms des boutons choisis : par l’admin, puis par le commerçant dans son espace', async () => {
+  await enregistrer({ commerce: 'noms', nom: 'Noms', actif: 1, nom_lien_menu: 'Réserver une table', lien_menu: 'https://resa.fr', lien_avis: 'https://g.page/noms/review' });
+  let page = await (await appel('/l/noms')).text();
+  assert.match(page, /href="https:\/\/resa\.fr"[^>]*>Réserver une table</);
+  assert.match(page, />Avis Google</); // sans nom choisi : déduit de l'adresse
+  const r = await appel('/admin/acces', { method: 'POST', body: form({ jeton: 'admin-test', commerce: 'noms' }) });
+  const lien = (await r.text()).match(/\/pro\/connexion\?commerce=[^<"\s]+/)[0].replace(/&amp;/g, '&');
+  const cookie = (await appel(lien)).headers.get('Set-Cookie').split(';')[0];
+  assert.match(await (await appel('/pro', { headers: { cookie } })).text(), /value="Réserver une table"/);
+  await appel('/pro/reglages', { method: 'POST', body: form({ seuil: 10, recompense: 'x', lien_menu: 'https://resa.fr', nom_lien_menu: 'Réserver', lien_avis: 'https://g.page/noms/review', nom_lien_avis: 'Votre avis compte', lien_reseaux: '', lien_site: '' }), headers: { cookie, origin: BASE } });
+  page = await (await appel('/l/noms')).text();
+  assert.match(page, />Réserver</);
+  assert.match(page, />Votre avis compte</);
+});

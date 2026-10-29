@@ -3,7 +3,7 @@
 //   /pro               tableau de bord du commerçant ; /pro/connexion?commerce=…&cle=… ; /pro/reglages ; /pro/deconnexion
 //   /admin             création des cartes (CSV d'adresses à encoder) et des liens de connexion commerçant
 import { aleatoire, hacher, egal, creerSession, lireSession, lireCookie } from './securite.js';
-import { lireCommerce } from './shopify.js';
+import { lireCommerce, ecrireLien } from './shopify.js';
 import { pageLiens, pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper, couleurValide, lireCouleurs, ecrireCouleurs } from './pages.js';
 
 const COOKIE = 'ecru_pro';
@@ -29,6 +29,9 @@ function rediriger(url, entetes = {}) {
 function maintenantIso() {
   return new Date().toISOString();
 }
+
+// Les quatre emplacements de liens d'une fiche, dans l'ordre des boutons
+const COLONNES_LIENS = ['lien_menu', 'lien_avis', 'lien_reseaux', 'lien_site'];
 
 // Cadeaux du mode points : 6 au plus, triés du moins cher au plus cher
 function lireCadeaux(brut) {
@@ -234,6 +237,11 @@ async function routesPro(env, requete, url) {
          taux = excluded.taux, cadeaux = excluded.cadeaux, modifie = excluded.modifie`
     ).bind(commerce, seuil, recompense, mode, apres, taux, JSON.stringify(cadeaux), maintenantIso()).run();
     if (couleur !== avant.couleur) await env.DB.prepare('UPDATE commerces SET couleur = ? WHERE handle = ?').bind(couleur, commerce).run();
+    // Ses liens et le nom de leurs boutons (seulement si le formulaire les envoie)
+    if (f.has('lien_menu')) {
+      const valeurs = COLONNES_LIENS.map((col) => ecrireLien(f.get(`nom_${col}`), f.get(col)));
+      await env.DB.prepare(`UPDATE commerces SET ${COLONNES_LIENS.map((col) => `${col} = ?`).join(', ')} WHERE handle = ?`).bind(...valeurs, commerce).run();
+    }
     // Tampons et points ne se comptent pas pareil : changer de système remet les cartes à zéro
     let ok = 'Réglages enregistrés.';
     if (mode !== avant.mode) {
@@ -283,7 +291,7 @@ async function routesAdmin(env, requete, url) {
          accroche = excluded.accroche, recompense = excluded.recompense, seuil = excluded.seuil, lien_menu = excluded.lien_menu,
          lien_avis = excluded.lien_avis, lien_reseaux = excluded.lien_reseaux, lien_site = excluded.lien_site, modifie = excluded.modifie`
     ).bind(commerce, t('nom', 60) || commerce, f.get('actif') ? 1 : 0, couleur, t('logo', 500), t('accroche', 120), t('recompense', 80), seuil,
-      t('lien_menu', 500), t('lien_avis', 500), t('lien_reseaux', 500), t('lien_site', 500), maintenantIso()).run();
+      ...COLONNES_LIENS.map((col) => ecrireLien(f.get(`nom_${col}`), f.get(col))), maintenantIso()).run();
     // Adresse de la page de liens, à programmer sur les cartes à plusieurs liens (sans fidélité)
     const pageL = `${(env.PUBLIC_URL || url.origin).replace(/\/$/, '')}/l/${commerce}`;
     return html(pageAdmin(`<p class="flash">Commerce « ${echapper(commerce)} » enregistré${f.get('actif') ? '' : ' (arrêté : ses cartes affichent le message de fin)'}.</p><p class="doux">Cartes à plusieurs liens (sans fidélité) : programmez <b>${echapper(pageL)}</b></p>`, await listeCommerces(env)));
