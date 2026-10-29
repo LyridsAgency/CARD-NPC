@@ -664,13 +664,15 @@ export async function mount(el) {
     const srgb = cardColor.getRGB({}, SRGBColorSpace);
     const neutre = Math.max(srgb.r, srgb.g, srgb.b) - Math.min(srgb.r, srgb.g, srgb.b) < 0.1;
     // Métal satiné, comme les cartes réelles : ni miroir, ni brossé
-    const polish = chrome ? 0.05 : dark ? 0.4 : 0.44;
+    const polish = chrome ? 0.05 : dark ? 0.3 : 0.4;
     let metalBase;
     // Métal sombre : revêtement anodisé/laqué satiné (réagit à la lumière comme une peinture)
     const revetu = neutre && dark;
-    const metalAmt = revetu && !chrome ? 0.18 : 1;
+    // Métal sombre : laqué, mais il doit rester du métal à l'œil (reflets nets), pas du PVC
+    const metalAmt = 1;
     if (neutre) {
-      metalBase = cardColor.clone().lerp(new Color(dark ? '#3a3936' : '#d2d1cd'), dark ? 0.38 : 0.55);
+      // Métal sombre : anthracite (« gunmetal »), qui renvoie la lumière ; jamais un noir plat comme le PVC
+      metalBase = cardColor.clone().lerp(new Color(dark ? '#77756f' : '#d2d1cd'), dark ? 0.6 : 0.55);
     } else {
       metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s * 0.85), Math.max(hsl.l, 0.4), SRGBColorSpace).lerp(new Color('#8d8b85'), 0.16);
     }
@@ -748,8 +750,9 @@ export async function mount(el) {
     edgeMat.color.copy(edge);
     edgeMat.metalness = metal ? 1 : 0.35;
     edgeMat.roughness = chrome ? 0.05 : brushed ? 0.2 : metal ? 0.18 : 0.42;
-    scene.environment = chrome ? preparerChrome() : envStudio;
-    scene.environmentIntensity = chrome ? 1.15 : metal ? 1.9 : 1.35;
+    // Tout métal reflète le studio lumineux (le métal se reconnaît à ses reflets) ; le PVC garde le studio doux
+    scene.environment = metal ? preparerChrome() : envStudio;
+    scene.environmentIntensity = chrome ? 1.15 : metal ? 1.5 : 1.35;
     current = { color, ink, finish, elements, verso, inlay, fenetre };
   }
 

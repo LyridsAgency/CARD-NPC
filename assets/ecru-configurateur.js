@@ -949,6 +949,20 @@
         bouton3d.querySelector('span').textContent = on ? 'Voir en 3D' : 'Modifier';
       }
     }
+    // Changer de matière se voit : en vue 3D la carte fait un tour (les reflets du métal) ;
+    // en métal, les finitions qui viennent d'apparaître sont amenées à l'écran
+    function montrerMatiere(valeur) {
+      if (!carte || !carte.classList.contains('is-ready')) return;
+      // En édition (carte collée en haut, de face), la nouvelle matière se voit directement : pas de tour
+      if (!(surCarte && modeEdition)) carte.dispatchEvent(new CustomEvent('ecru:view', { detail: { view: 'tour' } }));
+      if (/m[ée]tal/i.test(valeur || '')) {
+        var fin = form.querySelector('[data-ecru-finition]');
+        if (fin && !fin.hidden)
+          setTimeout(function () {
+            fin.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }, 150);
+      }
+    }
     function installerSurCarte() {
       if (surCarte || !editeur || !carte || !data.surMesure || carte.classList.contains('is-fallback')) return;
       var scene = carte.querySelector('[data-ecru-stage]');
@@ -1055,6 +1069,7 @@
       if (e.target.dataset.position) {
         maj();
         rendre(true);
+        if (e.target.closest('.ecru-option--matiere')) montrerMatiere(e.target.value);
       }
       if (e.target === quantite && (parseInt(quantite.value, 10) || 0) < minimum) {
         quantite.value = minimum;
