@@ -351,6 +351,16 @@
               {%- if option_lien != blank -%}+ {{ option_lien.price | money_without_currency | replace: '.', ' ' | append: ' €' }} par carte et par lien. {% endif -%}
               Un lien : la carte l’ouvre directement. Plusieurs : elle ouvre une page à votre nom qui les réunit. Sans lien, la puce n’est pas programmée.
             </p>
+            {%- comment -%} Aperçu de la page de liens (fidelite/src/pages.js, pageLiens), visible dès deux liens {%- endcomment -%}
+            <div class="ecru-liens-apercu" data-ecru-liens-apercu hidden>
+              <div class="ecru-apercu__tel" aria-hidden="true">
+                <div class="ecru-apercu__ecran ecru-liens-apercu__ecran" data-ecru-liens-ecran>
+                  <span class="ecru-liens-apercu__nom" data-ecru-liens-nom>Votre commerce</span>
+                  <span class="ecru-liens-apercu__liste" data-ecru-liens-liste></span>
+                </div>
+              </div>
+              <p class="ecru-champ__aide">Avec plusieurs liens, la carte ouvre cette page à votre nom : vos liens en grands boutons, le premier mis en avant.</p>
+            </div>
           </fieldset>
         {%- endif -%}
 

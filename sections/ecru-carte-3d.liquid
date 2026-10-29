@@ -66,6 +66,23 @@
         alt: section.settings.a11y_label,
         avantages: avantages
       -%}
+        {%- if section.settings.choix_matiere -%}
+          {%- comment -%} Essayer la carte : PVC ou métal ; en métal, les finitions apparaissent {%- endcomment -%}
+          {%- assign fin_depart = section.settings.finish -%}
+          <div class="ecru-essai" data-ecru-essai="{{ uid }}" data-couleur-metal="{{ section.settings.card_color }}">
+            <div class="ecru-essai__rang" role="group" aria-label="Matière de la carte">
+              <button type="button" class="ecru-essai__choix" data-matiere="mat" aria-pressed="{% if fin_depart == 'mat' %}true{% else %}false{% endif %}">PVC</button>
+              <button type="button" class="ecru-essai__choix" data-matiere="metal" aria-pressed="{% if fin_depart != 'mat' %}true{% else %}false{% endif %}">Métal</button>
+            </div>
+            <div class="ecru-essai__rang ecru-essai__finitions" role="group" aria-label="Finition du métal" data-ecru-essai-finitions{% if fin_depart == 'mat' %} hidden{% endif %}>
+              {%- assign finitions = 'metal:Satiné|chrome:Chromé|irise:Irisé' | split: '|' -%}
+              {%- for f in finitions -%}
+                {%- assign ff = f | split: ':' -%}
+                <button type="button" class="ecru-essai__choix ecru-essai__choix--{{ ff[0] }}" data-finition="{{ ff[0] }}" aria-pressed="{% if fin_depart == ff[0] %}true{% else %}false{% endif %}">{{ ff[1] }}</button>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
     </div>
 
     {%- if section.settings.show_text -%}
@@ -92,6 +109,39 @@
     {%- endif -%}
   </div>
 </section>
+
+{%- if section.settings.choix_matiere -%}
+<script>
+  (function () {
+    var bloc = document.querySelector('[data-ecru-essai="{{ uid }}"]');
+    var carte = document.getElementById('{{ uid }}');
+    if (!bloc || !carte) return;
+    var finitions = bloc.querySelector('[data-ecru-essai-finitions]');
+    var finition = {{ section.settings.finish | json }};
+    if (finition === 'mat' || finition === 'brosse') finition = 'metal';
+    function appliquer(matiere) {
+      var metal = matiere === 'metal';
+      bloc.querySelectorAll('[data-matiere]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.matiere === matiere ? 'true' : 'false');
+      });
+      bloc.querySelectorAll('[data-finition]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.finition === finition ? 'true' : 'false');
+      });
+      finitions.hidden = !metal;
+      // PVC : noir mat ; métal : la couleur de la carte d'accueil, dans la finition choisie
+      var look = metal ? { finish: finition, color: bloc.dataset.couleurMetal || '#141413' } : { finish: 'mat', color: '#0d0d0c' };
+      carte.__ecruLook = Object.assign(carte.__ecruLook || {}, look);
+      carte.dispatchEvent(new CustomEvent('ecru:card-update', { detail: look }));
+    }
+    bloc.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      if (b.dataset.finition) finition = b.dataset.finition;
+      appliquer(b.dataset.matiere || 'metal');
+    });
+  })();
+</script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -128,6 +178,12 @@
       "id": "card_color",
       "label": "Couleur de la carte",
       "default": "#0d0d0c"
+    },
+    {
+      "type": "checkbox",
+      "id": "choix_matiere",
+      "label": "Laisser essayer PVC / métal et les finitions",
+      "default": false
     },
     {
       "type": "select",

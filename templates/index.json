@@ -20,7 +20,8 @@
         "card_color": "#141413",
         "ink_color": "#e9e4d8",
         "finish": "chrome",
-        "card_tagline": "Cartes NFC"
+        "card_tagline": "Cartes NFC",
+        "choix_matiere": true
       },
       "blocks": {},
       "block_order": []
@@ -272,49 +273,6 @@
         "a3"
       ]
     },
-    "finitions": {
-      "type": "ecru-finitions",
-      "settings": {
-        "eyebrow": "Métal",
-        "heading": "Trois finitions. Une seule signature.",
-        "text": "Même prix. Seule la lumière change.",
-        "button_label": "Composer ma carte",
-        "button_link": "/products/cartes-sur-mesure",
-        "padding_top": 96,
-        "padding_bottom": 96
-      },
-      "blocks": {
-        "satine": {
-          "type": "finition",
-          "settings": {
-            "title": "Satiné",
-            "text": "Un voile doux. Sobre et élégant.",
-            "visual": "metal"
-          }
-        },
-        "chrome": {
-          "type": "finition",
-          "settings": {
-            "title": "Chromé",
-            "text": "Un miroir. Le nom reste lisible, dépoli.",
-            "visual": "chrome"
-          }
-        },
-        "irise": {
-          "type": "finition",
-          "settings": {
-            "title": "Irisé",
-            "text": "Les couleurs changent à chaque mouvement.",
-            "visual": "irise"
-          }
-        }
-      },
-      "block_order": [
-        "chrome",
-        "irise",
-        "satine"
-      ]
-    },
     "chiffres": {
       "type": "ecru-chiffres",
       "settings": {
@@ -337,29 +295,29 @@
         "c2": {
           "type": "chiffre",
           "settings": {
-            "valeur": "75",
+            "valeur": "98",
             "apres": "%",
-            "label": "des clients lisent les avis avant de choisir un commerce",
-            "source": "BrightLocal, Local Consumer Review Survey 2024"
+            "label": "des clients lisent les avis d’un commerce de quartier",
+            "source": "BrightLocal, Local Consumer Review Survey 2022 (au moins de temps en temps)"
           }
         },
         "c3": {
           "type": "chiffre",
           "settings": {
             "avant": "×",
-            "valeur": "5",
-            "label": "le coût d’un nouveau client face à un client qui revient (jusqu’à ×25)",
-            "source": "Harvard Business Review, 2014"
+            "valeur": "25",
+            "label": "jusqu’à 25 fois plus cher de trouver un client que de le garder",
+            "source": "Harvard Business Review, 2014 (de 5 à 25 fois)"
           }
         },
         "c4": {
           "type": "chiffre",
           "settings": {
             "avant": "+",
-            "valeur": "25",
+            "valeur": "95",
             "apres": "%",
-            "label": "de bénéfices, jusqu’à +95 %, quand 5 % de clients en plus reviennent",
-            "source": "Bain & Company (F. Reichheld)"
+            "label": "jusqu’à 95 % de bénéfices en plus quand 5 % de clients en plus reviennent",
+            "source": "Bain & Company, F. Reichheld (de 25 à 95 %)"
           }
         }
       },
@@ -379,7 +337,6 @@
     "demo",
     "offres",
     "assortiments",
-    "finitions",
     "fidelite",
     "avis",
     "faq",

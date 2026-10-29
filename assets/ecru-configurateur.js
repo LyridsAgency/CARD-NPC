@@ -1122,6 +1122,69 @@
         });
     });
 
+    // ---------- Aperçu de la page de liens (dès deux liens) ----------
+    // Noms des boutons : même règle que la vraie page (fidelite/src/shopify.js, nommerLien)
+    var SITES = [
+      [/instagram\./, 'Instagram'],
+      [/(facebook|fb)\./, 'Facebook'],
+      [/tiktok\./, 'TikTok'],
+      [/(g\.page|google\.[a-z.]+\/maps|maps\.app\.goo\.gl|search\.google)/, 'Avis Google'],
+      [/(planity|treatwell|calendly|doctolib|booksy|thefork|lafourchette)\./, 'Prendre rendez-vous'],
+      [/(ubereats|deliveroo|just-eat|justeat)\./, 'Commander'],
+      [/linkedin\./, 'LinkedIn'],
+      [/(youtube|youtu\.be)/, 'YouTube'],
+    ];
+    function nommerLien(url) {
+      var u = String(url || '').toLowerCase();
+      var m = SITES.find(function (x) {
+        return x[0].test(u);
+      });
+      if (m) return m[1];
+      try {
+        return new URL(/^https?:/.test(u) ? u : 'https://' + u).hostname.replace(/^www\./, '');
+      } catch (e) {
+        return 'Mon lien';
+      }
+    }
+    var apercuLiens = form.querySelector('[data-ecru-liens-apercu]');
+    function majApercuLiens() {
+      if (!apercuLiens) return;
+      var urls = [].map
+        .call(form.querySelectorAll('[data-ecru-liens] input[type=url]:not([disabled])'), function (c) {
+          return c.value.trim();
+        })
+        .filter(Boolean);
+      apercuLiens.hidden = urls.length < 2;
+      if (urls.length < 2) return;
+      var ecran = apercuLiens.querySelector('[data-ecru-liens-ecran]');
+      var fond = teintes.page || '#0d0d0c';
+      var accent = teintes.tampons && teintes.tampons !== 'auto' && Math.abs(clarte(teintes.tampons) - clarte(fond)) > 55 ? teintes.tampons : null;
+      var encre = clarte(fond) > 150 ? '#121211' : '#e9e4d8';
+      var plein = accent || encre;
+      ecran.style.background = fond;
+      ecran.style.color = encre;
+      ecran.style.setProperty('--plein', plein);
+      ecran.style.setProperty('--sur-plein', clarte(plein) > 150 ? '#121211' : '#e9e4d8');
+      var texte = elements.find(function (e) {
+        return e.t === 'text' && e.v && e.v.trim();
+      });
+      apercuLiens.querySelector('[data-ecru-liens-nom]').textContent = texte ? texte.v : data.titre || 'Votre commerce';
+      var liste = apercuLiens.querySelector('[data-ecru-liens-liste]');
+      liste.textContent = '';
+      urls.forEach(function (u, i) {
+        var b = document.createElement('span');
+        b.className = 'ecru-liens-apercu__bouton' + (i === 0 ? ' is-plein' : '');
+        b.textContent = nommerLien(u);
+        liste.appendChild(b);
+      });
+    }
+    form.addEventListener('input', function (e) {
+      if (e.target.type === 'url') majApercuLiens();
+    });
+    form.addEventListener('click', function (e) {
+      if (e.target.closest('[data-cible="page"], [data-cible="tampons"]')) setTimeout(majApercuLiens, 0);
+    });
+
     // ---------- Liens supplémentaires (jusqu'à 4) ----------
     var ajoutLien = form.querySelector('[data-ecru-lien-ajout]');
     if (ajoutLien) {
@@ -1133,6 +1196,7 @@
         champ.disabled = false;
         champ.focus();
         if (!form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
+        majApercuLiens();
       });
     }
 
@@ -1307,6 +1371,7 @@
         if (bloc) bloc.hidden = false;
       });
       if (ajoutLien && !form.querySelector('[data-ecru-lien-sup][hidden]')) ajoutLien.hidden = true;
+      majApercuLiens();
       // Fidélité : l'abonnement en cours continue, il n'est pas ajouté au panier une seconde fois
       // Abonné : les cartes rejoignent son programme (rien à repayer), qu'elles l'aient eu ou non.
       // Il peut décocher : ce seront des cartes simples, avec leur lien.

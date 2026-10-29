@@ -156,3 +156,17 @@ test('le patron choisit la couleur de sa page depuis son espace', async () => {
   await reglages({ couleur: '#1f3a2e', accent: 'auto' });
   assert.match(await (await appel(`/c/${code}`)).text(), /\.tampons li\.plein\{background:#e9e4d8/);
 });
+
+test('page de liens : une carte à plusieurs liens ouvre la page du commerce, à ses couleurs', async () => {
+  const r = await enregistrer({ commerce: 'atelier-lea', nom: 'Atelier Léa', couleur: '#e9e4d8', actif: 0, lien_menu: 'https://lea.fr/menu', lien_avis: 'https://g.page/lea/review', lien_site: 'https://lea.fr' });
+  assert.match(await r.text(), /\/l\/atelier-lea/);
+  const page = await (await appel('/l/atelier-lea')).text();
+  assert.match(page, /Atelier Léa/);
+  assert.match(page, /href="https:\/\/lea\.fr\/menu"/);
+  assert.match(page, /href="https:\/\/g\.page\/lea\/review"/);
+  assert.match(page, /background:#e9e4d8;color:#121211/);
+  assert.doesNotMatch(page, /n’est plus actif/); // ouverte même sans abonnement fidélité
+  assert.equal((await appel('/l/inconnu')).status, 404);
+  await enregistrer({ commerce: 'sans-liens', nom: 'Sans liens', actif: 1 });
+  assert.equal((await appel('/l/sans-liens')).status, 404);
+});

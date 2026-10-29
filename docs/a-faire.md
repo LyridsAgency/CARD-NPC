@@ -68,3 +68,14 @@
     ce sont des cartes simples et le lien principal devient obligatoire. Avant fabrication, **vérifiez que son abonnement est toujours actif**, puis
     programmez les nouvelles cartes sur sa page de fidélité existante (`/admin` → son commerce → cartes).
     Le site ne propose « Déjà abonné » qu'à un client connecté dont une commande passée contient l'abonnement.
+
+## Cartes à plusieurs liens (sans fidélité)
+23. Une carte avec 2 liens ou plus ouvre la page **https://ecru-fidelite.ecru-fidelite.workers.dev/l/<commerce>**
+    (plus tard : carte.<votre-domaine>/l/<commerce>). Dans /admin → « Fiche du commerce » : nom, logo, couleur,
+    et ses liens dans l'ordre de la commande (le premier est mis en avant). Le nom des boutons se déduit de
+    l'adresse (Instagram, Avis Google, Prendre rendez-vous…). Programmez cette adresse sur ses cartes.
+
+## Page de connexion des clients (Shopify)
+24. Paramètres → Paiement → Personnaliser (« Checkout et comptes ») → Paramètres de marque : logo ECRU,
+    fond #0d0d0c, boutons #e9e4d8, coins arrondis, police Inter. Cela habille la connexion, le compte et le
+    paiement. Pour retirer « Continuer avec Shop » : Paramètres → Comptes clients (option Shop, si proposée).

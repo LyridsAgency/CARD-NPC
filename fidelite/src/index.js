@@ -4,7 +4,7 @@
 //   /admin             création des cartes (CSV d'adresses à encoder) et des liens de connexion commerçant
 import { aleatoire, hacher, egal, creerSession, lireSession, lireCookie } from './securite.js';
 import { lireCommerce } from './shopify.js';
-import { pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper, couleurValide, lireCouleurs, ecrireCouleurs } from './pages.js';
+import { pageLiens, pageClient, pagePro, pageTableau, pageSuspendue, pageInconnue, pageMessage, pageAdmin, pageConnexion, echapper, couleurValide, lireCouleurs, ecrireCouleurs } from './pages.js';
 
 const COOKIE = 'ecru_pro';
 const ANTI_DOUBLE = 8; // secondes : un double appui ne donne pas deux tampons
@@ -284,7 +284,9 @@ async function routesAdmin(env, requete, url) {
          lien_avis = excluded.lien_avis, lien_reseaux = excluded.lien_reseaux, lien_site = excluded.lien_site, modifie = excluded.modifie`
     ).bind(commerce, t('nom', 60) || commerce, f.get('actif') ? 1 : 0, couleur, t('logo', 500), t('accroche', 120), t('recompense', 80), seuil,
       t('lien_menu', 500), t('lien_avis', 500), t('lien_reseaux', 500), t('lien_site', 500), maintenantIso()).run();
-    return html(pageAdmin(`<p class="flash">Commerce « ${echapper(commerce)} » enregistré${f.get('actif') ? '' : ' (arrêté : ses cartes affichent le message de fin)'}.</p>`, await listeCommerces(env)));
+    // Adresse de la page de liens, à programmer sur les cartes à plusieurs liens (sans fidélité)
+    const pageL = `${(env.PUBLIC_URL || url.origin).replace(/\/$/, '')}/l/${commerce}`;
+    return html(pageAdmin(`<p class="flash">Commerce « ${echapper(commerce)} » enregistré${f.get('actif') ? '' : ' (arrêté : ses cartes affichent le message de fin)'}.</p><p class="doux">Cartes à plusieurs liens (sans fidélité) : programmez <b>${echapper(pageL)}</b></p>`, await listeCommerces(env)));
   }
 
   if (url.pathname === '/admin/cartes') {
@@ -325,6 +327,12 @@ export default {
     try {
       const m = url.pathname.match(/^\/c\/([a-z0-9]{6,32})\/?$/);
       if (m) return await scanCarte(env, requete, url, m[1]);
+      const l = url.pathname.match(/^\/l\/([a-z0-9-]{1,80})\/?$/);
+      if (l) {
+        const c = await lireCommerce(env, l[1]);
+        if (!c || !c.liens.length) return html(pageInconnue(), 404);
+        return html(pageLiens(c));
+      }
       if (url.pathname === '/pro' || url.pathname.startsWith('/pro/')) return await routesPro(env, requete, url);
       if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) return await routesAdmin(env, requete, url);
       if (url.pathname === '/') return rediriger(env.SITE_URL || 'https://ecru.fr');

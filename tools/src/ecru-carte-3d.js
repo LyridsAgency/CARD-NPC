@@ -274,7 +274,13 @@ function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = f
     metalness: 1,
     metalnessMap: tex.orm,
     bumpMap: tex.bump,
-    bumpScale: 1.4,
+    // Miroir (chrome, irisé) : surface lisse. Le grain du relief y ferait une trame de points (moiré)
+    bumpScale: chrome ? 0.12 : 1.4,
+    // La face est posée à un cheveu du corps : sans décalage, les téléphones (profondeur moins précise)
+    // hésitent entre les deux et la carte scintille (rayures, triangles de pixels)
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -4,
     clearcoat: chrome ? 1 : brushed ? 0.35 : metal ? 0.08 : 0.1,
     clearcoatRoughness: chrome ? 0.04 : brushed ? 0.3 : 0.5,
   });
@@ -475,8 +481,9 @@ export async function mount(el) {
   }
 
   const small = Math.min(window.innerWidth, window.innerHeight) < 820;
-  // Téléphones : moins de pixels, moins de mémoire graphique (un contexte perdu = carte figée)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, small ? 1.6 : 1.75));
+  // Netteté de l'écran jusqu'à 2 (au-delà, le gain ne se voit plus et la mémoire graphique explose) :
+  // en dessous, les bords de la carte se crénellent sur les écrans haute densité
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = SRGBColorSpace;
@@ -508,7 +515,8 @@ export async function mount(el) {
   rim2.position.set(7, -2, -6);
   scene.add(rim2);
 
-  const camera = new PerspectiveCamera(26, 1, 0.1, 200);
+  // Plan proche à 0,5 (la carte n'est jamais plus près) : bien plus de précision de profondeur
+  const camera = new PerspectiveCamera(26, 1, 0.5, 120);
   const ELEV = (8 * Math.PI) / 180;
 
   // ---- Carte

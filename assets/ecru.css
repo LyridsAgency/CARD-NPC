@@ -4874,3 +4874,150 @@ body::after {
 .ecru-fidelite-apercu .ecru-apercu__logo.a-logo {
   height: calc(14cqi * var(--fid-logo, 1));
 }
+
+/* ----- Aperçu de la page de liens (dès deux liens) -------------------------------- */
+.ecru-liens-apercu {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+.ecru-liens-apercu[hidden] {
+  display: none;
+}
+.ecru-liens-apercu .ecru-apercu__tel {
+  width: 15rem;
+  border-radius: 26px;
+  padding: 7px;
+}
+.ecru-liens-apercu__ecran {
+  border-radius: 20px;
+  align-items: center;
+  padding-top: 22%;
+  transition: background-color 0.4s var(--ecru-ease), color 0.4s var(--ecru-ease);
+}
+.ecru-liens-apercu__nom {
+  font-family: var(--font-heading-family);
+  font-size: 7cqi;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 4cqi;
+}
+.ecru-liens-apercu__liste {
+  display: flex;
+  flex-direction: column;
+  gap: 3cqi;
+  width: 100%;
+}
+.ecru-liens-apercu__bouton {
+  display: block;
+  padding: 4cqi 2cqi;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 99px;
+  font-size: 3.6cqi;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.ecru-liens-apercu__bouton.is-plein {
+  background: var(--plein);
+  border-color: var(--plein);
+  color: var(--sur-plein);
+}
+@media (max-width: 749px) {
+  .ecru-liens-apercu {
+    grid-template-columns: 12rem 1fr;
+    gap: 1.4rem;
+  }
+  .ecru-liens-apercu .ecru-apercu__tel {
+    width: 12rem;
+  }
+}
+
+/* ----- Accueil : essayer la carte (PVC / métal, puis finitions) --------------------- */
+.ecru-essai {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  margin: 0 auto 2.8rem;
+}
+.ecru-essai__rang {
+  display: inline-flex;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 99px;
+}
+.ecru-essai__rang[hidden] {
+  display: none;
+}
+.ecru-essai__choix {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.8rem;
+  padding: 0 1.8rem;
+  border-radius: 99px;
+  font-size: 1.2rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+  cursor: pointer;
+  transition: background-color 0.35s var(--ecru-ease), color 0.35s var(--ecru-ease);
+}
+.ecru-essai__choix:hover {
+  color: var(--ecru-text);
+}
+.ecru-essai__choix[aria-pressed='true'] {
+  background: var(--ecru-text);
+  color: #121211;
+}
+.ecru-essai__choix:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 3px;
+}
+.ecru-essai__finitions .ecru-essai__choix::before {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  background: radial-gradient(circle at 35% 30%, #8a8883, #3b3a37 70%);
+}
+.ecru-essai__choix--chrome::before {
+  background: var(--ecru-chrome) !important;
+}
+.ecru-essai__choix--irise::before {
+  background: conic-gradient(from 200deg, #b9a7e6, #8fd3d0, #e8e3b3, #f1b8c8, #9ab8f0, #b9a7e6) !important;
+}
+/* Grand écran : les choix flottent à droite de la carte, toujours visibles avec elle */
+@media (min-width: 990px) {
+  .ecru-hero__scene .ecru-essai {
+    position: absolute;
+    z-index: 2;
+    right: var(--ecru-gutter);
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    justify-items: end;
+  }
+  .ecru-hero__scene .ecru-essai__rang {
+    flex-direction: column;
+    border-radius: 2.4rem;
+    background: rgba(7, 7, 7, 0.6);
+  }
+  .ecru-hero__scene .ecru-essai__choix {
+    justify-content: flex-start;
+    min-width: 13rem;
+  }
+}
+@media (max-width: 989px) {
+  .ecru-hero__scene .ecru-essai {
+    position: relative;
+    z-index: 2;
+    margin: 0.8rem auto 0;
+  }
+}

@@ -144,6 +144,10 @@ details summary{cursor:pointer;list-style:none}
 .etapes{list-style:none;margin:0;padding:0}
 .etapes li{display:flex;gap:14px;align-items:baseline;padding:16px 0;border-bottom:1px solid ${t.ligne};color:${t.doux}}
 .etapes b{font:400 18px 'Archivo Black',sans-serif;color:${t.encre}}
+.tete-liens{margin-top:8vh;text-align:center;display:flex;flex-direction:column;align-items:center}
+.tete-liens h1{font-size:30px}
+.pile-liens{display:flex;flex-direction:column;gap:12px}
+.pile-liens .bouton{min-height:62px;letter-spacing:.08em}
 .pied{margin-top:auto;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:${t.doux}}
 .pied a{color:inherit}
 </style>
@@ -224,6 +228,20 @@ function listeCadeaux(points, cadeaux) {
 }
 
 // Le client scanne sa carte : il voit où il en est
+// Carte avec plusieurs liens (sans l'option fidélité) : une page à son nom qui les réunit,
+// à son logo et à ses couleurs. Elle reste ouverte même sans abonnement : les liens sont payés une fois.
+export function pageLiens(c) {
+  // Le premier lien est le principal : bouton plein, à la couleur des tampons du commerce
+  const liens = c.liens.map(([t, u], i) => `<a class="bouton${i === 0 ? ' plein' : ''}" href="${echapper(u)}" rel="noopener">${t}</a>`).join('');
+  return page({
+    titre: c.nom,
+    accent: c.couleur,
+    corps: `<header class="tete-liens">${enTete(c)}${c.accroche ? `<p class="doux" style="margin-top:12px">${echapper(c.accroche)}</p>` : ''}</header>
+    <nav class="pile-liens" aria-label="Liens de ${echapper(c.nom)}">${liens}</nav>
+    ${pied}`,
+  });
+}
+
 export function pageClient(c, carte, reglage) {
   const liens = c.liens.length ? `<nav class="liens">${c.liens.map(([t, u]) => `<a href="${echapper(u)}" rel="noopener">${t}</a>`).join('')}</nav>` : '';
   const tete = `<header>${enTete(c)}<p class="doux" style="margin-top:12px">${echapper(c.accroche || 'Bon retour parmi nous.')}</p></header>`;

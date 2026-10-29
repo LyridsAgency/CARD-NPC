@@ -24,6 +24,23 @@ const REQUETE = `query Commerce($h: MetaobjectHandleInput!) {
 function lien(u) {
   return /^https?:\/\//.test(u || '') ? u : null;
 }
+// Nom du bouton selon l'adresse (même règle que l'aperçu du site, assets/ecru-configurateur.js) ;
+// sinon le libellé du champ
+const SITES = [
+  [/instagram\./, 'Instagram'],
+  [/(facebook|fb)\./, 'Facebook'],
+  [/tiktok\./, 'TikTok'],
+  [/(g\.page|google\.[a-z.]+\/maps|maps\.app\.goo\.gl|search\.google)/, 'Avis Google'],
+  [/(planity|treatwell|calendly|doctolib|booksy|thefork|lafourchette)\./, 'Prendre rendez-vous'],
+  [/(ubereats|deliveroo|just-eat|justeat)\./, 'Commander'],
+  [/(linkedin)\./, 'LinkedIn'],
+  [/(youtube|youtu\.be)/, 'YouTube'],
+];
+export function nommerLien(url, defaut) {
+  const u = String(url || '').toLowerCase();
+  const m = SITES.find(([re]) => re.test(u));
+  return m ? m[1] : defaut;
+}
 export function normaliser(r) {
   if (!r) return null;
   return {
@@ -39,7 +56,9 @@ export function normaliser(r) {
       ['Laisser un avis', lien(r.lien_avis)],
       ['Nous suivre', lien(r.lien_reseaux)],
       ['Notre site', lien(r.lien_site)],
-    ].filter((l) => l[1]),
+    ]
+      .filter((l) => l[1])
+      .map(([t, u]) => [nommerLien(u, t), u]),
     logo: lien(r.logo) || '',
   };
 }
