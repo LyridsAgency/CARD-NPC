@@ -1137,6 +1137,22 @@
         });
     });
 
+    // ---------- Onglets du design : un réglage à la fois ----------
+    var onglets = form.querySelectorAll('[data-ecru-onglet-btn]');
+    function ouvrirOnglet(nom) {
+      onglets.forEach(function (b) {
+        b.setAttribute('aria-selected', b.dataset.ecruOngletBtn === nom ? 'true' : 'false');
+      });
+      form.querySelectorAll('[data-ecru-onglet]').forEach(function (o) {
+        o.hidden = o.dataset.ecruOnglet !== nom;
+      });
+    }
+    onglets.forEach(function (b) {
+      b.addEventListener('click', function () {
+        ouvrirOnglet(b.dataset.ecruOngletBtn);
+      });
+    });
+
     // ---------- Aperçu de la page de liens (dès deux liens) ----------
     // Noms des boutons : même règle que la vraie page (fidelite/src/shopify.js, nommerLien)
     var SITES = [
@@ -1190,6 +1206,11 @@
     function majApercuLiens() {
       if (!apercuLiens) return;
       var liens = liensSaisis();
+      // Un lien saisi, pas de fidélité : on la propose
+      var sugg = form.querySelector('[data-ecru-suggestion]');
+      if (sugg) sugg.hidden = !liens.length || avecFidelite();
+      var vers = form.querySelector('[data-ecru-suggestion-lien]');
+      if (vers && liens[0]) vers.href = '/products/cartes-sur-mesure?fidelite=1&lien=' + encodeURIComponent(liens[0].url);
       var urls = liens.map(function (l) {
         return l.url;
       });
@@ -1223,6 +1244,21 @@
       if (e.target.type === 'url' || 'ecruNomLien' in e.target.dataset) majApercuLiens();
     });
     if (caseFidelite) caseFidelite.addEventListener('change', majApercuLiens);
+    var boutonSugg = form.querySelector('[data-ecru-suggestion-fidelite]');
+    if (boutonSugg && caseFidelite)
+      boutonSugg.addEventListener('click', function () {
+        caseFidelite.checked = true;
+        caseFidelite.dispatchEvent(new Event('change', { bubbles: true }));
+        caseFidelite.closest('.ecru-option--fidelite').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
+    // Arrivée depuis les cartes simples : le lien déjà saisi est repris
+    var lienRecu = new URLSearchParams(window.location.search).get('lien');
+    var champLienPrincipal = form.querySelector('[name="properties[Lien]"]');
+    if (lienRecu && champLienPrincipal && /^https?:\/\//.test(lienRecu) && !champLienPrincipal.value) {
+      champLienPrincipal.value = lienRecu;
+      majApercuLiens();
+      majTotal();
+    }
     form.addEventListener('click', function (e) {
       if (e.target.closest('[data-cible="page"], [data-cible="tampons"]')) setTimeout(majApercuLiens, 0);
     });

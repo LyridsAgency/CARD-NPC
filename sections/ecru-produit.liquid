@@ -253,32 +253,14 @@
                     <div class="ecru-editeur__guide ecru-editeur__guide--v" aria-hidden="true"></div>
                     <div class="ecru-editeur__guide ecru-editeur__guide--h" aria-hidden="true"></div>
                   </div>
-                  <p class="ecru-champ__aide">Partez d'un modèle, puis touchez un texte sur la carte pour le modifier et glissez-le où vous voulez.</p>
-
-                  <div class="ecru-createur__ligne ecru-createur__ligne--modeles">
-                    <span class="ecru-createur__label">Modèles</span>
-                    <div class="ecru-modeles" role="group" aria-label="Modèles prêts à personnaliser">
-                      {%- for m in modeles -%}
-                        {%- assign mm = m | split: ':' -%}
-                        <button type="button" class="ecru-modele" data-ecru-modele="{{ mm[0] }}" aria-pressed="false" title="{{ mm[1] }}">
-                          <img src="{{ 'ecru-modele-' | append: mm[0] | append: '.webp' | asset_url }}" alt="" width="160" height="120" loading="lazy" decoding="async">
-                          <span class="visually-hidden">Modèle {{ mm[1] }}</span>
-                        </button>
-                      {%- endfor -%}
-                    </div>
+                  <p class="ecru-champ__aide">Touchez un texte sur la carte pour le modifier, glissez-le où vous voulez.</p>
+                  {%- comment -%} Un onglet à la fois : moins de choses à l'écran {%- endcomment -%}
+                  <div class="ecru-onglets" role="tablist" aria-label="Réglages du design">
+                    <button type="button" class="ecru-onglets__btn" role="tab" aria-selected="true" data-ecru-onglet-btn="texte">Texte et logo</button>
+                    <button type="button" class="ecru-onglets__btn" role="tab" aria-selected="false" data-ecru-onglet-btn="couleurs">Couleurs</button>
+                    <button type="button" class="ecru-onglets__btn" role="tab" aria-selected="false" data-ecru-onglet-btn="modeles">Modèles</button>
                   </div>
-                  <div class="ecru-createur__ligne">
-                    <span class="ecru-createur__label">Couleur</span>
-                    {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
-                  </div>
-                  <div class="ecru-createur__ligne">
-                    <span class="ecru-createur__label">Marquage</span>
-                    {%- render 'ecru-palette', cible: 'relief', teintes: palette_marquage, libre: '#c2a165', label: 'Couleur du nom et du logo' -%}
-                  </div>
-                  <div class="ecru-createur__ligne">
-                    <span class="ecru-createur__label">Fenêtre</span>
-                    {%- render 'ecru-palette', cible: 'fenetre', teintes: palette_fenetre, libre: '#3a3936', label: 'Couleur de la fenêtre NFC' -%}
-                  </div>
+                  <div class="ecru-onglet" role="tabpanel" data-ecru-onglet="texte">
                   <div class="ecru-createur__ligne">
                     <label class="ecru-createur__label" for="{{ uid }}-nom">Texte</label>
                     <input id="{{ uid }}-nom" class="ecru-createur__nom" type="text" maxlength="32" value="Votre marque" placeholder="Votre marque" autocomplete="off" data-ecru-nom>
@@ -313,6 +295,36 @@
                   <div class="ecru-createur__ligne" data-ecru-reglages hidden>
                     <label class="ecru-createur__label" for="{{ uid }}-taille">Taille</label>
                     <input id="{{ uid }}-taille" class="ecru-createur__taille" type="range" min="4" max="40" step="1" value="12" data-ecru-el-taille>
+                  </div>
+
+                  </div>
+                  <div class="ecru-onglet" role="tabpanel" data-ecru-onglet="couleurs" hidden>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Couleur</span>
+                    {%- render 'ecru-palette', cible: 'fond', teintes: palette, libre: '#1b2440', label: 'Couleur de la carte' -%}
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Marquage</span>
+                    {%- render 'ecru-palette', cible: 'relief', teintes: palette_marquage, libre: '#c2a165', label: 'Couleur du nom et du logo' -%}
+                  </div>
+                  <div class="ecru-createur__ligne">
+                    <span class="ecru-createur__label">Fenêtre</span>
+                    {%- render 'ecru-palette', cible: 'fenetre', teintes: palette_fenetre, libre: '#3a3936', label: 'Couleur de la fenêtre NFC' -%}
+                  </div>
+                  </div>
+                  <div class="ecru-onglet" role="tabpanel" data-ecru-onglet="modeles" hidden>
+                  <div class="ecru-createur__ligne ecru-createur__ligne--modeles">
+                    <span class="ecru-createur__label">Modèles</span>
+                    <div class="ecru-modeles" role="group" aria-label="Modèles prêts à personnaliser">
+                      {%- for m in modeles -%}
+                        {%- assign mm = m | split: ':' -%}
+                        <button type="button" class="ecru-modele" data-ecru-modele="{{ mm[0] }}" aria-pressed="false" title="{{ mm[1] }}">
+                          <img src="{{ 'ecru-modele-' | append: mm[0] | append: '.webp' | asset_url }}" alt="" width="160" height="120" loading="lazy" decoding="async">
+                          <span class="visually-hidden">Modèle {{ mm[1] }}</span>
+                        </button>
+                      {%- endfor -%}
+                    </div>
+                  </div>
                   </div>
 
                   <input type="hidden" name="properties[Design]" value="" data-ecru-design>
@@ -358,6 +370,16 @@
               {%- if option_lien != blank -%}+ {{ option_lien.price | money_without_currency | replace: '.', ' ' | append: ' €' }} par carte et par lien. {% endif -%}
               Un lien : la carte l’ouvre directement. Plusieurs, ou avec l’option fidélité : vos liens deviennent des boutons sur votre page, avec le nom que vous leur donnez. Sans lien, la puce n’est pas programmée.
             </p>
+            {%- comment -%} Dès qu'un lien est saisi : proposer la fidélité (sur mesure) {%- endcomment -%}
+            <div class="ecru-suggestion" data-ecru-suggestion hidden>
+              {%- if est_sur_mesure -%}
+                <p><strong>Ajoutez la fidélité à ces liens.</strong> Vos clients cumulent des tampons, et vos liens s'affichent sous leur progression, avec vos noms de boutons.</p>
+                <button type="button" class="ecru-bouton ecru-bouton--ligne" data-ecru-suggestion-fidelite>Ajouter l’option fidélité</button>
+              {%- else -%}
+                <p><strong>Envie d'aller plus loin ?</strong> Le sur mesure ajoute votre logo, vos couleurs et l'option fidélité : vos liens s'affichent sous la progression de vos clients.</p>
+                <a class="ecru-bouton ecru-bouton--ligne" href="/products/cartes-sur-mesure?fidelite=1" data-ecru-suggestion-lien>Composer en sur mesure</a>
+              {%- endif -%}
+            </div>
             {%- comment -%} Aperçu de la page de liens (fidelite/src/pages.js, pageLiens), visible dès deux liens {%- endcomment -%}
             <div class="ecru-liens-apercu" data-ecru-liens-apercu hidden>
               <div class="ecru-apercu__tel" aria-hidden="true">

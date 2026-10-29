@@ -5035,3 +5035,80 @@ body::after {
 .ecru-apercu__liens {
   display: contents;
 }
+
+/* Téléphone : sections plus serrées (les marges d'ordinateur laissaient de grands vides) */
+@media (max-width: 749px) {
+  .ecru-section {
+    padding: calc(var(--pad-top, 96px) * 0.55) 0 calc(var(--pad-bottom, 96px) * 0.55);
+  }
+}
+
+/* ----- Design sur mesure : onglets (un réglage à la fois) -------------------------- */
+.ecru-onglets {
+  display: flex;
+  gap: 0.4rem;
+  margin: 1.6rem 0 0.4rem;
+  padding: 0.4rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 99px;
+}
+.ecru-onglets__btn {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  text-align: center;
+  min-height: 3.8rem;
+  line-height: 3.8rem;
+  border-radius: 99px;
+  font-size: 1.15rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ecru-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s var(--ecru-ease), color 0.3s var(--ecru-ease);
+}
+.ecru-onglets__btn[aria-selected='true'] {
+  background: var(--ecru-text);
+  color: #121211;
+}
+.ecru-onglets__btn:focus-visible {
+  outline: 1px solid var(--ecru-text);
+  outline-offset: 2px;
+}
+.ecru-onglet[hidden] {
+  display: none;
+}
+.ecru-suggestion {
+  margin-top: 1.6rem;
+  padding: 1.6rem 1.8rem;
+  border: 1px solid var(--ecru-border);
+  border-radius: 6px;
+  position: relative;
+}
+.ecru-suggestion::before {
+  content: '';
+  position: absolute;
+  inset: 12px auto 12px 0;
+  width: 2px;
+  background: var(--ecru-chrome);
+}
+.ecru-suggestion[hidden] {
+  display: none;
+}
+.ecru-suggestion p {
+  margin: 0 0 1.2rem;
+  font-size: 1.4rem;
+  line-height: 1.55;
+  color: var(--ecru-muted);
+}
+.ecru-suggestion strong {
+  color: var(--ecru-text);
+  font-weight: 500;
+}
+@media (max-width: 749px) {
+  .ecru-onglets__btn {
+    letter-spacing: 0.06em;
+    font-size: 1.1rem;
+  }
+}
