@@ -380,6 +380,11 @@
                 <a class="ecru-bouton ecru-bouton--ligne" href="/products/cartes-sur-mesure?fidelite=1" data-ecru-suggestion-lien>Composer en sur mesure</a>
               {%- endif -%}
             </div>
+            {%- comment -%} Avec la fidélité, les liens s'affichent sur la page des clients : accès direct à ses réglages {%- endcomment -%}
+            <div class="ecru-suggestion" data-ecru-liens-fid hidden>
+              <p><strong>Vos liens deviennent des boutons sur votre page fidélité.</strong> Choisissez maintenant son fond, la couleur des boutons et votre logo : l’aperçu du téléphone suit.</p>
+              <button type="button" class="ecru-bouton ecru-bouton--ligne" data-ecru-liens-fid-aller>Personnaliser ma page</button>
+            </div>
             {%- comment -%} Aperçu de la page de liens (fidelite/src/pages.js, pageLiens), visible dès deux liens {%- endcomment -%}
             <div class="ecru-liens-apercu" data-ecru-liens-apercu hidden>
               <div class="ecru-apercu__tel" aria-hidden="true">

@@ -1235,6 +1235,8 @@
         return l.url;
       });
       majLiensFidelite(liens);
+      var versFid = form.querySelector('[data-ecru-liens-fid]');
+      if (versFid) versFid.hidden = !liens.length || !avecFidelite();
       // Avec la fidélité, la carte ouvre la page de fidélité : les liens y sont (aperçu du téléphone fidélité)
       apercuLiens.hidden = urls.length < 2 || avecFidelite();
       apercuLiens.querySelectorAll('[data-ecru-liens-champ]').forEach(function (c) {
@@ -1280,6 +1282,12 @@
       if (e.target.dataset.ecruLibre === 'page' || e.target.dataset.ecruLibre === 'tampons') setTimeout(majApercuLiens, 0);
     });
     if (caseFidelite) caseFidelite.addEventListener('change', majApercuLiens);
+    var boutonFidAller = form.querySelector('[data-ecru-liens-fid-aller]');
+    if (boutonFidAller)
+      boutonFidAller.addEventListener('click', function () {
+        var reglages = form.querySelector('.ecru-fidelite-reglages');
+        if (reglages) reglages.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
     var boutonSugg = form.querySelector('[data-ecru-suggestion-fidelite]');
     if (boutonSugg && caseFidelite)
       boutonSugg.addEventListener('click', function () {
