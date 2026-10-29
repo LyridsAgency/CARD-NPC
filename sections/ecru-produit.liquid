@@ -388,7 +388,25 @@
                   <span class="ecru-liens-apercu__liste" data-ecru-liens-liste></span>
                 </div>
               </div>
-              <p class="ecru-champ__aide">Avec plusieurs liens, la carte ouvre cette page à votre nom : vos liens en grands boutons, le premier mis en avant.</p>
+              <div class="ecru-liens-apercu__reglages">
+                <p class="ecru-fidelite-reglages__titre">Votre page de liens</p>
+                <p class="ecru-champ__aide">Avec plusieurs liens, la carte ouvre cette page : réglez-la ici, l’aperçu suit.</p>
+                <div class="ecru-createur__ligne">
+                  <label class="ecru-createur__label" for="{{ uid }}-nom-page">Nom</label>
+                  <input id="{{ uid }}-nom-page" class="ecru-createur__nom" type="text" maxlength="40" placeholder="Votre commerce" data-ecru-liens-titre>
+                </div>
+                <div class="ecru-createur__ligne">
+                  <span class="ecru-createur__label">Fond</span>
+                  {%- render 'ecru-palette', cible: 'page', teintes: palette_page, libre: '#b5532f', label: 'Fond de votre page de liens' -%}
+                </div>
+                <div class="ecru-createur__ligne">
+                  <span class="ecru-createur__label">Bouton</span>
+                  {%- render 'ecru-palette', cible: 'tampons', teintes: palette_tampons, libre: '#c2a165', label: 'Couleur du premier bouton' -%}
+                </div>
+                <input type="hidden" name="properties[Page de liens · nom]" disabled data-ecru-liens-champ="nom">
+                <input type="hidden" name="properties[Page de liens · fond]" disabled data-ecru-liens-champ="fond">
+                <input type="hidden" name="properties[Page de liens · bouton]" disabled data-ecru-liens-champ="bouton">
+              </div>
             </div>
           </fieldset>
         {%- endif -%}
@@ -507,6 +525,7 @@
           {%- endif -%}
           {%- if moq_min > 0 -%}<li>Dès {{ moq_min }} cartes</li>{%- endif -%}
           <li>Sans application pour vos clients</li>
+          <li>Livraison 4,90 €, offerte dès 100 €</li>
         </ul>
       {%- endform -%}
 

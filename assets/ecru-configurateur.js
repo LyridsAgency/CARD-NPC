@@ -1137,6 +1137,26 @@
         });
     });
 
+    // ---------- Mobile : la carte ne reste collée en haut que pendant le design ----------
+    // (matière et design à l'écran) ; plus bas (liens, fidélité, achat), elle reprend sa place
+    var zonesDesign = form.querySelectorAll('.ecru-option--matiere, .ecru-option--design');
+    if (zonesDesign.length && 'IntersectionObserver' in window) {
+      var zonesVues = new Set();
+      var ioDesign = new IntersectionObserver(
+        function (entrees) {
+          entrees.forEach(function (e) {
+            if (e.isIntersecting) zonesVues.add(e.target);
+            else zonesVues.delete(e.target);
+          });
+          root.classList.toggle('is-dans-design', zonesVues.size > 0);
+        },
+        { rootMargin: '-55% 0px -40% 0px' }
+      );
+      zonesDesign.forEach(function (z) {
+        ioDesign.observe(z);
+      });
+    } else root.classList.add('is-dans-design');
+
     // ---------- Onglets du design : un réglage à la fois ----------
     var onglets = form.querySelectorAll('[data-ecru-onglet-btn]');
     function ouvrirOnglet(nom) {
@@ -1217,6 +1237,9 @@
       majLiensFidelite(liens);
       // Avec la fidélité, la carte ouvre la page de fidélité : les liens y sont (aperçu du téléphone fidélité)
       apercuLiens.hidden = urls.length < 2 || avecFidelite();
+      apercuLiens.querySelectorAll('[data-ecru-liens-champ]').forEach(function (c) {
+        c.disabled = apercuLiens.hidden;
+      });
       if (apercuLiens.hidden) return;
       var ecran = apercuLiens.querySelector('[data-ecru-liens-ecran]');
       var fond = teintes.page || '#0d0d0c';
@@ -1230,7 +1253,19 @@
       var texte = elements.find(function (e) {
         return e.t === 'text' && e.v && e.v.trim();
       });
-      apercuLiens.querySelector('[data-ecru-liens-nom]').textContent = texte ? texte.v : data.titre || 'Votre commerce';
+      var titrePage = apercuLiens.querySelector('[data-ecru-liens-titre]');
+      var nomPage = (titrePage && titrePage.value.trim()) || (texte ? texte.v : '') || 'Votre commerce';
+      if (titrePage && !titrePage.value) titrePage.placeholder = nomPage;
+      apercuLiens.querySelector('[data-ecru-liens-nom]').textContent = nomPage;
+      // Dans la commande : nom, fond et bouton de la page de liens
+      var nomCouleur = function (cible, v) {
+        if (v === 'auto') return 'Automatique';
+        var b = form.querySelector('[data-cible="' + cible + '"][data-teinte="' + v + '"]');
+        return (b ? b.title : 'Sur mesure') + ' · ' + v;
+      };
+      apercuLiens.querySelector('[data-ecru-liens-champ="nom"]').value = nomPage;
+      apercuLiens.querySelector('[data-ecru-liens-champ="fond"]').value = nomCouleur('page', fond);
+      apercuLiens.querySelector('[data-ecru-liens-champ="bouton"]').value = nomCouleur('tampons', teintes.tampons || 'auto');
       var liste = apercuLiens.querySelector('[data-ecru-liens-liste]');
       liste.textContent = '';
       urls.forEach(function (u, i) {
@@ -1241,7 +1276,8 @@
       });
     }
     form.addEventListener('input', function (e) {
-      if (e.target.type === 'url' || 'ecruNomLien' in e.target.dataset) majApercuLiens();
+      if (e.target.type === 'url' || 'ecruNomLien' in e.target.dataset || 'ecruLiensTitre' in e.target.dataset) majApercuLiens();
+      if (e.target.dataset.ecruLibre === 'page' || e.target.dataset.ecruLibre === 'tampons') setTimeout(majApercuLiens, 0);
     });
     if (caseFidelite) caseFidelite.addEventListener('change', majApercuLiens);
     var boutonSugg = form.querySelector('[data-ecru-suggestion-fidelite]');

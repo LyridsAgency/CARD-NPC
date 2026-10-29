@@ -257,11 +257,12 @@ function buildFace({ w, h, base, ink, seed, drawMask, drawEngrave, drawInlay, re
   return { map, orm: ormTex, bump: bumpTex };
 }
 
-function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = false) {
+function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = false, teinte = false) {
   [tex.map, tex.orm, tex.bump].forEach((t) => (t.anisotropy = anisotropy));
   return new MeshPhysicalMaterial({
     // Irisé : couche mince (oxyde de titane) dont la couleur change avec l'angle
-    iridescence: irise ? 1 : 0,
+    // Teinte de couleur : moins d'irisation et de vernis blanc, sinon la couleur disparaît sous les reflets
+    iridescence: irise ? (teinte ? 0.5 : 0.8) : 0,
     iridescenceIOR: 1.8,
     iridescenceThicknessRange: [180, 980],
     iridescenceThicknessMap: irise ? epaisseurIrisee() : null,
@@ -281,7 +282,7 @@ function faceMaterial(tex, anisotropy, metal, brushed, chrome = false, irise = f
     polygonOffset: true,
     polygonOffsetFactor: -2,
     polygonOffsetUnits: -4,
-    clearcoat: chrome ? 1 : brushed ? 0.35 : metal ? 0.08 : 0.1,
+    clearcoat: chrome ? (teinte ? 0.15 : 1) : brushed ? 0.35 : metal ? 0.08 : 0.1,
     clearcoatRoughness: chrome ? 0.04 : brushed ? 0.3 : 0.5,
   });
 }
@@ -673,6 +674,12 @@ export async function mount(el) {
     if (neutre) {
       // Métal sombre : anthracite (« gunmetal »), qui renvoie la lumière ; jamais un noir plat comme le PVC
       metalBase = cardColor.clone().lerp(new Color(dark ? '#77756f' : '#d2d1cd'), dark ? 0.6 : 0.55);
+    } else if (irise) {
+      // Irisé coloré : la teinte en profondeur (métal anodisé), les reflets arc-en-ciel glissent par-dessus
+      metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s * 1.1), Math.min(0.42, Math.max(hsl.l, 0.24)), SRGBColorSpace);
+    } else if (chrome) {
+      // Chrome coloré (PVD) : la couleur saturée reste lisible dans le miroir, sans virer au pastel
+      metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s), Math.min(0.55, Math.max(hsl.l, 0.34)), SRGBColorSpace);
     } else {
       metalBase = cardColor.clone().setHSL(hsl.h, Math.min(1, hsl.s * 0.85), Math.max(hsl.l, 0.4), SRGBColorSpace).lerp(new Color('#8d8b85'), 0.16);
     }
@@ -743,8 +750,8 @@ export async function mount(el) {
         drawElements(ctx, w, h, verso, images);
       },
     });
-    front.material = faceMaterial(frontTex, anisotropy, metal, brushed, chrome, irise);
-    back.material = faceMaterial(backTex, anisotropy, metal, brushed, chrome, irise);
+    front.material = faceMaterial(frontTex, anisotropy, metal, brushed, chrome, irise, !neutre);
+    back.material = faceMaterial(backTex, anisotropy, metal, brushed, chrome, irise, !neutre);
     // Tranche : métal poli plus clair, qui accroche la lumière
     const edge = cardColor.clone().lerp(new Color('#b5b2aa'), metal ? (dark ? 0.7 : 0.3) : 0.16);
     edgeMat.color.copy(edge);
@@ -752,7 +759,7 @@ export async function mount(el) {
     edgeMat.roughness = chrome ? 0.05 : brushed ? 0.2 : metal ? 0.18 : 0.42;
     // Tout métal reflète le studio lumineux (le métal se reconnaît à ses reflets) ; le PVC garde le studio doux
     scene.environment = metal ? preparerChrome() : envStudio;
-    scene.environmentIntensity = chrome ? 1.15 : metal ? 1.5 : 1.35;
+    scene.environmentIntensity = chrome ? (neutre ? 1.15 : 0.9) : metal ? 1.5 : 1.35;
     current = { color, ink, finish, elements, verso, inlay, fenetre };
   }
 

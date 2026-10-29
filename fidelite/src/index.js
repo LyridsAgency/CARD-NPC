@@ -282,7 +282,7 @@ async function routesAdmin(env, requete, url) {
     // Le fond vient du formulaire ; la couleur des tampons choisie par le commerçant est gardée
     const existant = await env.DB.prepare('SELECT couleur FROM commerces WHERE handle = ?').bind(commerce).first();
     const garde = existant ? lireCouleurs(existant.couleur) : {};
-    const couleur = ecrireCouleurs(couleurValide(t('couleur')) || '#0d0d0c', garde.accent, garde.taille);
+    const couleur = ecrireCouleurs(couleurValide(t('couleur')) || '#0d0d0c', couleurValide(t('accent')) || garde.accent, garde.taille);
     const seuil = Math.min(30, Math.max(3, parseInt(f.get('seuil'), 10) || 10));
     await env.DB.prepare(
       `INSERT INTO commerces (handle, nom, actif, couleur, logo, accroche, recompense, seuil, lien_menu, lien_avis, lien_reseaux, lien_site, modifie)

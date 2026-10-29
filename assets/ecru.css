@@ -3852,7 +3852,7 @@ body::after {
 
 /* Mobile : la carte reste en haut de l'écran pendant qu'on règle le design */
 @media (max-width: 989px) {
-  .ecru-produit.is-edition .ecru-produit__visuel {
+  .ecru-produit.is-edition.is-dans-design .ecru-produit__visuel {
     position: sticky;
     top: 0;
     z-index: 4;
@@ -5110,5 +5110,19 @@ body::after {
   .ecru-onglets__btn {
     letter-spacing: 0.06em;
     font-size: 1.1rem;
+  }
+}
+.ecru-liens-apercu {
+  align-items: start;
+}
+.ecru-liens-apercu__reglages .ecru-createur__ligne {
+  margin-top: 1.2rem;
+}
+@media (max-width: 749px) {
+  .ecru-liens-apercu {
+    grid-template-columns: 1fr;
+  }
+  .ecru-liens-apercu .ecru-apercu__tel {
+    margin: 0 auto;
   }
 }

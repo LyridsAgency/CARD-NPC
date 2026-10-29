@@ -89,3 +89,10 @@
     « Europe — tous les produits », cartes vendables sans stock déclaré. Vérifié : ajout au panier depuis la France OK.
     La livraison vers les États-Unis n'existe plus (elle dépendait de l'ancien entrepôt américain). À ajuster si besoin :
     Paramètres → Expédition et livraison.
+
+## Prix (décidés le 29/10)
+26. Cartes simples PVC 2,50 € · Sur mesure PVC 3,50 € / Métal 12,90 € (chromé et irisé au même prix tant
+    que le fournisseur ne les fabrique pas) · Option lien 0,20 € par carte et par lien · Fidélité 29 €/mois ·
+    Livraison suivie 4,90 €, offerte dès 100 €. Coût fournisseur métal : 2,05 $ (simple) / 2,80 $ (sur mesure).
+27. Commandes avec « Page de liens · nom / fond / bouton » : recopier dans /admin (Nom affiché, Couleur du fond,
+    Couleur du bouton) et les liens avec leurs noms de boutons.

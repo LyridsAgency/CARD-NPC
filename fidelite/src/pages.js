@@ -471,6 +471,8 @@ export function pageAdmin(resultat = '', commerces = []) {
       ${cle('t0')}${commerce('c0')}
       <div><label for="nom">Nom affiché</label><input id="nom" name="nom" maxlength="60" required></div>
       
+      <div><label for="couleur">Couleur du fond (#rrggbb)</label><input id="couleur" name="couleur" placeholder="#0d0d0c" pattern="#[0-9a-fA-F]{6}"></div>
+      <div><label for="accent">Couleur du bouton / des tampons (#rrggbb, facultatif)</label><input id="accent" name="accent" placeholder="#c2a165" pattern="#[0-9a-fA-F]{6}"></div>
       <div><label for="logo">Adresse du logo (image en ligne, facultatif)</label><input id="logo" name="logo" type="url"></div>
       <div><label for="accroche">Message d’accueil</label><input id="accroche" name="accroche" maxlength="120" placeholder="Bon retour parmi nous."></div>
       <div><label for="recompense">Récompense</label><input id="recompense" name="recompense" maxlength="80" placeholder="Le dessert offert"></div>
