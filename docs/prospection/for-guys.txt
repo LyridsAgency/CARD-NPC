@@ -4,7 +4,7 @@ Bonjour,
 
 Je crée ECRU : des cartes NFC pour les barbershops et les commerces de proximité. Vos clients vous notent très bien sur Planity, avec plusieurs centaines d’avis, et c’est justement ce qu’une carte peut prolonger. J’ai préparé une maquette à votre nom pour vous montrer ce que ça donnerait chez For Guys.
 
-[Image : for-guys-carte-et-page.jpg — à gauche la carte, à droite ce que voit votre client quand il l’approche de son téléphone]
+Maquette : https://cdn.shopify.com/s/files/1/0807/4300/6379/files/prospect-for-guys.jpg?v=1793294794
 
 Le principe est simple : le client approche la carte de son téléphone, sans application. Il voit où il en est dans votre programme, et il reprend rendez-vous en un geste. Vous, vous scannez la même carte avec votre téléphone pour valider son passage.
 
